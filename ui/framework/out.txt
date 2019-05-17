@@ -1,0 +1,1916 @@
+
+> @bentley/ui-framework@0.192.0-dev.7 test D:\imodeljs\master\imodeljs\ui\framework
+> mocha --opts ../mocha.opts "./lib/test/**/*.test.js"
+
+
+[0m[0m
+[0m  Backstage[0m
+[0m    <Backstage />[0m
+    [32m  √[0m[90m should render - isVisible[0m
+    [32m  √[0m[90m should render - !isVisible[0m
+    [32m  √[0m[90m renders correctly - isVisible[0m
+    [32m  √[0m[90m renders correctly - !isVisible[0m
+    [32m  √[0m[90m renders correctly with header[0m
+    [32m  √[0m[90m renders correctly with AccessToken[0m
+    [32m  √[0m[90m with child items[0m
+    [32m  √[0m[90m should show[0m
+    [32m  √[0m[90m should hide[0m
+    [32m  √[0m[90m should toggle[0m
+    [32m  √[0m[90m should show by updating isVisible prop[0m
+    [32m  √[0m[90m should close when clicking the overlay[0m
+
+[0m  Backstage[0m
+[0m    <CommandLaunchBackstageItem />[0m
+    [32m  √[0m[90m CommandLaunchBackstageItem should render & execute[0m
+    [32m  √[0m[90m CommandLaunchBackstageItem should render & execute with args[0m
+    [32m  √[0m[90m CommandLaunchBackstageItem should log error when no execute function provided[0m
+    [32m  √[0m[90m CommandLaunchBackstageItem renders correctly[0m
+
+[0m  Backstage[0m
+[0m    <FrontstageLaunchBackstageItem />[0m
+    [32m  √[0m[90m FrontstageLaunchBackstageItem should render & execute[0m
+    [32m  √[0m[90m FrontstageLaunchBackstageItem should log error when invalid frontstageId is provided[0m
+    [32m  √[0m[90m FrontstageLaunchBackstageItem renders correctly when inactive[0m
+    [32m  √[0m[90m FrontstageLaunchBackstageItem renders correctly when active[0m
+    [32m  √[0m[90m FrontstageLaunchBackstageItem updates on frontstage activation[0m
+    [32m  √[0m[90m FrontstageLaunchBackstageItem updates on property change[0m
+
+[0m  Backstage[0m
+[0m    <SeparatorBackstageItem />[0m
+    [32m  √[0m[90m SeparatorBackstageItem should render[0m
+    [32m  √[0m[90m SeparatorBackstageItem renders correctly[0m
+
+[0m  Backstage[0m
+[0m    <TaskLaunchBackstageItem />[0m
+    [32m  √[0m[90m TaskLaunchBackstageItem should render & execute[0m
+    [32m  √[0m[90m TaskLaunchBackstageItem should log error when invalid workflowId is provided[0m
+    [32m  √[0m[90m TaskLaunchBackstageItem should log error when invalid taskId is provided[0m
+    [32m  √[0m[90m TaskLaunchBackstageItem renders correctly when inactive[0m
+    [32m  √[0m[90m TaskLaunchBackstageItem renders correctly when active[0m
+    [32m  √[0m[90m TaskLaunchBackstageItem updates on property change[0m
+
+[0m  UserProfileBackstageItem[0m
+  [32m  √[0m[90m should render[0m
+  [32m  √[0m[90m should open SignOut modal frontstage on click[0m
+
+[0m  ConfigurableUiContent[0m
+  [32m  √[0m[90m ConfigurableUiContent should render[0m
+  [32m  √[0m[90m ConfigurableUiContent renders correctly[0m
+  [32m  √[0m[90m key presses should be handled[0m
+  [32m  √[0m[90m mouse moves should be handled[0m
+
+[0m  ConfigurableUiManager[0m
+  [32m  √[0m[90m findFrontstageDef passed no argument[0m
+  [32m  √[0m[90m addFrontstageProvider & findFrontstageDef[0m
+  [32m  √[0m[90m registerControl & createConfigurable using same classId[0m
+  [32m  √[0m[90m registerControl trying to register a classId already registered[0m
+  [32m  √[0m[90m unregisterControl removes a registered control[0m
+  [32m  √[0m[90m createConfigurable trying to create an unregistered control[0m
+  [32m  √[0m[90m loadContentGroup[0m
+  [32m  √[0m[90m loadContentGroups[0m
+  [32m  √[0m[90m loadContentLayout[0m
+  [32m  √[0m[90m loadContentLayouts[0m
+  [32m  √[0m[90m loadTasks[0m
+  [32m  √[0m[90m loadWorkflows[0m
+
+[0m  ContentControl[0m
+  [32m  √[0m[90m activated[0m
+  [32m  √[0m[90m deactivated[0m
+
+[0m  ContentGroup[0m
+  [32m  √[0m[90m ContentGroupManager.loadGroup should throw Error if ContentGroupProps does not have an id[0m
+  [32m  √[0m[90m ContentGroup.getContentControl should throw Error if content type is not Content or Viewport[0m
+
+[0m  ContentLayout[0m
+  [32m  √[0m[90m SingleContent should render[0m
+  [32m  √[0m[90m SingleContent renders correctly[0m
+  [32m  √[0m[90m TwoHalvesVertical should render[0m
+  [32m  √[0m[90m TwoHalvesVertical renders correctly[0m
+  [32m  √[0m[90m TwoHalvesHorizontal should render[0m
+  [32m  √[0m[90m TwoHalvesHorizontal renders correctly[0m
+  [32m  √[0m[90m FourQuadrantsVertical should render[0m
+  [32m  √[0m[90m FourQuadrantsVertical renders correctly[0m
+  [32m  √[0m[90m FourQuadrantsHorizontal should render[0m
+  [32m  √[0m[90m FourQuadrantsVertical renders correctly[0m
+  [32m  √[0m[90m ContentLayoutDiv mouse down and up[0m
+  [32m  √[0m[90m ContentWrapper mouse down[0m
+  [32m  √[0m[90m SplitPane onChanged[0m
+  [32m  √[0m[90m ContentLayoutManager.loadLayout should throw Error if ContentLayoutProps does not have an id[0m
+.... checkForAdditionalIds _eventIdAdded=false _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+..... clearing out timerId
+Firing onSyncUiEvent eventIds=activecontentchanged
+  [32m  √[0m[90m ContentLayoutDef.getUsedContentIndexes should return correct indexes[0m
+
+[0m  ContentViewManager[0m
+  [32m  √[0m[90m Content is 2d Sheet View[0m
+  [32m  √[0m[90m Content is 2d Drawing View[0m
+  [32m  √[0m[90m Content is 3d Spatial View[0m
+  [32m  √[0m[90m Content is 3d Ortho View View[0m
+  [32m  √[0m[90m Viewport is not set in Content[0m
+
+[0m  ViewportContentControl[0m
+  [32m  √[0m[90m Frontstage should support ViewportContentControl[0m
+  [32m  √[0m[90m ViewportContentControl should return proper navigation aid for class name[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+  [32m  √[0m[90m onViewClassFullNameChangedEvent should cause a NavigationAid change[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+
+[0m  CoreToolDefinitions[0m
+  [32m  √[0m[90m ToolWidget should render with Core Tool Definitions[0m
+  [32m  √[0m[90m ToolWidget should render correctly with Core Tool Definitions[0m
+
+[0m  ModalDialogManager[0m
+  [32m  √[0m[90m ModalDialogManager methods[0m
+  [32m  √[0m[90m ModalDialogRenderer component[0m
+  [32m  √[0m[90m ModalDialogRenderer component with two dialogs[0m
+
+[0m  ModelessDialogManager[0m
+  [32m  √[0m[90m ModelessDialogManager methods[0m
+  [32m  √[0m[90m ModelessDialogRenderer component[0m
+  [32m  √[0m[90m ModelessDialogRenderer component with two dialogs[0m
+  [32m  √[0m[90m ModelessDialogRenderer component with two dialogs closed in FIFO order[0m
+  [32m  √[0m[90m ModelessDialogRenderer component with two dialogs and bring forward[0m
+
+[0m  StandardMessageBox[0m
+  [32m  √[0m[90m OK button & NoSymbol[0m
+  [32m  √[0m[90m OK/Cancel buttons & Information[0m
+  [32m  √[0m[90m Yes/No buttons & Question[0m
+  [32m  √[0m[90m MediumAlert & Question[0m
+  [32m  √[0m[90m YesNoCancel & Critical[0m
+  [32m  √[0m[90m YesNoCancel & Warning[0m
+  [32m  √[0m[90m should close on Esc key[0m
+
+[0m  DragDropLayerManager[0m
+  [32m  √[0m[90m getType returns undefined when no type set[0m
+  [32m  √[0m[90m getActiveLayer returns undefined when no type set[0m
+  [32m  √[0m[90m DragDropLayerRenderer should render[0m
+
+[0m  ZoneTargets[0m
+[0m    DropTarget.Merge[0m
+    [32m  √[0m[90m should render[0m
+    [32m  √[0m[90m renders correctly[0m
+    [32m  √[0m[90m should call onTargetChanged[0m
+[0m    DropTarget.Back[0m
+    [32m  √[0m[90m should render[0m
+    [32m  √[0m[90m renders correctly[0m
+    [32m  √[0m[90m should call onTargetChanged[0m
+
+[0m  ElementTooltip[0m
+  [32m  √[0m[90m showTooltip & hideTooltip set isTooltipVisible appropriately[0m
+  [32m  √[0m[90m showTooltip should support HTMLElement[0m
+
+[0m  ValidationTextbox[0m
+  [32m  √[0m[90m should render correctly[0m
+  [32m  √[0m[90m should use onValueChanged function provided[0m
+  [32m  √[0m[90m should use default value check if none provided[0m
+  [32m  √[0m[90m should hide message when value is valid[0m
+  [32m  √[0m[90m should show message when value is invalid[0m
+  [32m  √[0m[90m should manage escape press[0m
+  [32m  √[0m[90m should manage enter press[0m
+
+[0m  Frontstage[0m
+  [32m  √[0m[90m should render[0m
+  [32m  √[0m[90m renders correctly[0m
+  [32m  √[0m[90m FrontstageProvider supplies valid Frontstage[0m
+  [32m  √[0m[90m FrontstageProvider supplies Frontstage to FrontstageComposer[0m[33m (50ms)[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+  [32m  √[0m[90m should change DOM parent of widget content[0m[33m (41ms)[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+  [32m  √[0m[90m should remount widget if widget control is not provided[0m[33m (43ms)[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+  [32m  √[0m[90m should remount widget if widget control did not handle state restoration[0m[33m (40ms)[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+  [32m  √[0m[90m should not remount widget if widget control handled state restoration[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+  [32m  √[0m[90m should load widget content when widget is loaded[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+
+[0m  FrontstageComposer[0m
+  [32m  √[0m[90m FrontstageComposer support of ModalFrontstage[0m
+  [32m  √[0m[90m should handle tab click[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+  [32m  √[0m[90m should update widget state when tab is opened[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+  [32m  √[0m[90m should not update state of unloaded widgets[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+  [32m  √[0m[90m should not update widget state if zone is not found[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+
+[0m  FrontstageDef[0m
+  [32m  √[0m[90m setActiveFrontstage should throw Error on invalid content layout[0m
+  [32m  √[0m[90m setActiveFrontstage should throw Error on invalid content group[0m
+
+[0m  FrontstageManager[0m
+  [32m  √[0m[90m findWidget should return undefined when no active frontstage[0m
+  [32m  √[0m[90m setActiveFrontstage should set active frontstage[0m
+  [32m  √[0m[90m setActiveFrontstage should log Error on invalid id[0m
+  [32m  √[0m[90m setWidgetState should find and set widget state[0m
+  [32m  √[0m[90m setWidgetState returns false on invalid id[0m
+  [32m  √[0m[90m findWidget returns undefined on invalid id[0m
+
+[0m  ModalFrontstage[0m
+  [32m  √[0m[90m openModalFrontstage, updateModalFrontstage & closeModalFrontstage[0m
+
+[0m  NestedFrontstage[0m
+  [32m  √[0m[90m activeNestedFrontstage should return undefined if none active[0m
+  [32m  √[0m[90m openNestedFrontstage & closeNestedFrontstage should open/close nested frontstages[0m
+
+[0m  VisibilityTree[0m
+[0m    #unit[0m
+[0m      <VisibilityTree />[0m
+      [32m  √[0m[90m should match snapshot[0m[31m (92ms)[0m
+      [32m  √[0m[90m renders nodes without checkboxes when they're not instance-based[0m[33m (45ms)[0m
+      [32m  √[0m[90m renders nodes as unchecked when they're not displayed[0m[33m (51ms)[0m
+      [32m  √[0m[90m renders nodes as checked when they're displayed[0m[33m (42ms)[0m
+      [32m  √[0m[90m re-renders nodes on `onVisibilityChange` callback[0m[31m (96ms)[0m
+      [32m  √[0m[90m calls visibility handler's `changeVisibility` on node checkbox state changes to 'checked'[0m[33m (66ms)[0m
+[0m      VisibilityHandler[0m
+[0m        constructor[0m
+        [32m  √[0m[90m should subscribe for viewport change events[0m
+[0m        dispose[0m
+        [32m  √[0m[90m should unsubscribe from viewport change events[0m
+[0m        getDisplayStatus[0m
+[0m          subject[0m
+          [32m  √[0m[90m return false when all models are not displayed[0m
+          [32m  √[0m[90m return true when at least one model is displayed[0m
+[0m          model[0m
+          [32m  √[0m[90m return true when displayed[0m
+          [32m  √[0m[90m returns false when not displayed[0m
+[0m          category[0m
+          [32m  √[0m[90m return disabled when model not displayed[0m
+          [32m  √[0m[90m return true when model displayed, category not displayed but per-model override says it's displayed[0m
+          [32m  √[0m[90m return true when model displayed, category displayed and there're no per-model overrides[0m
+          [32m  √[0m[90m return false when model displayed, category displayed but per-model override says it's not displayed[0m
+          [32m  √[0m[90m return false when model displayed, category not displayed and there're no per-model overrides[0m
+          [32m  √[0m[90m return false when category node is root[0m
+          [32m  √[0m[90m return false when category has no parent model and category is not displayed[0m
+          [32m  √[0m[90m return false when category's parent node is not an instance node and category is not displayed[0m
+[0m          element[0m
+          [32m  √[0m[90m returns disabled when model not displayed[0m
+          [32m  √[0m[90m returns false when model displayed, category displayed, but element is in never displayed list[0m
+          [32m  √[0m[90m returns true when model displayed and element is in always displayed list[0m
+          [32m  √[0m[90m returns true when model displayed, category displayed and element is in neither 'never' nor 'always' displayed[0m
+          [32m  √[0m[90m returns false when model displayed, category not displayed and element is in neither 'never' nor 'always' displayed[0m
+[0m        changeVisibility[0m
+[0m          subject[0m
+          [32m  √[0m[90m does nothing for non-spatial views[0m
+          [32m  √[0m[90m makes all subject models visible[0m
+          [32m  √[0m[90m makes all subject models hidden[0m
+[0m          model[0m
+          [32m  √[0m[90m does nothing for non-spatial views[0m
+          [32m  √[0m[90m makes model visible[0m
+          [32m  √[0m[90m makes model hidden[0m
+[0m          category[0m
+          [32m  √[0m[90m makes category visible through per-model override when it's not visible through category selector[0m
+          [32m  √[0m[90m makes category hidden through override when it's visible through category selector[0m
+          [32m  √[0m[90m removes category override when making visible and it's visible through category selector[0m
+          [32m  √[0m[90m removes category override when making hidden and it's hidden through category selector[0m
+          [32m  √[0m[90m makes category visible in selector when category has no parent model[0m
+          [32m  √[0m[90m makes category hidden in selector when category has no parent model[0m
+          [32m  √[0m[90m makes category hidden in selector when category's parent node is not an instance node[0m
+[0m          element[0m
+          [32m  √[0m[90m makes element visible by only removing from never displayed list when element's category is displayed[0m
+          [32m  √[0m[90m makes element visible by removing from never displayed list and adding to always displayed list when category is not displayed[0m
+          [32m  √[0m[90m makes element hidden by only removing from always displayed list when element's category is not displayed[0m
+          [32m  √[0m[90m makes element hidden by removing from always displayed list and adding to never displayed list when category is displayed[0m
+[0m        visibility change callback[0m
+        [32m  √[0m[90m calls the callback on `onAlwaysDrawnChanged` event[0m
+        [32m  √[0m[90m calls the callback on `onNeverDrawnChanged` event[0m
+        [32m  √[0m[90m calls the callback on `onViewedCategoriesChanged` event[0m
+        [32m  √[0m[90m calls the callback on `onViewedModelsChanged` event[0m
+        [32m  √[0m[90m calls the callback on `onViewedCategoriesPerModelChanged` event[0m
+[0m    #integration[0m
+    [32m  √[0m[90m shows correct hierarchy[0m[31m (233ms)[0m
+    [32m  √[0m[90m renders component with real data and no active viewport[0m[33m (70ms)[0m
+
+[0m  KeyboardShortcut[0m
+[0m    KeyboardShortcut[0m
+    [32m  √[0m[90m Providing no item or shortcuts should throw Error[0m
+    [32m  √[0m[90m Should provide and execute item[0m
+    [32m  √[0m[90m Registering with duplicate key should replace[0m
+    [32m  √[0m[90m KeyboardShortcut should support child shortcuts[0m
+    [32m  √[0m[90m Should support Alt, Ctrl and Shift keys[0m
+[0m    KeyboardShortcutManager[0m
+    [32m  √[0m[90m ConfigurableUiManager.loadKeyboardShortcuts should load shortcuts[0m
+    [32m  √[0m[90m processKey should invoke item[0m
+    [32m  √[0m[90m Should maintain cursor X & Y[0m
+    [32m  √[0m[90m setFocusToHome should make document.body active element[0m
+
+[0m  KeyboardShortcutMenu[0m
+  [32m  √[0m[90m Should render shortcuts and close on Escape[0m
+  [32m  √[0m[90m Should render shortcuts and execute item on click[0m
+
+[0m  AppNotificationManager[0m
+  [32m  √[0m[90m outputPromptByKey[0m
+  [32m  √[0m[90m outputPrompt[0m
+  [32m  √[0m[90m outputMessage[0m
+  [32m  √[0m[90m openMessageBox[0m
+  [32m  √[0m[90m setupActivityMessage[0m
+  [32m  √[0m[90m outputActivityMessage[0m
+  [32m  √[0m[90m endActivityMessage[0m
+  [32m  √[0m[90m ElementTooltip[0m
+
+[0m  InputFieldMessage[0m
+  [32m  √[0m[90m should render correctly[0m
+  [32m  √[0m[90m should unmount correctly[0m
+
+[0m  MessageManager[0m
+  [32m  √[0m[90m maxCachedMessages handled correctly[0m
+
+[0m  PointerMessage[0m
+  [32m  √[0m[90m should render correctly[0m
+  [32m  √[0m[90m should display the message[0m
+  [32m  √[0m[90m should hide the message[0m
+  [32m  √[0m[90m should display a warning message[0m
+  [32m  √[0m[90m should display an error message[0m
+  [32m  √[0m[90m should offset the message[0m
+  [32m  √[0m[90m should unmount correctly[0m
+
+[0m  CubeNavigationAid[0m
+[0m    <CubeNavigationAid />[0m
+    [32m  √[0m[90m should render[0m
+    [32m  √[0m[90m should exist[0m
+    [32m  √[0m[90m should change from top to front when arrow clicked[0m[31m (180ms)[0m
+    [32m  √[0m[90m should change from top to back when arrow clicked[0m[31m (163ms)[0m
+    [32m  √[0m[90m should change from top to left when arrow clicked[0m[31m (185ms)[0m
+    [32m  √[0m[90m should change from top to right when arrow clicked[0m[31m (188ms)[0m
+    [32m  √[0m[90m should highlight hovered cell[0m
+    [32m  √[0m[90m should click center cell[0m
+    [32m  √[0m[90m should click corner cell[0m[31m (167ms)[0m
+    [32m  √[0m[90m should switch from edge to top face[0m[31m (417ms)[0m
+    [32m  √[0m[90m should switch from edge to bottom face[0m[31m (427ms)[0m
+    [32m  √[0m[90m should drag cube[0m[33m (42ms)[0m
+[0m      onViewRotationChangeEvent[0m
+      [32m  √[0m[90m should update onViewRotationChangeEvent[0m
+      [32m  √[0m[90m should update onViewRotationChangeEvent with new rotation[0m
+[0m    <NavCubeFace />[0m
+    [32m  √[0m[90m should render[0m
+    [32m  √[0m[90m should exist[0m
+[0m      methods and callbacks[0m
+[0m        faceCellToPos[0m
+        [32m  √[0m[90m should be called when component is rendered[0m
+        [32m  √[0m[90m should return correct Point3d[0m
+[0m    <FaceCell />[0m
+    [32m  √[0m[90m should render[0m
+    [32m  √[0m[90m should exist[0m
+[0m      onFaceCellClick[0m
+      [32m  √[0m[90m should be called when cell is clicked[0m
+[0m      onFaceCellHoverChange[0m
+      [32m  √[0m[90m should be called when cell is hovered[0m
+      [32m  √[0m[90m should be called when cell is unhovered[0m
+      [32m  √[0m[90m should be called when cell is clicked[0m
+      [32m  √[0m[90m should be called when cell is unclicked[0m
+[0m    CubeNavigationAidControl[0m
+    [32m  √[0m[90m CubeNavigationAidControl creates CubeNavigationAid[0m
+
+[0m  DrawingNavigationAid[0m
+[0m    <DrawingNavigationAid />[0m
+    [32m  √[0m[90m should render[0m
+    [32m  √[0m[90m should exist[0m
+    [32m  √[0m[90m should not have unrotate button with spatial views[0m
+    [32m  √[0m[90m should have expected closed dimensions[0m
+    [32m  √[0m[90m should have expected default closed dimensions[0m
+    [32m  √[0m[90m should have expected opened dimensions[0m
+    [32m  √[0m[90m should have expected default opened dimensions[0m
+    [32m  √[0m[90m should change from closed to opened when clicked[0m[31m (121ms)[0m
+    [32m  √[0m[90m should change from closed to opened when view-window clicked[0m[31m (138ms)[0m
+    [32m  √[0m[90m should change from closed to opened when clicked with rotateMinimapWithView[0m[31m (153ms)[0m
+    [32m  √[0m[90m should change from opened to closed on Escape keypress[0m[31m (157ms)[0m
+    [32m  √[0m[90m should change from opened to closed on Escape keypress with rotateMinimapWithView[0m[31m (141ms)[0m
+    [32m  √[0m[90m should change from opened to closed on Esc keypress(Edge)[0m[31m (139ms)[0m
+    [32m  √[0m[90m should change from opened to closed onOutsideClick[0m[31m (186ms)[0m
+    [32m  √[0m[90m should update panning[0m
+    [32m  √[0m[90m should update panning with rotateMinimapWithView[0m
+    [32m  √[0m[90m should update moving[0m
+    [32m  √[0m[90m should update moving with rotateMinimapWithView[0m
+    [32m  √[0m[90m should update moving in collapsed mode[0m
+    [32m  √[0m[90m should update pan-move[0m[31m (107ms)[0m
+    [32m  √[0m[90m should update pan-move successively[0m[31m (101ms)[0m
+    [32m  √[0m[90m should mouse wheel out[0m
+    [32m  √[0m[90m should mouse wheel out with rotateMinimapWithView[0m
+    [32m  √[0m[90m should mouse wheel in[0m
+    [32m  √[0m[90m should mouse wheel in with rotateMinimapWithView[0m
+    [32m  √[0m[90m should zoom out with button[0m
+    [32m  √[0m[90m should zoom in with button[0m
+    [32m  √[0m[90m should toggle rotation mode with button[0m
+    [32m  √[0m[90m should toggle rotation mode with button with viewport[0m
+[0m      onViewRotationChangeEvent[0m
+      [32m  √[0m[90m should update onViewRotationChangeEvent[0m
+      [32m  √[0m[90m should update onViewRotationChangeEvent with rotateMinimapWithView[0m
+      [32m  √[0m[90m should update with rotation[0m
+      [32m  √[0m[90m should update with rotation in opened mode[0m
+      [32m  √[0m[90m should update rotation and reset on un-rotate[0m[31m (159ms)[0m
+      [32m  √[0m[90m should update rotation and reset on un-rotate with rotateMinimapWithView[0m[31m (138ms)[0m
+[0m    <DrawingNavigationCanvas />[0m
+    [32m  √[0m[90m should render[0m
+    [32m  √[0m[90m should update[0m
+    [32m  √[0m[90m should update from view to new view[0m
+    [32m  √[0m[90m should update origin[0m
+    [32m  √[0m[90m should update extents[0m
+    [32m  √[0m[90m should update zoom[0m
+    [32m  √[0m[90m should update rotation[0m
+[0m    DrawingNavigationAidControl[0m
+    [32m  √[0m[90m DrawingNavigationAidControl creates DrawingNavigationAid[0m
+
+[0m  SheetNavigationAid[0m
+[0m    <SheetNavigationAid />[0m
+    [32m  √[0m[90m should render[0m
+    [32m  √[0m[90m renders correctly[0m
+[0m    SheetNavigationAidControl[0m
+    [32m  √[0m[90m SheetNavigationAidControl creates SheetNavigationAid[0m
+
+[0m  SheetsModalFrontstage[0m
+[0m    SheetModalFrontstage[0m
+    [32m  √[0m[90m constructs correctly[0m
+    [32m  √[0m[90m contains readable content[0m
+    [32m  √[0m[90m contains app bar content[0m
+    [32m  √[0m[90m search box calls onValueChanged after 250ms delay[0m
+    [32m  √[0m[90m SheetCard onClick selects the card[0m
+[0m    CardContainer[0m
+    [32m  √[0m[90m renders correctly[0m
+[0m    SheetCard[0m
+    [32m  √[0m[90m handles card selection[0m
+    [32m  √[0m[90m handles mouse down and leave[0m
+
+[0m  StandardRotationNavigationAid[0m
+[0m    <StandardRotationNavigationAid />[0m
+    [32m  √[0m[90m should render[0m
+    [32m  √[0m[90m renders correctly[0m
+    [32m  √[0m[90m should expand on click and change on item click[0m
+
+[0m  SignIn[0m
+  [32m  √[0m[90m should render[0m
+
+[0m  SignOutModalFrontstage[0m
+  [32m  √[0m[90m should render[0m
+  [32m  √[0m[90m should call onSignOut handler[0m
+
+[0m  ListPicker[0m
+[0m    rendering[0m
+    [32m  √[0m[90m should render correctly[0m
+    [32m  √[0m[90m should mount & unmount correctly[0m
+[0m    isSpecialItem[0m
+    [32m  √[0m[90m should return true if item key is special[0m
+    [32m  √[0m[90m should return true if item type is special[0m
+    [32m  √[0m[90m should return false if item type is not special[0m
+[0m    ListPickerItem[0m
+    [32m  √[0m[90m should render correctly[0m
+    [32m  √[0m[90m should unmount correctly[0m
+[0m    ExpandableSection[0m
+    [32m  √[0m[90m should render correctly[0m
+    [32m  √[0m[90m should unmount correctly[0m
+    [32m  √[0m[90m should handle onClick[0m
+[0m    ListPickerBase[0m
+    [32m  √[0m[90m should render correctly[0m
+    [32m  √[0m[90m should minimize[0m
+    [32m  √[0m[90m should return true if expanded[0m
+    [32m  √[0m[90m should return false if not expanded[0m
+    [32m  √[0m[90m should return expanded content[0m
+    [32m  √[0m[90m simulate expanding via click[0m
+    [32m  √[0m[90m should unmount correctly[0m
+
+[0m  ModelSelector[0m
+[0m    Model[0m
+    [32m  √[0m[90m generates correct models' hierarchy[0m[33m (43ms)[0m
+[0m    Category[0m
+    [32m  √[0m[90m generates empty hierarchy when 'ViewType' ruleset variable is not set[0m
+.... checkForAdditionalIds _eventIdAdded=false _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+..... clearing out timerId
+Firing onSyncUiEvent eventIds=modalfrontstagechanged
+    [32m  √[0m[90m generates correct spatial categories' hierarchy[0m
+    [32m  √[0m[90m generates correct drawing categories' hierarchy[0m
+[0m    ModelSelectorWidget[0m
+    [32m  √[0m[90m should render[0m
+[0m    ModelSelectorWidgetControl[0m
+    [32m  √[0m[90m widgetDef and getWidgetControl[0m
+
+[0m  ViewSelector[0m
+  [32m  √[0m[90m should render correctly[0m
+  [32m  √[0m[90m should recognize spatial view[0m
+  [32m  √[0m[90m should recognize drawing view[0m
+  [32m  √[0m[90m should recognize sheet view[0m
+
+[0m  IconComponent[0m
+  [32m  √[0m[90m should render with ReactNode[0m
+  [32m  √[0m[90m should render correctly with ReactNode[0m
+
+[0m  Item[0m
+  [32m  √[0m[90m CommandItemDef with no commandId should get generated id[0m
+  [32m  √[0m[90m CommandItemDef that isn't visible should not render[0m
+  [32m  √[0m[90m CommandItemDef that is visible should render[0m
+  [32m  √[0m[90m CommandItemDef with getCommandArgs should call it on execute[0m
+  [32m  √[0m[90m ToolItemDef with no execute has no commandHandler[0m
+  [32m  √[0m[90m ToolItemDef with isPressed and isActive[0m
+
+[0m  ItemMap[0m
+  [32m  √[0m[90m addItem should add an item correctly[0m
+
+[0m  StagePanel[0m
+  [32m  √[0m[90m should render[0m
+  [32m  √[0m[90m renders correctly[0m
+  [32m  √[0m[90m Panels should render in a Frontstage[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+
+[0m  StagePanelDef[0m
+  [32m  √[0m[90m Defaults, widgetDefs & widgetCount[0m
+  [32m  √[0m[90m applicationData[0m
+
+[0m  ActivityCenter[0m
+  [32m  √[0m[90m Status Bar with ActivityCenterField should mount[0m
+  [32m  √[0m[90m MessageManager.onActivityMessageUpdatedEvent should be handled[0m
+  [32m  √[0m[90m MessageManager.onActivityMessageCancelledEvent should be handled[0m
+  [32m  √[0m[90m click should be handled[0m
+
+[0m  MessageCenter[0m
+  [32m  √[0m[90m Message Center should support all message types[0m
+  [32m  √[0m[90m Message Center should close[0m
+  [32m  √[0m[90m Message Center should change tabs[0m
+  [32m  √[0m[90m Message Center should close on outside click[0m
+  [32m  √[0m[90m Message Center should not close on outside click[0m
+
+[0m  PromptField[0m
+  [32m  √[0m[90m Status Bar with PromptField should mount[0m
+
+[0m  SelectionInfoField[0m
+  [32m  √[0m[90m SelectionInfoField should render with 0[0m
+  [32m  √[0m[90m SelectionInfoField should render with 1[0m
+  [32m  √[0m[90m SelectionInfoField should update after Redux action[0m
+
+[0m  SelectionScopeField[0m
+  [32m  √[0m[90m SelectionScopeField with default data[0m
+  [32m  √[0m[90m SelectionScopeField with multiple scopes[0m
+
+[0m  Test that requires Presentation[0m
+  [32m  √[0m[90m SelectionScopeField with specific scopes[0m
+
+[0m  SnapModeField[0m
+  [32m  √[0m[90m Status Bar with SnapModes Field should mount[0m[33m (40ms)[0m
+  [32m  √[0m[90m Validate multiple snaps mode[0m
+  [32m  √[0m[90m should close on outside click[0m
+  [32m  √[0m[90m should not close on outside click[0m
+
+[0m  BooleanSyncUiListener[0m
+  [32m  √[0m[90m BooleanSyncUiListener should mount - visible children[0m
+  [32m  √[0m[90m BooleanSyncUiListener should mount - default non-visible children[0m
+
+[0m  SyncUiEventDispatcher[0m
+  [32m  √[0m[90m test hasEventOfInterest[0m
+  [32m  √[0m[90m test immediate sync event[0m
+.... checkForAdditionalIds _eventIdAdded=false _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+..... clearing out timerId
+Firing onSyncUiEvent eventIds=event1
+handleSyncUiEvent1 event1
+test1 - just waited 100ms
+  [32m  √[0m[90m test timed sync event[0m[31m (108ms)[0m
+Adding eventIds=Event1,Event2
+Waiting (2ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+.... checkForAdditionalIds _eventIdAdded=false _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+..... clearing out timerId
+Firing onSyncUiEvent eventIds=event1,event2
+handleSyncUiEvent-2 event1,event2
+test2 - just waited 100ms
+  [32m  √[0m[90m test multiple event Id with a timed sync event[0m[31m (105ms)[0m
+Adding eventIds=Event1,Event2
+Waiting (2ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (1ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+.... checkForAdditionalIds _eventIdAdded=false _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+..... clearing out timerId
+Firing onSyncUiEvent eventIds=event1,event2,event3
+handleSyncUiEvent-3 event1,event2,event3
+test3 - just waited 100ms
+  [32m  √[0m[90m test multiple event Id with a multiple dispatches[0m[31m (114ms)[0m
+  [36m  - Test event handlers[0m
+
+[0m  ThemeManager[0m
+  [32m  √[0m[90m should render[0m
+  [32m  √[0m[90m should change the theme[0m
+  [32m  √[0m[90m should change the widget opacity[0m
+
+[0m  TileLoadingIndicator[0m
+  [32m  √[0m[90m should render correctly[0m
+  [32m  √[0m[90m should unmount correctly[0m
+
+[0m  AnalysisAnimationTimelineDataProvider[0m
+  [32m  √[0m[90m AnalysisAnimationTimelineDataProvider can provide timeline data[0m
+
+[0m  SolarTimelineDataProvider[0m
+  [32m  √[0m[90m SolarTimelineDataProvider can provide timeline data[0m
+
+[0m  ActionItemButton[0m
+  [32m  √[0m[90m should render[0m
+  [32m  √[0m[90m renders correctly[0m
+  [32m  √[0m[90m hidden renders correctly[0m
+  [32m  √[0m[90m disabled renders correctly[0m
+  [32m  √[0m[90m should execute a function[0m
+  [32m  √[0m[90m should set focus to home on Esc[0m
+  [32m  √[0m[90m sync event should trigger stateFunc[0m
+  [32m  √[0m[90m should handle changing state via props[0m
+
+[0m  GroupItem[0m
+[0m    <GroupButton />[0m
+    [32m  √[0m[90m should render[0m
+    [32m  √[0m[90m renders correctly[0m
+    [32m  √[0m[90m sync event should trigger stateFunc[0m
+    [32m  √[0m[90m GroupButton opens[0m
+    [32m  √[0m[90m GroupButton opens & support history[0m
+    [32m  √[0m[90m should set focus to home on Esc[0m
+[0m    GroupItemDef[0m
+    [32m  √[0m[90m Supports CommandItemDef correctly[0m
+
+[0m  <PopupButton />[0m
+  [32m  √[0m[90m should render[0m
+  [32m  √[0m[90m should render with many props[0m
+  [32m  √[0m[90m should render with label func[0m
+  [32m  √[0m[90m should not render if isVisible is false[0m
+  [32m  √[0m[90m Fire click event to open popup[0m
+  [32m  √[0m[90m sync event should trigger stateFunc[0m
+
+[0m  ToolButton[0m
+  [32m  √[0m[90m should render[0m
+  [32m  √[0m[90m should render active & pressed[0m
+  [32m  √[0m[90m renders correctly[0m
+  [32m  √[0m[90m hidden renders correctly[0m
+  [32m  √[0m[90m disabled renders correctly[0m
+  [32m  √[0m[90m should execute a function[0m
+.... checkForAdditionalIds _eventIdAdded=false _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+..... clearing out timerId
+Firing onSyncUiEvent eventIds=toolactivated
+  [32m  √[0m[90m should execute a tool[0m
+  [32m  √[0m[90m should set focus to home on Esc[0m
+  [32m  √[0m[90m should use a label function[0m
+  [32m  √[0m[90m sync event should trigger stateFunc[0m
+
+[0m  UiFramework[0m
+  [32m  √[0m[90m store should throw Error without initialize[0m
+  [32m  √[0m[90m i18n should throw Error without initialize[0m
+  [32m  √[0m[90m i18nNamespace should return UiFramework[0m
+  [32m  √[0m[90m packageName should return ui-framework[0m
+  [32m  √[0m[90m translate should return the key (in test environment)[0m
+  [32m  √[0m[90m projectServices should throw Error without initialize[0m
+  [32m  √[0m[90m iModelServices should throw Error without initialize[0m
+  [32m  √[0m[90m projectServices & iModelServices should return defaults[0m
+  [32m  √[0m[90m test default frameworkState key[0m
+  [32m  √[0m[90m IsUiVisible[0m
+  [32m  √[0m[90m ColorTheme[0m
+  [32m  √[0m[90m test selection scope state data[0m
+  [32m  √[0m[90m WidgetOpacity[0m
+
+[0m  Requires Presentation[0m
+[0m    initialize and setActiveSelectionScope[0m
+    [32m  √[0m[90m creates manager instances[0m
+
+[0m  PropsHelper[0m
+  [32m  √[0m[90m Shallow Equals[0m
+  [32m  √[0m[90m Get Icon JSX[0m
+  [32m  √[0m[90m String spec[0m
+  [32m  √[0m[90m StringGetter spec[0m
+  [32m  √[0m[90m Explicit String spec - key ignored since explicit string specified[0m
+  [32m  √[0m[90m Use stringKey[0m
+
+[0m  UiShowHideManager[0m
+[0m    getters and setters[0m
+    [32m  √[0m[90m autoHideUi should return default of false[0m
+    [32m  √[0m[90m autoHideUi should set & return correct value[0m
+    [32m  √[0m[90m showHidePanels should return default of false[0m
+    [32m  √[0m[90m showHidePanels should set & return correct value[0m
+    [32m  √[0m[90m showHideFooter should return default of false[0m
+    [32m  √[0m[90m showHideFooter should set & return correct value[0m
+    [32m  √[0m[90m inactivityTime should return default[0m
+    [32m  √[0m[90m inactivityTime should set & return correct value[0m
+[0m    Frontstage Activate[0m
+    [32m  √[0m[90m activating Frontstage should show UI[0m
+[0m    Content Mouse Events[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+    [32m  √[0m[90m Mouse move in content view should show the UI then hide after inactivity[0m
+.... checkForAdditionalIds _eventIdAdded=false _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+..... clearing out timerId
+Firing onSyncUiEvent eventIds=contentlayoutactivated,frontstageactivating,frontstageready,activecontentchanged,contentcontrolactivated
+    [32m  √[0m[90m Mouse move in content view should do nothing if autoHideUi is off[0m
+[0m    Widget Mouse Events[0m
+    [32m  √[0m[90m Mouse enter in widget should show the UI[0m
+    [32m  √[0m[90m Mouse enter in widget should do nothing if autoHideUi is off[0m
+
+[0m  ViewUtilities[0m
+  [32m  √[0m[90m should get bis base class name[0m
+  [32m  √[0m[90m should recognize spatial view[0m
+  [32m  √[0m[90m should recognize drawing view[0m
+  [32m  √[0m[90m should recognize sheet view[0m
+  [32m  √[0m[90m is2d Sheet View[0m
+  [32m  √[0m[90m is2d Drawing View[0m
+  [32m  √[0m[90m is3d Spatial View[0m
+  [32m  √[0m[90m is3d Ortho View[0m
+
+[0m  NavigationWidget[0m
+  [32m  √[0m[90m NavigationWidgetDef from WidgetProps[0m
+  [32m  √[0m[90m NavigationWidget should render[0m
+  [32m  √[0m[90m NavigationWidget should render correctly[0m
+  [32m  √[0m[90m NavigationWidget should support update[0m
+  [32m  √[0m[90m NavigationWidgetDef with invalid navigation aid should throw Error[0m
+  [32m  √[0m[90m NavigationWidgetDef should handle updateNavigationAid[0m
+
+[0m  StackedWidget[0m
+  [32m  √[0m[90m Producing a StackedWidget[0m
+
+[0m  StatusBar[0m
+  [32m  √[0m[90m StatusBar should mount[0m
+  [32m  √[0m[90m StatusBar should render a Toast message[0m
+  [32m  √[0m[90m StatusBar should render a Sticky message[0m
+  [32m  √[0m[90m Sticky message should closed[0m
+  [32m  √[0m[90m StatusBar should render a Modal message[0m
+  [32m  √[0m[90m StatusBar should render an Activity message[0m
+  [32m  √[0m[90m Activity message should be canceled[0m
+  [32m  √[0m[90m Activity message should be dismissed[0m
+
+[0m  StatusBarWidgetControl[0m
+  [32m  √[0m[90m StatusBarWidgetControl should be instantiated[0m
+
+[0m  ToolWidget[0m
+  [32m  √[0m[90m ToolWidgetDef from WidgetProps[0m
+  [32m  √[0m[90m ToolWidget should render[0m
+  [32m  √[0m[90m ToolWidget should render correctly[0m
+  [32m  √[0m[90m ToolWidget should render with an item list[0m
+  [32m  √[0m[90m ToolWidget should support update[0m
+  [32m  √[0m[90m ToolWidget should tool activated[0m
+
+[0m  Widget[0m
+  [32m  √[0m[90m should render[0m
+
+[0m  WidgetControl[0m
+  [32m  √[0m[90m registerControl & widgetControl using same classId[0m
+  [32m  √[0m[90m setWidgetState[0m
+
+[0m  WidgetDef[0m
+  [32m  √[0m[90m optional properties[0m
+  [32m  √[0m[90m registerControl & widgetControl using same classId[0m
+  [32m  √[0m[90m labelKey and tooltipKey should return translated string[0m
+  [32m  √[0m[90m reactElement supports set and get[0m
+  [32m  √[0m[90m widgetControl using constructor classId[0m
+  [32m  √[0m[90m setWidgetState[0m
+  [32m  √[0m[90m setWidgetState using state function[0m
+  [32m  √[0m[90m getWidgetControl throws an Error when type is incorrect[0m
+
+[0m  WidgetFactory[0m
+  [32m  √[0m[90m appButton support[0m
+  [32m  √[0m[90m navigationAidId support[0m
+  [32m  √[0m[90m basic support[0m
+
+[0m  Task[0m
+  [32m  √[0m[90m Task should activate Frontstage[0m
+
+[0m  Workflow & WorkflowManager[0m
+[0m    Workflow[0m
+    [32m  √[0m[90m loadWorkflows & findWorkflow[0m
+    [32m  √[0m[90m getTask, lastActiveTask & activeTask[0m
+    [32m  √[0m[90m getSortedTasks[0m
+[0m    WorkflowManager[0m
+    [32m  √[0m[90m Default Workflow Id[0m
+    [32m  √[0m[90m setActiveWorkflowAndTask & isActive[0m
+    [32m  √[0m[90m Workflow & Task getters & setters should return correct values[0m
+    [32m  √[0m[90m getSortedWorkflows[0m
+
+[0m  Default ToolSettings[0m
+  [32m  √[0m[90m mock SelectTool[0m
+  [32m  √[0m[90m mock PlaceLineTool[0m
+
+[0m  DefaultToolUiSettingsProvider[0m
+  [32m  √[0m[90m starting a tool with undefined tool settings[0m
+  [32m  √[0m[90m starting a tool with tool settings[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+
+[0m  ToolSettingsZone[0m
+  [32m  √[0m[90m close button closes it & tab opens it[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+
+[0m  ToolUiManager[0m
+  [32m  √[0m[90m check initial values[0m
+  [32m  √[0m[90m simulate a tool starting[0m
+  [32m  √[0m[90m should handle no tool settings[0m
+  [32m  √[0m[90m should support setting active tool label[0m
+  [32m  √[0m[90m handleSyncToolSettingsPropertiesEvent[0m
+
+[0m  ToolUiProvider[0m
+  [32m  √[0m[90m starting a tool with tool settings[0m
+  [32m  √[0m[90m ToolInformation with invalid ToolUiProvider should throw Error[0m
+
+[0m  Zone[0m
+  [32m  √[0m[90m should render[0m
+  [32m  √[0m[90m renders correctly[0m
+
+[0m  ZoneDef[0m
+  [32m  √[0m[90m Defaults, widgetDefs & widgetCount[0m
+  [32m  √[0m[90m applicationData, allowsMerging, mergeWithZone[0m
+  [32m  √[0m[90m addWidgetDef, widgetDefs & getSingleWidgetDef[0m
+
+
+[92m [0m[32m 507 passing[0m[90m (14s)[0m
+[36m [0m[36m 1 pending[0m
+
+
+> @bentley/ui-framework@0.192.0-dev.7 test D:\imodeljs\master\imodeljs\ui\framework
+> mocha --opts ../mocha.opts "./lib/test/**/*.test.js"
+
+
+[0m[0m
+[0m  Backstage[0m
+[0m    <Backstage />[0m
+    [32m  √[0m[90m should render - isVisible[0m
+    [32m  √[0m[90m should render - !isVisible[0m
+    [32m  √[0m[90m renders correctly - isVisible[0m
+    [32m  √[0m[90m renders correctly - !isVisible[0m
+    [32m  √[0m[90m renders correctly with header[0m
+    [32m  √[0m[90m renders correctly with AccessToken[0m
+    [32m  √[0m[90m with child items[0m
+    [32m  √[0m[90m should show[0m
+    [32m  √[0m[90m should hide[0m
+    [32m  √[0m[90m should toggle[0m
+    [32m  √[0m[90m should show by updating isVisible prop[0m
+    [32m  √[0m[90m should close when clicking the overlay[0m
+
+[0m  Backstage[0m
+[0m    <CommandLaunchBackstageItem />[0m
+    [32m  √[0m[90m CommandLaunchBackstageItem should render & execute[0m
+    [32m  √[0m[90m CommandLaunchBackstageItem should render & execute with args[0m
+    [32m  √[0m[90m CommandLaunchBackstageItem should log error when no execute function provided[0m
+    [32m  √[0m[90m CommandLaunchBackstageItem renders correctly[0m
+
+[0m  Backstage[0m
+[0m    <FrontstageLaunchBackstageItem />[0m
+    [32m  √[0m[90m FrontstageLaunchBackstageItem should render & execute[0m
+    [32m  √[0m[90m FrontstageLaunchBackstageItem should log error when invalid frontstageId is provided[0m
+    [32m  √[0m[90m FrontstageLaunchBackstageItem renders correctly when inactive[0m
+    [32m  √[0m[90m FrontstageLaunchBackstageItem renders correctly when active[0m
+    [32m  √[0m[90m FrontstageLaunchBackstageItem updates on frontstage activation[0m
+    [32m  √[0m[90m FrontstageLaunchBackstageItem updates on property change[0m
+
+[0m  Backstage[0m
+[0m    <SeparatorBackstageItem />[0m
+    [32m  √[0m[90m SeparatorBackstageItem should render[0m
+    [32m  √[0m[90m SeparatorBackstageItem renders correctly[0m
+
+[0m  Backstage[0m
+[0m    <TaskLaunchBackstageItem />[0m
+    [32m  √[0m[90m TaskLaunchBackstageItem should render & execute[0m
+    [32m  √[0m[90m TaskLaunchBackstageItem should log error when invalid workflowId is provided[0m
+    [32m  √[0m[90m TaskLaunchBackstageItem should log error when invalid taskId is provided[0m
+    [32m  √[0m[90m TaskLaunchBackstageItem renders correctly when inactive[0m
+    [32m  √[0m[90m TaskLaunchBackstageItem renders correctly when active[0m
+    [32m  √[0m[90m TaskLaunchBackstageItem updates on property change[0m
+
+[0m  UserProfileBackstageItem[0m
+  [32m  √[0m[90m should render[0m
+  [32m  √[0m[90m should open SignOut modal frontstage on click[0m
+
+[0m  ConfigurableUiContent[0m
+  [32m  √[0m[90m ConfigurableUiContent should render[0m
+  [32m  √[0m[90m ConfigurableUiContent renders correctly[0m
+  [32m  √[0m[90m key presses should be handled[0m
+  [32m  √[0m[90m mouse moves should be handled[0m
+
+[0m  ConfigurableUiManager[0m
+  [32m  √[0m[90m findFrontstageDef passed no argument[0m
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+  [32m  √[0m[90m addFrontstageProvider & findFrontstageDef[0m
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+  [32m  √[0m[90m registerControl & createConfigurable using same classId[0m
+  [32m  √[0m[90m registerControl trying to register a classId already registered[0m
+  [32m  √[0m[90m unregisterControl removes a registered control[0m
+  [32m  √[0m[90m createConfigurable trying to create an unregistered control[0m
+  [32m  √[0m[90m loadContentGroup[0m
+  [32m  √[0m[90m loadContentGroups[0m
+  [32m  √[0m[90m loadContentLayout[0m
+  [32m  √[0m[90m loadContentLayouts[0m
+  [32m  √[0m[90m loadTasks[0m
+  [32m  √[0m[90m loadWorkflows[0m
+
+[0m  ContentControl[0m
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+  [32m  √[0m[90m activated[0m
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+  [32m  √[0m[90m deactivated[0m
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+
+[0m  ContentGroup[0m
+  [32m  √[0m[90m ContentGroupManager.loadGroup should throw Error if ContentGroupProps does not have an id[0m
+  [32m  √[0m[90m ContentGroup.getContentControl should throw Error if content type is not Content or Viewport[0m
+
+[0m  ContentLayout[0m
+  [32m  √[0m[90m SingleContent should render[0m
+  [32m  √[0m[90m SingleContent renders correctly[0m
+  [32m  √[0m[90m TwoHalvesVertical should render[0m
+  [32m  √[0m[90m TwoHalvesVertical renders correctly[0m
+  [32m  √[0m[90m TwoHalvesHorizontal should render[0m
+  [32m  √[0m[90m TwoHalvesHorizontal renders correctly[0m
+  [32m  √[0m[90m FourQuadrantsVertical should render[0m
+  [32m  √[0m[90m FourQuadrantsVertical renders correctly[0m
+  [32m  √[0m[90m FourQuadrantsHorizontal should render[0m
+  [32m  √[0m[90m FourQuadrantsVertical renders correctly[0m
+  [32m  √[0m[90m ContentLayoutDiv mouse down and up[0m
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+  [32m  √[0m[90m ContentWrapper mouse down[0m
+  [32m  √[0m[90m SplitPane onChanged[0m
+.... checkForAdditionalIds _eventIdAdded=false _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+..... clearing out timerId
+Firing onSyncUiEvent eventIds=activecontentchanged
+  [32m  √[0m[90m ContentLayoutManager.loadLayout should throw Error if ContentLayoutProps does not have an id[0m
+  [32m  √[0m[90m ContentLayoutDef.getUsedContentIndexes should return correct indexes[0m
+
+[0m  ContentViewManager[0m
+  [32m  √[0m[90m Content is 2d Sheet View[0m
+  [32m  √[0m[90m Content is 2d Drawing View[0m
+  [32m  √[0m[90m Content is 3d Spatial View[0m
+  [32m  √[0m[90m Content is 3d Ortho View View[0m
+  [32m  √[0m[90m Viewport is not set in Content[0m
+
+[0m  ViewportContentControl[0m
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+  [32m  √[0m[90m Frontstage should support ViewportContentControl[0m
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+  [32m  √[0m[90m ViewportContentControl should return proper navigation aid for class name[0m
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+[dispatchSyncUiEvent] Adding eventId=navigationaidactivated
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+[dispatchSyncUiEvent] Adding eventId=navigationaidactivated
+  [32m  √[0m[90m onViewClassFullNameChangedEvent should cause a NavigationAid change[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+
+[0m  CoreToolDefinitions[0m
+  [32m  √[0m[90m ToolWidget should render with Core Tool Definitions[0m
+  [32m  √[0m[90m ToolWidget should render correctly with Core Tool Definitions[0m
+
+[0m  ModalDialogManager[0m
+  [32m  √[0m[90m ModalDialogManager methods[0m
+  [32m  √[0m[90m ModalDialogRenderer component[0m
+  [32m  √[0m[90m ModalDialogRenderer component with two dialogs[0m
+
+[0m  ModelessDialogManager[0m
+  [32m  √[0m[90m ModelessDialogManager methods[0m
+  [32m  √[0m[90m ModelessDialogRenderer component[0m
+  [32m  √[0m[90m ModelessDialogRenderer component with two dialogs[0m
+  [32m  √[0m[90m ModelessDialogRenderer component with two dialogs closed in FIFO order[0m
+  [32m  √[0m[90m ModelessDialogRenderer component with two dialogs and bring forward[0m
+
+[0m  StandardMessageBox[0m
+  [32m  √[0m[90m OK button & NoSymbol[0m
+  [32m  √[0m[90m OK/Cancel buttons & Information[0m
+  [32m  √[0m[90m Yes/No buttons & Question[0m
+  [32m  √[0m[90m MediumAlert & Question[0m
+  [32m  √[0m[90m YesNoCancel & Critical[0m
+  [32m  √[0m[90m YesNoCancel & Warning[0m
+  [32m  √[0m[90m should close on Esc key[0m
+
+[0m  DragDropLayerManager[0m
+  [32m  √[0m[90m getType returns undefined when no type set[0m
+  [32m  √[0m[90m getActiveLayer returns undefined when no type set[0m
+  [32m  √[0m[90m DragDropLayerRenderer should render[0m
+
+[0m  ZoneTargets[0m
+[0m    DropTarget.Merge[0m
+    [32m  √[0m[90m should render[0m
+    [32m  √[0m[90m renders correctly[0m
+    [32m  √[0m[90m should call onTargetChanged[0m
+[0m    DropTarget.Back[0m
+    [32m  √[0m[90m should render[0m
+    [32m  √[0m[90m renders correctly[0m
+    [32m  √[0m[90m should call onTargetChanged[0m
+
+[0m  ElementTooltip[0m
+  [32m  √[0m[90m showTooltip & hideTooltip set isTooltipVisible appropriately[0m
+  [32m  √[0m[90m showTooltip should support HTMLElement[0m
+
+[0m  ValidationTextbox[0m
+  [32m  √[0m[90m should render correctly[0m
+  [32m  √[0m[90m should use onValueChanged function provided[0m
+  [32m  √[0m[90m should use default value check if none provided[0m
+  [32m  √[0m[90m should hide message when value is valid[0m
+  [32m  √[0m[90m should show message when value is invalid[0m
+  [32m  √[0m[90m should manage escape press[0m
+  [32m  √[0m[90m should manage enter press[0m
+
+[0m  Frontstage[0m
+  [32m  √[0m[90m should render[0m
+  [32m  √[0m[90m renders correctly[0m
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+[dispatchSyncUiEvent] Adding eventId=widgetstatechanged
+  [32m  √[0m[90m FrontstageProvider supplies valid Frontstage[0m
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+[dispatchSyncUiEvent] Adding eventId=widgetstatechanged
+[dispatchSyncUiEvent] Adding eventId=widgetstatechanged
+  [32m  √[0m[90m FrontstageProvider supplies Frontstage to FrontstageComposer[0m[33m (53ms)[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+  [32m  √[0m[90m should change DOM parent of widget content[0m[33m (38ms)[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+  [32m  √[0m[90m should remount widget if widget control is not provided[0m[33m (49ms)[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+  [32m  √[0m[90m should remount widget if widget control did not handle state restoration[0m[33m (38ms)[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+  [32m  √[0m[90m should not remount widget if widget control handled state restoration[0m[33m (39ms)[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+[dispatchSyncUiEvent] Adding eventId=widgetstatechanged
+  [32m  √[0m[90m should load widget content when widget is loaded[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+
+[0m  FrontstageComposer[0m
+[dispatchSyncUiEvent] Adding eventId=modalfrontstagechanged
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+[dispatchSyncUiEvent] Adding eventId=modalfrontstagechanged
+  [32m  √[0m[90m FrontstageComposer support of ModalFrontstage[0m
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+[dispatchSyncUiEvent] Adding eventId=widgetstatechanged
+  [32m  √[0m[90m should handle tab click[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+[dispatchSyncUiEvent] Adding eventId=widgetstatechanged
+[dispatchSyncUiEvent] Adding eventId=widgetstatechanged
+  [32m  √[0m[90m should update widget state when tab is opened[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+[dispatchSyncUiEvent] Adding eventId=widgetstatechanged
+[dispatchSyncUiEvent] Adding eventId=widgetstatechanged
+  [32m  √[0m[90m should not update state of unloaded widgets[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+  [32m  √[0m[90m should not update widget state if zone is not found[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+
+[0m  FrontstageDef[0m
+  [32m  √[0m[90m setActiveFrontstage should throw Error on invalid content layout[0m
+  [32m  √[0m[90m setActiveFrontstage should throw Error on invalid content group[0m
+
+[0m  FrontstageManager[0m
+  [32m  √[0m[90m findWidget should return undefined when no active frontstage[0m
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+  [32m  √[0m[90m setActiveFrontstage should set active frontstage[0m
+  [32m  √[0m[90m setActiveFrontstage should log Error on invalid id[0m
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+[dispatchSyncUiEvent] Adding eventId=widgetstatechanged
+  [32m  √[0m[90m setWidgetState should find and set widget state[0m
+  [32m  √[0m[90m setWidgetState returns false on invalid id[0m
+  [32m  √[0m[90m findWidget returns undefined on invalid id[0m
+
+[0m  ModalFrontstage[0m
+[dispatchSyncUiEvent] Adding eventId=modalfrontstagechanged
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+[dispatchSyncUiEvent] Adding eventId=modalfrontstagechanged
+[dispatchSyncUiEvent] Adding eventId=modalfrontstagechanged
+  [32m  √[0m[90m openModalFrontstage, updateModalFrontstage & closeModalFrontstage[0m
+
+[0m  NestedFrontstage[0m
+  [32m  √[0m[90m activeNestedFrontstage should return undefined if none active[0m
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+  [32m  √[0m[90m openNestedFrontstage & closeNestedFrontstage should open/close nested frontstages[0m
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+
+[0m  VisibilityTree[0m
+[0m    #unit[0m
+[0m      <VisibilityTree />[0m
+      [32m  √[0m[90m should match snapshot[0m[31m (87ms)[0m
+      [32m  √[0m[90m renders nodes without checkboxes when they're not instance-based[0m
+      [32m  √[0m[90m renders nodes as unchecked when they're not displayed[0m[33m (38ms)[0m
+      [32m  √[0m[90m renders nodes as checked when they're displayed[0m[33m (38ms)[0m
+      [32m  √[0m[90m re-renders nodes on `onVisibilityChange` callback[0m[31m (85ms)[0m
+      [32m  √[0m[90m calls visibility handler's `changeVisibility` on node checkbox state changes to 'checked'[0m[33m (62ms)[0m
+[0m      VisibilityHandler[0m
+[0m        constructor[0m
+        [32m  √[0m[90m should subscribe for viewport change events[0m
+[0m        dispose[0m
+        [32m  √[0m[90m should unsubscribe from viewport change events[0m
+[0m        getDisplayStatus[0m
+[0m          subject[0m
+          [32m  √[0m[90m return false when all models are not displayed[0m
+          [32m  √[0m[90m return true when at least one model is displayed[0m
+[0m          model[0m
+          [32m  √[0m[90m return true when displayed[0m
+          [32m  √[0m[90m returns false when not displayed[0m
+[0m          category[0m
+          [32m  √[0m[90m return disabled when model not displayed[0m
+          [32m  √[0m[90m return true when model displayed, category not displayed but per-model override says it's displayed[0m
+          [32m  √[0m[90m return true when model displayed, category displayed and there're no per-model overrides[0m
+          [32m  √[0m[90m return false when model displayed, category displayed but per-model override says it's not displayed[0m
+          [32m  √[0m[90m return false when model displayed, category not displayed and there're no per-model overrides[0m
+          [32m  √[0m[90m return false when category node is root[0m
+          [32m  √[0m[90m return false when category has no parent model and category is not displayed[0m
+          [32m  √[0m[90m return false when category's parent node is not an instance node and category is not displayed[0m
+[0m          element[0m
+          [32m  √[0m[90m returns disabled when model not displayed[0m
+          [32m  √[0m[90m returns false when model displayed, category displayed, but element is in never displayed list[0m
+          [32m  √[0m[90m returns true when model displayed and element is in always displayed list[0m
+          [32m  √[0m[90m returns true when model displayed, category displayed and element is in neither 'never' nor 'always' displayed[0m
+          [32m  √[0m[90m returns false when model displayed, category not displayed and element is in neither 'never' nor 'always' displayed[0m
+[0m        changeVisibility[0m
+[0m          subject[0m
+          [32m  √[0m[90m does nothing for non-spatial views[0m
+          [32m  √[0m[90m makes all subject models visible[0m
+          [32m  √[0m[90m makes all subject models hidden[0m
+[0m          model[0m
+          [32m  √[0m[90m does nothing for non-spatial views[0m
+          [32m  √[0m[90m makes model visible[0m
+          [32m  √[0m[90m makes model hidden[0m
+[0m          category[0m
+          [32m  √[0m[90m makes category visible through per-model override when it's not visible through category selector[0m
+          [32m  √[0m[90m makes category hidden through override when it's visible through category selector[0m
+          [32m  √[0m[90m removes category override when making visible and it's visible through category selector[0m
+          [32m  √[0m[90m removes category override when making hidden and it's hidden through category selector[0m
+          [32m  √[0m[90m makes category visible in selector when category has no parent model[0m
+          [32m  √[0m[90m makes category hidden in selector when category has no parent model[0m
+          [32m  √[0m[90m makes category hidden in selector when category's parent node is not an instance node[0m
+[0m          element[0m
+          [32m  √[0m[90m makes element visible by only removing from never displayed list when element's category is displayed[0m
+          [32m  √[0m[90m makes element visible by removing from never displayed list and adding to always displayed list when category is not displayed[0m
+          [32m  √[0m[90m makes element hidden by only removing from always displayed list when element's category is not displayed[0m
+          [32m  √[0m[90m makes element hidden by removing from always displayed list and adding to never displayed list when category is displayed[0m
+[0m        visibility change callback[0m
+        [32m  √[0m[90m calls the callback on `onAlwaysDrawnChanged` event[0m
+        [32m  √[0m[90m calls the callback on `onNeverDrawnChanged` event[0m
+        [32m  √[0m[90m calls the callback on `onViewedCategoriesChanged` event[0m
+        [32m  √[0m[90m calls the callback on `onViewedModelsChanged` event[0m
+        [32m  √[0m[90m calls the callback on `onViewedCategoriesPerModelChanged` event[0m
+[0m    #integration[0m
+    [32m  √[0m[90m shows correct hierarchy[0m[31m (223ms)[0m
+    [32m  √[0m[90m renders component with real data and no active viewport[0m[33m (74ms)[0m
+
+[0m  KeyboardShortcut[0m
+[0m    KeyboardShortcut[0m
+    [32m  √[0m[90m Providing no item or shortcuts should throw Error[0m
+    [32m  √[0m[90m Should provide and execute item[0m
+    [32m  √[0m[90m Registering with duplicate key should replace[0m
+    [32m  √[0m[90m KeyboardShortcut should support child shortcuts[0m
+    [32m  √[0m[90m Should support Alt, Ctrl and Shift keys[0m
+[0m    KeyboardShortcutManager[0m
+    [32m  √[0m[90m ConfigurableUiManager.loadKeyboardShortcuts should load shortcuts[0m
+    [32m  √[0m[90m processKey should invoke item[0m
+    [32m  √[0m[90m Should maintain cursor X & Y[0m
+    [32m  √[0m[90m setFocusToHome should make document.body active element[0m
+
+[0m  KeyboardShortcutMenu[0m
+  [32m  √[0m[90m Should render shortcuts and close on Escape[0m
+  [32m  √[0m[90m Should render shortcuts and execute item on click[0m
+
+[0m  AppNotificationManager[0m
+  [32m  √[0m[90m outputPromptByKey[0m
+  [32m  √[0m[90m outputPrompt[0m
+  [32m  √[0m[90m outputMessage[0m
+  [32m  √[0m[90m openMessageBox[0m
+  [32m  √[0m[90m setupActivityMessage[0m
+  [32m  √[0m[90m outputActivityMessage[0m
+  [32m  √[0m[90m endActivityMessage[0m
+  [32m  √[0m[90m ElementTooltip[0m
+
+[0m  InputFieldMessage[0m
+  [32m  √[0m[90m should render correctly[0m
+  [32m  √[0m[90m should unmount correctly[0m
+
+[0m  MessageManager[0m
+  [32m  √[0m[90m maxCachedMessages handled correctly[0m
+
+[0m  PointerMessage[0m
+  [32m  √[0m[90m should render correctly[0m
+  [32m  √[0m[90m should display the message[0m
+  [32m  √[0m[90m should hide the message[0m
+  [32m  √[0m[90m should display a warning message[0m
+  [32m  √[0m[90m should display an error message[0m
+  [32m  √[0m[90m should offset the message[0m
+  [32m  √[0m[90m should unmount correctly[0m
+
+[0m  CubeNavigationAid[0m
+[0m    <CubeNavigationAid />[0m
+    [32m  √[0m[90m should render[0m
+    [32m  √[0m[90m should exist[0m
+    [32m  √[0m[90m should change from top to front when arrow clicked[0m[31m (183ms)[0m
+    [32m  √[0m[90m should change from top to back when arrow clicked[0m[31m (180ms)[0m
+    [32m  √[0m[90m should change from top to left when arrow clicked[0m[31m (167ms)[0m
+    [32m  √[0m[90m should change from top to right when arrow clicked[0m[31m (186ms)[0m
+    [32m  √[0m[90m should highlight hovered cell[0m[33m (42ms)[0m
+    [32m  √[0m[90m should click center cell[0m
+    [32m  √[0m[90m should click corner cell[0m[31m (171ms)[0m
+    [32m  √[0m[90m should switch from edge to top face[0m[31m (399ms)[0m
+    [32m  √[0m[90m should switch from edge to bottom face[0m[31m (389ms)[0m
+    [32m  √[0m[90m should drag cube[0m[33m (49ms)[0m
+[0m      onViewRotationChangeEvent[0m
+      [32m  √[0m[90m should update onViewRotationChangeEvent[0m
+      [32m  √[0m[90m should update onViewRotationChangeEvent with new rotation[0m
+[0m    <NavCubeFace />[0m
+    [32m  √[0m[90m should render[0m
+    [32m  √[0m[90m should exist[0m
+[0m      methods and callbacks[0m
+[0m        faceCellToPos[0m
+        [32m  √[0m[90m should be called when component is rendered[0m
+        [32m  √[0m[90m should return correct Point3d[0m
+[0m    <FaceCell />[0m
+    [32m  √[0m[90m should render[0m
+    [32m  √[0m[90m should exist[0m
+[0m      onFaceCellClick[0m
+      [32m  √[0m[90m should be called when cell is clicked[0m
+[0m      onFaceCellHoverChange[0m
+      [32m  √[0m[90m should be called when cell is hovered[0m
+      [32m  √[0m[90m should be called when cell is unhovered[0m
+      [32m  √[0m[90m should be called when cell is clicked[0m
+      [32m  √[0m[90m should be called when cell is unclicked[0m
+[0m    CubeNavigationAidControl[0m
+    [32m  √[0m[90m CubeNavigationAidControl creates CubeNavigationAid[0m
+
+[0m  DrawingNavigationAid[0m
+[0m    <DrawingNavigationAid />[0m
+    [32m  √[0m[90m should render[0m
+    [32m  √[0m[90m should exist[0m
+    [32m  √[0m[90m should not have unrotate button with spatial views[0m
+    [32m  √[0m[90m should have expected closed dimensions[0m
+    [32m  √[0m[90m should have expected default closed dimensions[0m
+    [32m  √[0m[90m should have expected opened dimensions[0m
+    [32m  √[0m[90m should have expected default opened dimensions[0m
+    [32m  √[0m[90m should change from closed to opened when clicked[0m[31m (146ms)[0m
+    [32m  √[0m[90m should change from closed to opened when view-window clicked[0m[31m (178ms)[0m
+    [32m  √[0m[90m should change from closed to opened when clicked with rotateMinimapWithView[0m[31m (147ms)[0m
+    [32m  √[0m[90m should change from opened to closed on Escape keypress[0m[31m (157ms)[0m
+    [32m  √[0m[90m should change from opened to closed on Escape keypress with rotateMinimapWithView[0m[31m (166ms)[0m
+    [32m  √[0m[90m should change from opened to closed on Esc keypress(Edge)[0m[31m (163ms)[0m
+    [32m  √[0m[90m should change from opened to closed onOutsideClick[0m[31m (186ms)[0m
+    [32m  √[0m[90m should update panning[0m
+    [32m  √[0m[90m should update panning with rotateMinimapWithView[0m
+    [32m  √[0m[90m should update moving[0m
+    [32m  √[0m[90m should update moving with rotateMinimapWithView[0m
+    [32m  √[0m[90m should update moving in collapsed mode[0m
+    [32m  √[0m[90m should update pan-move[0m[31m (122ms)[0m
+    [32m  √[0m[90m should update pan-move successively[0m[31m (116ms)[0m
+    [32m  √[0m[90m should mouse wheel out[0m
+    [32m  √[0m[90m should mouse wheel out with rotateMinimapWithView[0m
+    [32m  √[0m[90m should mouse wheel in[0m
+    [32m  √[0m[90m should mouse wheel in with rotateMinimapWithView[0m
+    [32m  √[0m[90m should zoom out with button[0m
+    [32m  √[0m[90m should zoom in with button[0m
+    [32m  √[0m[90m should toggle rotation mode with button[0m
+    [32m  √[0m[90m should toggle rotation mode with button with viewport[0m
+[0m      onViewRotationChangeEvent[0m
+      [32m  √[0m[90m should update onViewRotationChangeEvent[0m
+      [32m  √[0m[90m should update onViewRotationChangeEvent with rotateMinimapWithView[0m
+      [32m  √[0m[90m should update with rotation[0m
+      [32m  √[0m[90m should update with rotation in opened mode[0m
+      [32m  √[0m[90m should update rotation and reset on un-rotate[0m[31m (144ms)[0m
+      [32m  √[0m[90m should update rotation and reset on un-rotate with rotateMinimapWithView[0m[31m (162ms)[0m
+[0m    <DrawingNavigationCanvas />[0m
+    [32m  √[0m[90m should render[0m
+    [32m  √[0m[90m should update[0m
+    [32m  √[0m[90m should update from view to new view[0m
+    [32m  √[0m[90m should update origin[0m
+    [32m  √[0m[90m should update extents[0m
+    [32m  √[0m[90m should update zoom[0m
+    [32m  √[0m[90m should update rotation[0m
+[0m    DrawingNavigationAidControl[0m
+    [32m  √[0m[90m DrawingNavigationAidControl creates DrawingNavigationAid[0m
+
+[0m  SheetNavigationAid[0m
+[0m    <SheetNavigationAid />[0m
+    [32m  √[0m[90m should render[0m
+    [32m  √[0m[90m renders correctly[0m
+[0m    SheetNavigationAidControl[0m
+    [32m  √[0m[90m SheetNavigationAidControl creates SheetNavigationAid[0m
+
+[0m  SheetsModalFrontstage[0m
+[0m    SheetModalFrontstage[0m
+    [32m  √[0m[90m constructs correctly[0m
+    [32m  √[0m[90m contains readable content[0m
+    [32m  √[0m[90m contains app bar content[0m
+    [32m  √[0m[90m search box calls onValueChanged after 250ms delay[0m
+[dispatchSyncUiEvent] Adding eventId=modalfrontstagechanged
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+    [32m  √[0m[90m SheetCard onClick selects the card[0m
+[0m    CardContainer[0m
+    [32m  √[0m[90m renders correctly[0m
+[0m    SheetCard[0m
+    [32m  √[0m[90m handles card selection[0m
+    [32m  √[0m[90m handles mouse down and leave[0m
+
+[0m  StandardRotationNavigationAid[0m
+[0m    <StandardRotationNavigationAid />[0m
+    [32m  √[0m[90m should render[0m
+    [32m  √[0m[90m renders correctly[0m
+    [32m  √[0m[90m should expand on click and change on item click[0m
+
+[0m  SignIn[0m
+  [32m  √[0m[90m should render[0m
+
+[0m  SignOutModalFrontstage[0m
+  [32m  √[0m[90m should render[0m
+[dispatchSyncUiEvent] Adding eventId=modalfrontstagechanged
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+  [32m  √[0m[90m should call onSignOut handler[0m
+
+[0m  ListPicker[0m
+[0m    rendering[0m
+    [32m  √[0m[90m should render correctly[0m
+    [32m  √[0m[90m should mount & unmount correctly[0m
+[0m    isSpecialItem[0m
+    [32m  √[0m[90m should return true if item key is special[0m
+    [32m  √[0m[90m should return true if item type is special[0m
+    [32m  √[0m[90m should return false if item type is not special[0m
+[0m    ListPickerItem[0m
+    [32m  √[0m[90m should render correctly[0m
+    [32m  √[0m[90m should unmount correctly[0m
+[0m    ExpandableSection[0m
+    [32m  √[0m[90m should render correctly[0m
+    [32m  √[0m[90m should unmount correctly[0m
+    [32m  √[0m[90m should handle onClick[0m
+[0m    ListPickerBase[0m
+    [32m  √[0m[90m should render correctly[0m
+    [32m  √[0m[90m should minimize[0m
+    [32m  √[0m[90m should return true if expanded[0m
+    [32m  √[0m[90m should return false if not expanded[0m
+    [32m  √[0m[90m should return expanded content[0m
+    [32m  √[0m[90m simulate expanding via click[0m
+    [32m  √[0m[90m should unmount correctly[0m
+
+[0m  ModelSelector[0m
+[0m    Model[0m
+    [32m  √[0m[90m generates correct models' hierarchy[0m
+[0m    Category[0m
+    [32m  √[0m[90m generates empty hierarchy when 'ViewType' ruleset variable is not set[0m
+    [32m  √[0m[90m generates correct spatial categories' hierarchy[0m
+[dispatchSyncUiEvent] Adding eventId=modalfrontstagechanged
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+.... checkForAdditionalIds _eventIdAdded=false _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+..... clearing out timerId
+Firing onSyncUiEvent eventIds=modalfrontstagechanged
+    [32m  √[0m[90m generates correct drawing categories' hierarchy[0m
+[0m    ModelSelectorWidget[0m
+    [32m  √[0m[90m should render[0m
+[0m    ModelSelectorWidgetControl[0m
+    [32m  √[0m[90m widgetDef and getWidgetControl[0m
+
+[0m  ViewSelector[0m
+  [32m  √[0m[90m should render correctly[0m
+  [32m  √[0m[90m should recognize spatial view[0m
+  [32m  √[0m[90m should recognize drawing view[0m
+  [32m  √[0m[90m should recognize sheet view[0m
+
+[0m  IconComponent[0m
+  [32m  √[0m[90m should render with ReactNode[0m
+  [32m  √[0m[90m should render correctly with ReactNode[0m
+
+[0m  Item[0m
+  [32m  √[0m[90m CommandItemDef with no commandId should get generated id[0m
+  [32m  √[0m[90m CommandItemDef that isn't visible should not render[0m
+  [32m  √[0m[90m CommandItemDef that is visible should render[0m
+  [32m  √[0m[90m CommandItemDef with getCommandArgs should call it on execute[0m
+  [32m  √[0m[90m ToolItemDef with no execute has no commandHandler[0m
+  [32m  √[0m[90m ToolItemDef with isPressed and isActive[0m
+
+[0m  ItemMap[0m
+  [32m  √[0m[90m addItem should add an item correctly[0m
+
+[0m  StagePanel[0m
+  [32m  √[0m[90m should render[0m
+  [32m  √[0m[90m renders correctly[0m
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+  [32m  √[0m[90m Panels should render in a Frontstage[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+
+[0m  StagePanelDef[0m
+  [32m  √[0m[90m Defaults, widgetDefs & widgetCount[0m
+  [32m  √[0m[90m applicationData[0m
+
+[0m  ActivityCenter[0m
+  [32m  √[0m[90m Status Bar with ActivityCenterField should mount[0m
+  [32m  √[0m[90m MessageManager.onActivityMessageUpdatedEvent should be handled[0m
+  [32m  √[0m[90m MessageManager.onActivityMessageCancelledEvent should be handled[0m
+  [32m  √[0m[90m click should be handled[0m
+
+[0m  MessageCenter[0m
+  [32m  √[0m[90m Message Center should support all message types[0m
+  [32m  √[0m[90m Message Center should close[0m
+  [32m  √[0m[90m Message Center should change tabs[0m
+  [32m  √[0m[90m Message Center should close on outside click[0m
+  [32m  √[0m[90m Message Center should not close on outside click[0m
+
+[0m  PromptField[0m
+  [32m  √[0m[90m Status Bar with PromptField should mount[0m
+
+[0m  SelectionInfoField[0m
+  [32m  √[0m[90m SelectionInfoField should render with 0[0m
+  [32m  √[0m[90m SelectionInfoField should render with 1[0m
+[dispatchSyncUiEvent] Adding eventId=sessionstate:set-num-items-selected
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+  [32m  √[0m[90m SelectionInfoField should update after Redux action[0m
+
+[0m  SelectionScopeField[0m
+  [32m  √[0m[90m SelectionScopeField with default data[0m
+[dispatchSyncUiEvent] Adding eventId=sessionstate:set-available-selection-scopes
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+[dispatchSyncUiEvent] Adding eventId=sessionstate:set-selection-scope
+  [32m  √[0m[90m SelectionScopeField with multiple scopes[0m
+
+[0m  Test that requires Presentation[0m
+[dispatchSyncUiEvent] Adding eventId=sessionstate:set-available-selection-scopes
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+[dispatchSyncUiEvent] Adding eventId=sessionstate:set-selection-scope
+[dispatchSyncUiEvent] Adding eventId=sessionstate:set-selection-scope
+  [32m  √[0m[90m SelectionScopeField with specific scopes[0m
+
+[0m  SnapModeField[0m
+  [32m  √[0m[90m Status Bar with SnapModes Field should mount[0m
+  [32m  √[0m[90m Validate multiple snaps mode[0m
+  [32m  √[0m[90m should close on outside click[0m
+  [32m  √[0m[90m should not close on outside click[0m
+
+[0m  BooleanSyncUiListener[0m
+  [32m  √[0m[90m BooleanSyncUiListener should mount - visible children[0m
+  [32m  √[0m[90m BooleanSyncUiListener should mount - default non-visible children[0m
+
+[0m  SyncUiEventDispatcher[0m
+[dispatchSyncUiEvent] Adding eventId=sessionstate:set-active-imodelid
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+  [32m  √[0m[90m test hasEventOfInterest[0m
+  [32m  √[0m[90m test immediate sync event[0m
+[dispatchSyncUiEvent] Adding eventId=Event1
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+.... checkForAdditionalIds _eventIdAdded=false _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+..... clearing out timerId
+Firing onSyncUiEvent eventIds=event1
+handleSyncUiEvent1 event1
+test1 - just waited 100ms
+  [32m  √[0m[90m test timed sync event[0m[31m (106ms)[0m
+[dispatchSyncUiEvents] Adding eventIds=Event1,Event2
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+.... checkForAdditionalIds _eventIdAdded=false _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+..... clearing out timerId
+Firing onSyncUiEvent eventIds=event1,event2
+handleSyncUiEvent-2 event1,event2
+test2 - just waited 100ms
+  [32m  √[0m[90m test multiple event Id with a timed sync event[0m[31m (103ms)[0m
+[dispatchSyncUiEvents] Adding eventIds=Event1,Event2
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+[dispatchSyncUiEvent] Adding eventId=Event3
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (1ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+.... checkForAdditionalIds _eventIdAdded=false _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+..... clearing out timerId
+Firing onSyncUiEvent eventIds=event1,event2,event3
+handleSyncUiEvent-3 event1,event2,event3
+test3 - just waited 100ms
+  [32m  √[0m[90m test multiple event Id with a multiple dispatches[0m[31m (119ms)[0m
+  [36m  - Test event handlers[0m
+
+[0m  ThemeManager[0m
+  [32m  √[0m[90m should render[0m
+  [32m  √[0m[90m should change the theme[0m
+  [32m  √[0m[90m should change the widget opacity[0m
+
+[0m  TileLoadingIndicator[0m
+  [32m  √[0m[90m should render correctly[0m
+  [32m  √[0m[90m should unmount correctly[0m
+
+[0m  AnalysisAnimationTimelineDataProvider[0m
+  [32m  √[0m[90m AnalysisAnimationTimelineDataProvider can provide timeline data[0m
+
+[0m  SolarTimelineDataProvider[0m
+  [32m  √[0m[90m SolarTimelineDataProvider can provide timeline data[0m
+
+[0m  ActionItemButton[0m
+  [32m  √[0m[90m should render[0m
+  [32m  √[0m[90m renders correctly[0m
+  [32m  √[0m[90m hidden renders correctly[0m
+  [32m  √[0m[90m disabled renders correctly[0m
+  [32m  √[0m[90m should execute a function[0m
+  [32m  √[0m[90m should set focus to home on Esc[0m
+  [32m  √[0m[90m sync event should trigger stateFunc[0m
+  [32m  √[0m[90m should handle changing state via props[0m
+
+[0m  GroupItem[0m
+[0m    <GroupButton />[0m
+    [32m  √[0m[90m should render[0m
+    [32m  √[0m[90m renders correctly[0m
+    [32m  √[0m[90m sync event should trigger stateFunc[0m
+    [32m  √[0m[90m GroupButton opens[0m
+    [32m  √[0m[90m GroupButton opens & support history[0m
+    [32m  √[0m[90m should set focus to home on Esc[0m
+[0m    GroupItemDef[0m
+    [32m  √[0m[90m Supports CommandItemDef correctly[0m
+
+[0m  <PopupButton />[0m
+  [32m  √[0m[90m should render[0m
+  [32m  √[0m[90m should render with many props[0m
+  [32m  √[0m[90m should render with label func[0m
+  [32m  √[0m[90m should not render if isVisible is false[0m
+  [32m  √[0m[90m Fire click event to open popup[0m
+  [32m  √[0m[90m sync event should trigger stateFunc[0m
+
+[0m  ToolButton[0m
+  [32m  √[0m[90m should render[0m
+  [32m  √[0m[90m should render active & pressed[0m
+[dispatchSyncUiEvent] Adding eventId=toolactivated
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+  [32m  √[0m[90m renders correctly[0m
+  [32m  √[0m[90m hidden renders correctly[0m
+.... checkForAdditionalIds _eventIdAdded=false _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+..... clearing out timerId
+Firing onSyncUiEvent eventIds=toolactivated
+  [32m  √[0m[90m disabled renders correctly[0m
+  [32m  √[0m[90m should execute a function[0m
+  [32m  √[0m[90m should execute a tool[0m
+  [32m  √[0m[90m should set focus to home on Esc[0m
+  [32m  √[0m[90m should use a label function[0m
+  [32m  √[0m[90m sync event should trigger stateFunc[0m
+
+[0m  UiFramework[0m
+  [32m  √[0m[90m store should throw Error without initialize[0m
+  [32m  √[0m[90m i18n should throw Error without initialize[0m
+  [32m  √[0m[90m i18nNamespace should return UiFramework[0m
+  [32m  √[0m[90m packageName should return ui-framework[0m
+  [32m  √[0m[90m translate should return the key (in test environment)[0m
+  [32m  √[0m[90m projectServices should throw Error without initialize[0m
+  [32m  √[0m[90m iModelServices should throw Error without initialize[0m
+  [32m  √[0m[90m projectServices & iModelServices should return defaults[0m
+  [32m  √[0m[90m test default frameworkState key[0m
+  [32m  √[0m[90m IsUiVisible[0m
+  [32m  √[0m[90m ColorTheme[0m
+  [32m  √[0m[90m test selection scope state data[0m
+  [32m  √[0m[90m WidgetOpacity[0m
+
+[0m  Requires Presentation[0m
+[0m    initialize and setActiveSelectionScope[0m
+[dispatchSyncUiEvent] Adding eventId=sessionstate:set-selection-scope
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+    [32m  √[0m[90m creates manager instances[0m
+
+[0m  PropsHelper[0m
+  [32m  √[0m[90m Shallow Equals[0m
+  [32m  √[0m[90m Get Icon JSX[0m
+  [32m  √[0m[90m String spec[0m
+  [32m  √[0m[90m StringGetter spec[0m
+  [32m  √[0m[90m Explicit String spec - key ignored since explicit string specified[0m
+  [32m  √[0m[90m Use stringKey[0m
+
+[0m  UiShowHideManager[0m
+[0m    getters and setters[0m
+    [32m  √[0m[90m autoHideUi should return default of false[0m
+    [32m  √[0m[90m autoHideUi should set & return correct value[0m
+    [32m  √[0m[90m showHidePanels should return default of false[0m
+    [32m  √[0m[90m showHidePanels should set & return correct value[0m
+    [32m  √[0m[90m showHideFooter should return default of false[0m
+    [32m  √[0m[90m showHideFooter should set & return correct value[0m
+    [32m  √[0m[90m inactivityTime should return default[0m
+    [32m  √[0m[90m inactivityTime should set & return correct value[0m
+[0m    Frontstage Activate[0m
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+    [32m  √[0m[90m activating Frontstage should show UI[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+[0m    Content Mouse Events[0m
+.... checkForAdditionalIds _eventIdAdded=false _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+..... clearing out timerId
+Firing onSyncUiEvent eventIds=contentlayoutactivated,frontstageactivating,frontstageready,activecontentchanged,contentcontrolactivated
+    [32m  √[0m[90m Mouse move in content view should show the UI then hide after inactivity[0m[33m (42ms)[0m
+    [32m  √[0m[90m Mouse move in content view should do nothing if autoHideUi is off[0m
+[0m    Widget Mouse Events[0m
+    [32m  √[0m[90m Mouse enter in widget should show the UI[0m
+    [32m  √[0m[90m Mouse enter in widget should do nothing if autoHideUi is off[0m
+
+[0m  ViewUtilities[0m
+  [32m  √[0m[90m should get bis base class name[0m
+  [32m  √[0m[90m should recognize spatial view[0m
+  [32m  √[0m[90m should recognize drawing view[0m
+  [32m  √[0m[90m should recognize sheet view[0m
+  [32m  √[0m[90m is2d Sheet View[0m
+  [32m  √[0m[90m is2d Drawing View[0m
+  [32m  √[0m[90m is3d Spatial View[0m
+  [32m  √[0m[90m is3d Ortho View[0m
+
+[0m  NavigationWidget[0m
+  [32m  √[0m[90m NavigationWidgetDef from WidgetProps[0m
+  [32m  √[0m[90m NavigationWidget should render[0m
+  [32m  √[0m[90m NavigationWidget should render correctly[0m
+  [32m  √[0m[90m NavigationWidget should support update[0m
+  [32m  √[0m[90m NavigationWidgetDef with invalid navigation aid should throw Error[0m
+[dispatchSyncUiEvent] Adding eventId=navigationaidactivated
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+[dispatchSyncUiEvent] Adding eventId=toolactivated
+  [32m  √[0m[90m NavigationWidgetDef should handle updateNavigationAid[0m
+
+[0m  StackedWidget[0m
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+  [32m  √[0m[90m Producing a StackedWidget[0m
+
+[0m  StatusBar[0m
+  [32m  √[0m[90m StatusBar should mount[0m
+  [32m  √[0m[90m StatusBar should render a Toast message[0m
+  [32m  √[0m[90m StatusBar should render a Sticky message[0m
+  [32m  √[0m[90m Sticky message should closed[0m
+  [32m  √[0m[90m StatusBar should render a Modal message[0m
+  [32m  √[0m[90m StatusBar should render an Activity message[0m
+  [32m  √[0m[90m Activity message should be canceled[0m
+  [32m  √[0m[90m Activity message should be dismissed[0m
+
+[0m  StatusBarWidgetControl[0m
+  [32m  √[0m[90m StatusBarWidgetControl should be instantiated[0m
+
+[0m  ToolWidget[0m
+  [32m  √[0m[90m ToolWidgetDef from WidgetProps[0m
+  [32m  √[0m[90m ToolWidget should render[0m
+  [32m  √[0m[90m ToolWidget should render correctly[0m
+  [32m  √[0m[90m ToolWidget should render with an item list[0m
+  [32m  √[0m[90m ToolWidget should support update[0m
+[dispatchSyncUiEvent] Adding eventId=toolactivated
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+  [32m  √[0m[90m ToolWidget should tool activated[0m
+
+[0m  Widget[0m
+  [32m  √[0m[90m should render[0m
+
+[0m  WidgetControl[0m
+  [32m  √[0m[90m registerControl & widgetControl using same classId[0m
+[dispatchSyncUiEvent] Adding eventId=widgetstatechanged
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+  [32m  √[0m[90m setWidgetState[0m
+
+[0m  WidgetDef[0m
+  [32m  √[0m[90m optional properties[0m
+  [32m  √[0m[90m registerControl & widgetControl using same classId[0m
+  [32m  √[0m[90m labelKey and tooltipKey should return translated string[0m
+  [32m  √[0m[90m reactElement supports set and get[0m
+  [32m  √[0m[90m widgetControl using constructor classId[0m
+[dispatchSyncUiEvent] Adding eventId=widgetstatechanged
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+  [32m  √[0m[90m setWidgetState[0m
+[dispatchSyncUiEvent] Adding eventId=widgetstatechanged
+[dispatchSyncUiEvent] Adding eventId=widgetstatechanged
+  [32m  √[0m[90m setWidgetState using state function[0m
+  [32m  √[0m[90m getWidgetControl throws an Error when type is incorrect[0m
+
+[0m  WidgetFactory[0m
+  [32m  √[0m[90m appButton support[0m
+  [32m  √[0m[90m navigationAidId support[0m
+  [32m  √[0m[90m basic support[0m
+
+[0m  Task[0m
+[dispatchSyncUiEvent] Adding eventId=workflowactivated
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=taskactivated
+  [32m  √[0m[90m Task should activate Frontstage[0m
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+
+[0m  Workflow & WorkflowManager[0m
+[dispatchSyncUiEvent] Adding eventId=navigationaidactivated
+[0m    Workflow[0m
+    [32m  √[0m[90m loadWorkflows & findWorkflow[0m
+[dispatchSyncUiEvent] Adding eventId=taskactivated
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+    [32m  √[0m[90m getTask, lastActiveTask & activeTask[0m
+    [32m  √[0m[90m getSortedTasks[0m
+[0m    WorkflowManager[0m
+    [32m  √[0m[90m Default Workflow Id[0m
+[dispatchSyncUiEvent] Adding eventId=workflowactivated
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=taskactivated
+    [32m  √[0m[90m setActiveWorkflowAndTask & isActive[0m
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+[dispatchSyncUiEvent] Adding eventId=navigationaidactivated
+[dispatchSyncUiEvent] Adding eventId=workflowactivated
+[dispatchSyncUiEvent] Adding eventId=workflowactivated
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=taskactivated
+    [32m  √[0m[90m Workflow & Task getters & setters should return correct values[0m
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+[dispatchSyncUiEvent] Adding eventId=navigationaidactivated
+    [32m  √[0m[90m getSortedWorkflows[0m
+
+[0m  Default ToolSettings[0m
+  [32m  √[0m[90m mock SelectTool[0m
+  [32m  √[0m[90m mock PlaceLineTool[0m
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+
+[0m  DefaultToolUiSettingsProvider[0m
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+[dispatchSyncUiEvent] Adding eventId=toolactivated
+  [32m  √[0m[90m starting a tool with undefined tool settings[0m
+[dispatchSyncUiEvent] Adding eventId=navigationaidactivated
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+[dispatchSyncUiEvent] Adding eventId=toolactivated
+  [32m  √[0m[90m starting a tool with tool settings[0m
+[dispatchSyncUiEvent] Adding eventId=navigationaidactivated
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+
+[0m  ToolSettingsZone[0m
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=toolactivated
+  [32m  √[0m[90m close button closes it & tab opens it[0m
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+.... checkForAdditionalIds _eventIdAdded=true _syncEventTimerId={SyncUiEventDispatcher._syncEventTimerId}
+[checkForAdditionalIds]Waiting (5ms) to call SyncUiEventDispatcher.checkForAdditionalIds
+[dispatchSyncUiEvent] Adding eventId=navigationaidactivated
+
+[0m  ToolUiManager[0m
+  [32m  √[0m[90m check initial values[0m
+  [32m  √[0m[90m simulate a tool starting[0m
+  [32m  √[0m[90m should handle no tool settings[0m
+  [32m  √[0m[90m should support setting active tool label[0m
+  [32m  √[0m[90m handleSyncToolSettingsPropertiesEvent[0m
+
+[0m  ToolUiProvider[0m
+[dispatchSyncUiEvent] Adding eventId=contentlayoutactivated
+[dispatchSyncUiEvent] - Timer set to watch for additional ids
+[dispatchSyncUiEvent] Adding eventId=frontstageactivating
+[dispatchSyncUiEvent] Adding eventId=toolactivated
+  [32m  √[0m[90m starting a tool with tool settings[0m
+[dispatchSyncUiEvent] Adding eventId=frontstageready
+[dispatchSyncUiEvent] Adding eventId=activecontentchanged
+[dispatchSyncUiEvent] Adding eventId=contentcontrolactivated
+[dispatchSyncUiEvent] Adding eventId=navigationaidactivated
+  [32m  √[0m[90m ToolInformation with invalid ToolUiProvider should throw Error[0m
+
+[0m  Zone[0m
+  [32m  √[0m[90m should render[0m
+  [32m  √[0m[90m renders correctly[0m
+
+[0m  ZoneDef[0m
+  [32m  √[0m[90m Defaults, widgetDefs & widgetCount[0m
+  [32m  √[0m[90m applicationData, allowsMerging, mergeWithZone[0m
+  [32m  √[0m[90m addWidgetDef, widgetDefs & getSingleWidgetDef[0m
+
+
+[92m [0m[32m 507 passing[0m[90m (14s)[0m
+[36m [0m[36m 1 pending[0m
+
