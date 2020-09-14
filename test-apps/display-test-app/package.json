@@ -34,7 +34,7 @@
     "build:ios": "npm run install-ios-lib && npm run build:frontend && npm run build:ios-backend && npm run copy:ios-frontend",
     "deploy-standalone": "npm run build:backend && npm run deploy-standalone:rush && npm run deploy-standalone:package",
     "deploy-standalone:rush": "mkdirp ../../common/deploy-display-test-desktop && rush deploy -s display-test-desktop --target-folder ../../common/deploy-display-test-desktop --overwrite",
-     "deploy-standalone:package": "cd ../../common/deploy-display-test-desktop/test-apps/display-test-app && rimraf node_modules && node scripts/remove-internal-tools.js package.json && npm install && electron-rebuild -v 8.5.1 && electron-packager . display-test-app --electron-version=8.5.1 --overwrite"
+    "deploy-standalone:package": "cd ../../common/deploy-display-test-desktop/test-apps/display-test-app && rimraf node_modules && node scripts/remove-internal-tools.js package.json && npm install && electron-rebuild -v 8.5.1 && electron-packager . display-test-app --electron-version=8.5.1 --overwrite"
 
   },
   "repository": {},
