@@ -44,7 +44,7 @@
     },
     {
       "name": "@bentley/ecschema-metadata",
-      "allowedCategories": [ "backend", "tools" ]
+      "allowedCategories": [ "backend", "internal", "tools" ]
     },
     {
       "name": "@bentley/electron-manager",
@@ -196,7 +196,7 @@
     },
     {
       "name": "@bentley/telemetry-client",
-      "allowedCategories": [ "backend", "common", "frontend", "tools" ]
+      "allowedCategories": [ "backend", "common", "frontend", "internal", "tools" ]
     },
     {
       "name": "@bentley/ui-abstract",
@@ -415,6 +415,14 @@
       "allowedCategories": [ "backend", "internal", "tools" ]
     },
     {
+      "name": "electron-packager",
+      "allowedCategories": [ "internal" ]
+    },
+    {
+      "name": "electron-rebuild",
+      "allowedCategories": [ "internal" ]
+    },
+    {
       "name": "enzyme",
       "allowedCategories": [ "frontend" ]
     },
@@ -617,6 +625,10 @@
     {
       "name": "mini-css-extract-plugin",
       "allowedCategories": [ "tools" ]
+    },
+    {
+      "name": "mkdirp",
+      "allowedCategories": [ "internal" ]
     },
     {
       "name": "mobx",

@@ -11,6 +11,7 @@
     "node": ">=10.16.0 <13.0"
   },
   "private": true,
+  "main": "lib/backend/ElectronMain.js",
   "scripts": {
     "build": "npm run build:backend & npm run build:frontend",
     "build:backend": "tsc -p tsconfig.backend.json",
@@ -30,10 +31,15 @@
     "build:ios-backend": "npm run build:backend && webpack --config ./ios/backend.config --env.outdir=./lib/ios --env.entry=./lib/backend/MobileMain.js --env.bundlename=main",
     "install-ios-lib": "node ./ios/scripts/installIosNativeLib.js",
     "copy:ios-frontend": "mkdir -p ./lib/ios && rm -rf ./lib/ios/www && cp -R ./build ./lib/ios/www",
-    "build:ios": "npm run install-ios-lib && npm run build:frontend && npm run build:ios-backend && npm run copy:ios-frontend"
+    "build:ios": "npm run install-ios-lib && npm run build:frontend && npm run build:ios-backend && npm run copy:ios-frontend",
+    "deploy-standalone": "npm run deploy-standalone:rush && npm run deploy-standalone:package",
+    "deploy-standalone:rush": "mkdirp ../../common/deploy-display-test-desktop && rush deploy -s display-test-desktop --target-folder ../../common/deploy-display-test-desktop --overwrite",
+     "deploy-standalone:package": "cd ../../common/deploy-display-test-desktop/test-apps/display-test-app && rimraf node_modules && node scripts/remove-internal-tools.js package.json && npm install && electron-rebuild -v 8.5.1 && electron-packager . display-test-app --electron-version=8.5.1 --overwrite"
+
   },
   "repository": {},
   "dependencies": {
+    "@bentley/config-loader": "2.7.0-dev.4",
     "@bentley/icons-generic": "^1.0.15",
     "@bentley/icons-generic-webfont": "^1.0.15",
     "@bentley/frontend-devtools": "2.7.0-dev.4",
@@ -54,10 +60,13 @@
     "@bentley/rbac-client": "2.7.0-dev.4",
     "@bentley/ui-abstract": "2.7.0-dev.4",
     "@bentley/webgl-compatibility": "2.7.0-dev.4",
-    "body-parser": "^1.18.2"
+    "@bentley/product-settings-client": "2.7.0-dev.4",
+    "@bentley/orbitgt-core": "2.7.0-dev.4",
+    "@bentley/ecschema-metadata": "2.7.0-dev.4",
+    "body-parser": "^1.18.2",
+    "@bentley/telemetry-client": "2.7.0-dev.4"
   },
   "devDependencies": {
-    "@bentley/config-loader": "2.7.0-dev.4",
     "@bentley/build-tools": "2.7.0-dev.4",
     "@bentley/eslint-plugin": "2.7.0-dev.4",
     "@bentley/react-scripts": "3.4.2",
@@ -80,7 +89,10 @@
     "node-sass": "4.13.1",
     "typescript": "~3.7.4",
     "webpack": "4.42.0",
-    "semver": "^5.5.0"
+    "semver": "^5.5.0",
+    "electron-rebuild": "^2.0.0",
+    "electron-packager": "^15.0.0",
+    "mkdirp": "~1.0.4"
   },
   "browserslist": [
     "electron 8.0.0",

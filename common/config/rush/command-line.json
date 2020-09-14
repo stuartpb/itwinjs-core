@@ -76,6 +76,6 @@
       "ignoreMissingScript": true,
       "ignoreDependencyOrder": true,
       "allowWarningsInSuccessfulBuild": true
-    }
+    },
   ]
 }

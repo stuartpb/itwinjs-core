@@ -42,3 +42,6 @@ package-deps.json
 .DS_Store
 
 .env
+
+# locally deployable rush projects
+/common/deploy-display-test-desktop
