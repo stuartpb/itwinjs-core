@@ -30,7 +30,7 @@ import { getRpcInterfaces, initializeBackend } from "./backend";
     }
   }
 
-  const manager = (process.env.NODE_ENV === "production") ?
+  const manager = (process.env.NODE_ENV === "production" || electron.app.isPackaged) ?
     new IModelJsElectronManager(path.join(__dirname, "..", "..", "build")) :
     new WebpackDevServerElectronManager(3000); // port should match the port of the local dev server
 
