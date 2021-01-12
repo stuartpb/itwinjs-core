@@ -30,6 +30,8 @@ jobs:
 
           # Clean up files that we don't want to cherry-pick changes back
           for i in **/package.json; do git checkout --ours $i; done
+          for i in **/CHANGELOG.json; do git checkout --theirs $i; done
+          for i in **/CHANGELOG.md; do git checkout --theirs $i; done
           git checkout --ours **/version-policies.json docs/changehistory/NextVersion.md
 
           # Stage explicit files;
