@@ -53,6 +53,7 @@ steps:
   - script: node common/scripts/install-run-rush.js install
     displayName: rush install
     workingDirectory: ${{ parameters.workingDir }}
+  - script: dir common\temp\node_modules\.pnpm\registry.npmjs.org\@bentley\imodeljs-native\2.15.0\node_modules\@bentley\imodeljs-native\imodeljs-win32-x64\
   - script: node common/scripts/install-run-rush.js audit
     displayName: rush audit
     workingDirectory: ${{ parameters.workingDir }}
