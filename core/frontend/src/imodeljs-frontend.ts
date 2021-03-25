@@ -5,10 +5,14 @@
 export * from "./AccuDraw";
 export * from "./AccuSnap";
 export * from "./AuxCoordSys";
+export * from "./BingLocation";
+export * from "./BriefcaseConnection";
+export * from "./BriefcaseTxns";
 export * from "./CategorySelectorState";
 export * from "./ChangeFlags";
 export * from "./ContextRealityModelState";
 export * from "./CoordSystem";
+export * from "./DecorationsCache";
 export * from "./DevTools";
 export * from "./DisplayStyleState";
 export * from "./DrawingViewState";
@@ -16,36 +20,39 @@ export * from "./EditingFunctions";
 export * from "./ElementLocateManager";
 export * from "./EmphasizeElements";
 export * from "./EntityState";
-export * from "./EventSource";
 export * from "./FeatureLogBatchClient";
 export * from "./FeatureOverrideProvider";
 export * from "./FeatureTrackingManager";
 export * from "./FrontendLoggerCategory";
 export * from "./FrontendRequestContext";
+export * from "./Frustum2d";
 export * from "./FrustumAnimator";
 export * from "./FuzzySearch";
 export * from "./GeoServices";
 export * from "./GlobeAnimator";
 export * from "./HitDetail";
+export * from "./ImageUtil";
 export * from "./IModelApp";
-export * from "./InteractiveEditingSession";
-export * from "./NativeApp";
-export * from "./NativeAppLogger";
 export * from "./IModelConnection";
 export * from "./IModelRoutingContext";
-export * from "./ElementEditor";
-export * from "./Frustum2d";
-export * from "./ImageUtil";
+export * from "./InteractiveEditingSession";
+export * from "./IpcApp";
 export * from "./LinePlaneIntersect";
 export * from "./MarginPercent";
 export * from "./Marker";
 export * from "./ModelSelectorState";
 export * from "./ModelState";
+export * from "./NativeApp";
+export * from "./NativeAppLogger";
 export * from "./NoRenderApp";
 export * from "./NotificationManager";
 export * from "./PerModelCategoryVisibility";
-export * from "./QuantityFormatter";
+export * from "./PlanarClipMaskState";
+export * from "./quantity-formatting/QuantityFormatter";
+export * from "./quantity-formatting/BaseUnitFormattingSettingsProvider";
+export * from "./quantity-formatting/LocalUnitFormatProvider";
 export * from "./RenderScheduleState";
+export * from "./CheckpointConnection";
 export * from "./SelectionSet";
 export * from "./SheetViewState";
 export * from "./SpatialClassifiers";
@@ -58,16 +65,15 @@ export * from "./Tiles";
 export * from "./TwoWayViewportSync";
 export * from "./ViewAnimation";
 export * from "./ViewContext";
+export * from "./ViewGlobalLocation";
 export * from "./ViewingSpace";
 export * from "./ViewManager";
+export * from "./Viewport";
 export * from "./ViewPose";
 export * from "./ViewRect";
 export * from "./ViewState";
 export * from "./ViewStatus";
-export * from "./Viewport";
-export * from "./ViewGlobalLocation";
-export * from "./oidc/DesktopAuthorizationClient";
-export * from "./oidc/MobileAuthorizationClient";
+export * from "./WebViewerApp";
 export * from "./oidc/OidcBrowserClient";
 export * from "./extension/Extension";
 export * from "./extension/ExtensionAdmin";
@@ -83,6 +89,7 @@ export * from "./render/GraphicBranch";
 export * from "./render/GraphicBuilder";
 export * from "./render/InstancedGraphicParams";
 export * from "./render/MockRender";
+export * from "./render/ParticleCollectionBuilder";
 export * from "./render/Pixel";
 export * from "./render/RenderClipVolume";
 export * from "./render/RenderGraphic";
@@ -114,6 +121,7 @@ export * from "./tools/ViewTool";
 export * from "./BackgroundMapGeometry";
 export * from "./ViewCreator2d";
 export * from "./ViewCreator3d";
+export * from "./LocalhostIpcApp";
 
 /** @docs-package-description
  * The imodeljs-frontend package always runs in a web browser. It contains classes for [querying iModels and showing views]($docs/learning/frontend/index.md).
@@ -179,6 +187,10 @@ export * from "./ViewCreator3d";
  * See [the learning articles]($docs/learning/frontend/index.md).
  */
 /**
+ * @docs-group-description NativeApp
+ * Classes for working with Native Applications
+ */
+/**
  * @docs-group-description OIDC
  * Classes for working with the OpenID Connect (OIDC) protocol
  */
@@ -197,6 +209,10 @@ export * from "./ViewCreator3d";
 /**
  * @docs-group-description Features
  * Classes for Feature Tracking classification.
+ */
+/**
+ * @docs-group-description QuantityFormatting
+ * Classes for formatting and parsing quantity values.
  */
 /**
  * @docs-group-description Tiles

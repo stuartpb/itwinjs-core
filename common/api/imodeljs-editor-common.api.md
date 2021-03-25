@@ -4,51 +4,64 @@
 
 ```ts
 
-// @alpha (undocumented)
-export type CommandError = "CommandNotFound" | "Exception" | "MethodNotFound" | "NoActiveCommand";
+import { CompressedId64Set } from '@bentley/bentleyjs-core';
+import { ElementGeometryDataEntry } from '@bentley/imodeljs-common';
+import { GeometricElementProps } from '@bentley/imodeljs-common';
+import { GeometryPartProps } from '@bentley/imodeljs-common';
+import { Id64String } from '@bentley/bentleyjs-core';
+import { IModelStatus } from '@bentley/bentleyjs-core';
+import { Matrix3dProps } from '@bentley/geometry-core';
+import { TransformProps } from '@bentley/geometry-core';
 
 // @alpha (undocumented)
-export interface CommandMethodProps<T> {
+export interface BasicManipulationCommandIpc extends EditCommandIpc {
     // (undocumented)
-    args?: T;
+    deleteElements: (ids: CompressedId64Set) => Promise<IModelStatus>;
+    insertGeometricElement(props: GeometricElementProps, data?: InsertGeometricElementData): Promise<Id64String>;
+    insertGeometryPart(props: GeometryPartProps, data?: InsertGeometryPartData): Promise<Id64String>;
     // (undocumented)
-    name: string;
-}
-
-// @alpha
-export type CommandResult<T> = {
-    result?: T;
-    error?: never;
-} | {
-    error: CommandError;
-    details?: any;
-    result?: never;
-};
-
-// @alpha (undocumented)
-export const editCommandApi: {
-    start: string;
-    call: string;
-};
-
-// @alpha (undocumented)
-export interface PingResult {
+    rotatePlacement: (ids: CompressedId64Set, matrix: Matrix3dProps, aboutCenter: boolean) => Promise<IModelStatus>;
     // (undocumented)
-    [propName: string]: any;
-    // (undocumented)
-    commandId?: string;
-    // (undocumented)
-    version?: string;
+    transformPlacement: (ids: CompressedId64Set, transform: TransformProps) => Promise<IModelStatus>;
 }
 
 // @alpha (undocumented)
-export interface StartCommandProps<T> {
+export interface EditCommandIpc {
     // (undocumented)
-    args?: T;
+    ping: () => Promise<{
+        commandId: string;
+        version: string;
+        [propName: string]: any;
+    }>;
+}
+
+// @alpha (undocumented)
+export const editorBuiltInCmdIds: {
+    cmdBasicManipulation: string;
+};
+
+// @internal (undocumented)
+export const editorChannel = "editor";
+
+// @alpha (undocumented)
+export interface EditorIpc {
     // (undocumented)
-    commandId: string;
+    callMethod: (name: string, ...args: any[]) => Promise<any>;
     // (undocumented)
-    iModelKey: string;
+    startCommand: (commandId: string, iModelKey: string, ...args: any[]) => Promise<any>;
+}
+
+// @alpha (undocumented)
+export interface InsertGeometricElementData {
+    entryArray: ElementGeometryDataEntry[];
+    isWorld?: boolean;
+    viewIndependent?: boolean;
+}
+
+// @alpha (undocumented)
+export interface InsertGeometryPartData {
+    entryArray: ElementGeometryDataEntry[];
+    is2dPart?: boolean;
 }
 
 

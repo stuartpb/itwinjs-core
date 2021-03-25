@@ -1,6 +1,77 @@
 # Change Log - @bentley/ui-components
 
-This log was last generated on Fri, 08 Jan 2021 18:34:03 GMT and should not be manually modified.
+This log was last generated on Tue, 09 Mar 2021 20:28:13 GMT and should not be manually modified.
+
+## 2.13.0
+Tue, 09 Mar 2021 20:28:13 GMT
+
+### Updates
+
+- Updates to use new QuantityParserResult
+- Upgrade react-resize-detector to avoid lodash security vulnerability
+- Fixed broken double angle bracket link syntax
+- Fix solar timeline component so that sunTime is properly set for project location.
+- Add ui-components for displaying and editing FormatProps that are used to Format and Parse Quantities.
+- Updated to use TypeScript 4.1
+- Add a captureClicks prop to ColorPickerPopup that will stop propagation of click events from the popup.
+- `MutableTreeModel`: Add `changeNodeId` method.
+- `MutableTreeModel`: Allow `undefined` child count in `setNumChildren`.
+- begin rename project from iModel.js to iTwin.js
+
+## 2.12.3
+Mon, 08 Mar 2021 15:32:00 GMT
+
+_Version update only_
+
+## 2.12.2
+Wed, 03 Mar 2021 18:48:53 GMT
+
+_Version update only_
+
+## 2.12.1
+Tue, 23 Feb 2021 20:54:45 GMT
+
+_Version update only_
+
+## 2.12.0
+Thu, 18 Feb 2021 22:10:13 GMT
+
+### Updates
+
+- UI 'pickers' that use Popup component with fixed content should set closeOnNestedPopupOutsideClick prop.
+- Consider string values starting with `pw:\` or `pw://` to be URLs without checking the rest of the string.
+- `ControlledTree`: Fix calling `scrollToNode` too early triggering an assertion error.
+- Update TimelineComponent.tsx to properly respond to changed props.
+
+## 2.11.2
+Thu, 18 Feb 2021 02:50:59 GMT
+
+_Version update only_
+
+## 2.11.1
+Thu, 04 Feb 2021 17:22:41 GMT
+
+_Version update only_
+
+## 2.11.0
+Thu, 28 Jan 2021 13:39:27 GMT
+
+### Updates
+
+- Update components that support providing refs via React.forwardRef to work better with document generation.
+- Add 'showCaret' prop to ColorPickers that show a popup. The caret icon will face up or down depending of popup state.
+- Updates due to quantity unit system changes.
+- Lock react-select to 3.1.0 and @types/react-select to 3.0.26 until we can fi
+- Created new `CategoryPropertyDataFilterer` which allows us to filter `PropertyCategory` and get matches count.
+- Updated FilteringDataProvider, now it filters not only PropertyRecords, but PropertyCategories also.
+- Updated `VirtualizedPropertyGrid` to pass through `HighlightedPropertyProps` and highlight `PropertyCategory` matches.
+- Implemented `CategoryPropertyDataFilterer` in `presentation-test-app` -> `PropertiesWidget`
+- Updated filterers to return type of the filtered item, so now `VirtualizedPropertyGrid` can distinguish what types of items need to be highlighted. This feature was implemented in `presentation-test-app` -> `PropertiesWidget`
+- Update `NavigationPropertyTypeConverter` to handle navigation properties represented by `InstanceKey`
+- Added ui-core learning docs content and added Notification.md, Style.md & Tooltip.md ui-core learning doc files.
+- Fix test warnings.
+- Update to latest react-dnd version.
+- Always clone the ViewState for a ViewportComponent to avoid attaching the same ViewState to multiple viewports.
 
 ## 2.10.3
 Fri, 08 Jan 2021 18:34:03 GMT
@@ -311,7 +382,7 @@ Thu, 28 May 2020 22:48:59 GMT
 ### Updates
 
 - Fix toolbar overflow panel display.
-- Update to only show group separators if toolbar is not transparent. 
+- Update to only show group separators if toolbar is not transparent.
 - Fix toolbar error when scaling up UI.
 - Property grid horizontal layout updated according to UX requirements.
 - Fixed Table filter renderers after react-select version upgrade
@@ -783,7 +854,7 @@ Wed, 19 Dec 2018 18:26:14 GMT
 - Added DragDrop tests, added component withDragDrop HOC tests
 - Synchronizing navigation aids with view definition changes
 - Simplified property pane tooltips and improved Property Pane performance.
-- Simplified struct and array tooltips in Table component. 
+- Simplified struct and array tooltips in Table component.
 - Fix BeInspireTree's event listening functions to handle array inputs
 - Fix BeInspireTree's muting events with allowed number of triggers
 - Cache BeInspireTree.visible() result for better performance
@@ -913,7 +984,7 @@ Thu, 08 Nov 2018 17:59:21 GMT
 
 ### Updates
 
-- Deprecated dev-cors-proxy-server and use of it. 
+- Deprecated dev-cors-proxy-server and use of it.
 - Fix: Do not start search if input field is empty
 - Use strongly typed enums for identifying keyboard keys
 - PropertyGrid property editing and unit tests

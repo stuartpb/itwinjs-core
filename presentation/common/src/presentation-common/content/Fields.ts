@@ -59,12 +59,12 @@ export type FieldJSON = BaseFieldJSON | PropertiesFieldJSON | NestedContentField
 
 /** Is supplied field a properties field. */
 const isPropertiesField = (field: FieldJSON | Field): field is PropertiesFieldJSON | PropertiesField => {
-  return (field as any).properties;
+  return !!(field as any).properties;
 };
 
 /** Is supplied field a nested content field. */
 const isNestedContentField = (field: FieldJSON | Field): field is NestedContentFieldJSON | NestedContentField => {
-  return (field as any).nestedFields;
+  return !!(field as any).nestedFields;
 };
 
 /**
@@ -507,7 +507,7 @@ export interface FieldDescriptorBase {
  */
 export type FieldDescriptor = NamedFieldDescriptor | PropertiesFieldDescriptor;
 /** @beta */
-export namespace FieldDescriptor {
+export namespace FieldDescriptor { // eslint-disable-line @typescript-eslint/no-redeclare
   /** Is this a named field descriptor */
   export function isNamed(d: FieldDescriptor): d is NamedFieldDescriptor {
     return d.type === FieldDescriptorType.Name;

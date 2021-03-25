@@ -12,7 +12,7 @@ import { BriefcaseProps, IModelConnectionProps, IModelError, IModelRpcOpenProps,
 import { AuthorizedClientRequestContext } from "@bentley/itwin-client";
 import { BackendLoggerCategory } from "../BackendLoggerCategory";
 import { BriefcaseManager } from "../BriefcaseManager";
-import { CheckpointProps, V1CheckpointManager } from "../CheckpointManager";
+import { CheckpointManager, CheckpointProps, V1CheckpointManager } from "../CheckpointManager";
 import { BriefcaseDb, IModelDb, SnapshotDb } from "../IModelDb";
 import { IModelHost } from "../IModelHost";
 import { IModelJsFs } from "../IModelJsFs";
@@ -53,8 +53,9 @@ export class RpcBriefcaseUtility {
       for (const briefcaseId of myBriefcaseIds) {
         const fileName = resolver({ briefcaseId, iModelId });
         if (IModelJsFs.existsSync(fileName)) {
-          if (BriefcaseDb.findByFilename(fileName))
-            throw new IModelError(IModelStatus.AlreadyOpen, `briefcase is already open: ${fileName}`);
+          const briefcaseDb = BriefcaseDb.findByFilename(fileName);
+          if (briefcaseDb !== undefined)
+            return briefcaseDb as BriefcaseDb;
           try {
             if (args.forceDownload)
               throw new Error(); // causes delete below
@@ -80,7 +81,7 @@ export class RpcBriefcaseUtility {
 
     const props = await BriefcaseManager.downloadBriefcase(requestContext, request);
     return BriefcaseDb.open(requestContext, { fileName: props.fileName });
-  };
+  }
 
   private static _briefcasePromise: Promise<BriefcaseDb> | undefined;
   private static async openBriefcase(args: DownloadAndOpenArgs): Promise<BriefcaseDb> {
@@ -126,12 +127,21 @@ export class RpcBriefcaseUtility {
 
     // opening a checkpoint, readonly.
     let db: SnapshotDb | void;
+    // first check if it's already open
+    db = SnapshotDb.tryFindByKey(CheckpointManager.getKey(checkpoint));
+    if (db) {
+      Logger.logTrace(loggerCategory, "Checkpoint was already open", () => ({ ...tokenProps }));
+      return db;
+    }
+
     try {
-      // first try V2 checkpoint
+      // now try V2 checkpoint
       db = await SnapshotDb.openCheckpointV2(checkpoint);
       requestContext.enter();
       Logger.logTrace(loggerCategory, "using V2 checkpoint briefcase", () => ({ ...tokenProps }));
     } catch (e) {
+      Logger.logTrace(loggerCategory, "unable to open V2 checkpoint - falling back to V1 checkpoint", () => ({ ...tokenProps }));
+
       // this isn't a v2 checkpoint. Set up a race between the specified timeout period and the open. Throw an RpcPendingResponse exception if the timeout happens first.
       const request = {
         checkpoint,

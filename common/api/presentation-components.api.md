@@ -80,7 +80,7 @@ export namespace CacheInvalidationProps {
 // @internal
 export class ContentBuilder {
     static createPropertyDescription(field: Field, props?: PropertyDescriptionCreationProps): PropertyDescription;
-    static createPropertyRecord(field: Field, item: Item, props?: NestedContentCreationProps & PropertyDescriptionCreationProps): PropertyRecord | undefined;
+    static createPropertyRecord(fieldHierarchy: FieldHierarchy, item: Item): FieldRecord;
 }
 
 // @public
@@ -221,6 +221,14 @@ export interface IContentDataProvider extends IPresentationDataProvider {
     getFieldByPropertyRecord: (propertyRecord: PropertyRecord) => Promise<Field | undefined>;
     keys: KeySet;
     selectionInfo: SelectionInfo | undefined;
+}
+
+// @public
+export interface IFilteredPresentationTreeDataProvider extends IPresentationTreeDataProvider {
+    countFilteringResults(nodePaths: ReadonlyArray<Readonly<NodePathElement>>): number;
+    filter: string;
+    getActiveMatch(index: number): ActiveMatchInfo | undefined;
+    nodeMatchesFilter(node: TreeNodeItem): boolean;
 }
 
 // @beta
@@ -366,7 +374,7 @@ export class PresentationTreeDataProvider implements IPresentationTreeDataProvid
     getNodes(parentNode?: TreeNodeItem, pageOptions?: PageOptions_2): Promise<DelayLoadedTreeNodeItem[]>;
     getNodesCount(parentNode?: TreeNodeItem): Promise<number>;
     get imodel(): IModelConnection;
-    // @alpha
+    // @alpha @deprecated
     loadHierarchy(): Promise<void>;
     get pagingSize(): number | undefined;
     set pagingSize(value: number | undefined);
@@ -404,7 +412,7 @@ export interface PresentationTreeNodeLoaderProps extends PresentationTreeDataPro
     // @alpha
     enableHierarchyAutoUpdate?: boolean;
     pagingSize: number;
-    // @alpha
+    // @alpha @deprecated
     preloadingEnabled?: boolean;
 }
 
@@ -514,7 +522,7 @@ export interface UnifiedSelectionTreeEventHandlerParams {
 // @beta
 export function useControlledTreeFiltering(props: ControlledTreeFilteringProps): {
     nodeHighlightingProps: HighlightableTreeProps | undefined;
-    filteredNodeLoader: AbstractTreeNodeLoaderWithProvider<IPresentationTreeDataProvider> | PagedTreeNodeLoader<FilteredPresentationTreeDataProvider>;
+    filteredNodeLoader: AbstractTreeNodeLoaderWithProvider<IPresentationTreeDataProvider>;
     filteredModelSource: TreeModelSource;
     isFiltering: boolean;
     matchesCount: number | undefined;

@@ -11,10 +11,10 @@ import { Range3d, Transform } from "@bentley/geometry-core";
 import { LockLevel } from "@bentley/imodelhub-client";
 import {
   AxisAlignedBox3d, BisCodeSpec, Code, CodeScopeProps, CodeSpec, DefinitionElementProps, ElementAlignedBox3d, ElementProps, EntityMetaData,
-  GeometricElement2dProps, GeometricElement3dProps, GeometricElementProps, GeometricModel3dProps, GeometryPartProps, GeometryStreamProps, IModel,
-  InformationPartitionElementProps, LineStyleProps, ModelProps, PhysicalElementProps, PhysicalTypeProps, Placement2d, Placement3d, RelatedElement,
-  RepositoryLinkProps, SectionDrawingLocationProps, SectionDrawingProps, SectionLocationProps, SectionType, SheetBorderTemplateProps, SheetProps,
-  SheetTemplateProps, SubjectProps, TypeDefinition, TypeDefinitionElementProps, UrlLinkProps,
+  GeometricElement2dProps, GeometricElement3dProps, GeometricElementProps, GeometricModel2dProps, GeometricModel3dProps, GeometryPartProps,
+  GeometryStreamProps, IModel, InformationPartitionElementProps, LineStyleProps, ModelProps, PhysicalElementProps, PhysicalTypeProps, Placement2d,
+  Placement3d, RelatedElement, RepositoryLinkProps, SectionDrawingLocationProps, SectionDrawingProps, SectionLocationProps, SectionType,
+  SheetBorderTemplateProps, SheetProps, SheetTemplateProps, SubjectProps, TypeDefinition, TypeDefinitionElementProps, UrlLinkProps,
 } from "@bentley/imodeljs-common";
 import { ConcurrencyControl } from "./ConcurrencyControl";
 import { Entity } from "./Entity";
@@ -49,7 +49,7 @@ export class Element extends Entity implements ElementProps {
   /** The ModelId of the [Model]($docs/bis/intro/model-fundamentals.md) containing this element */
   public readonly model: Id64String;
   /** The [Code]($docs/bis/intro/codes.md) for this element */
-  public readonly code: Code;
+  public code: Code;
   /** The parent element, if present, of this element. */
   public parent?: RelatedElement;
   /** A [FederationGuid]($docs/bis/intro/element-fundamentals.md#federationguid) assigned to this element by some other federated database */
@@ -125,47 +125,57 @@ export class Element extends Entity implements ElementProps {
    * @note Any class that overrides this method must call super.
    * @beta
    */
-  protected static onInsert(props: ElementProps, iModel: IModelDb): void {
-    if (iModel.isBriefcaseDb()) { iModel.concurrencyControl.onElementWrite(this, props, DbOpcode.Insert); }
+  protected static onInsert(props: Readonly<ElementProps>, iModel: IModelDb): void {
+    if (iModel.isBriefcaseDb()) {
+      iModel.concurrencyControl.onElementWrite(this, props, DbOpcode.Insert);
+    }
   }
   /** Called before an Element is updated.
    * @throws [[IModelError]] if there is a problem
    * @note Any class that overrides this method must call super.
    * @beta
    */
-  protected static onUpdate(props: ElementProps, iModel: IModelDb): void {
-    if (iModel.isBriefcaseDb()) { iModel.concurrencyControl.onElementWrite(this, props, DbOpcode.Update); }
+  protected static onUpdate(props: Readonly<ElementProps>, iModel: IModelDb): void {
+    if (iModel.isBriefcaseDb()) {
+      iModel.concurrencyControl.onElementWrite(this, props, DbOpcode.Update);
+    }
   }
   /** Called before an Element is deleted.
    * @throws [[IModelError]] if there is a problem
    * @note Any class that overrides this method must call super.
    * @beta
    */
-  protected static onDelete(props: ElementProps, iModel: IModelDb): void {
-    if (iModel.isBriefcaseDb()) { iModel.concurrencyControl.onElementWrite(this, props, DbOpcode.Delete); }
+  protected static onDelete(props: Readonly<ElementProps>, iModel: IModelDb): void {
+    if (iModel.isBriefcaseDb()) {
+      iModel.concurrencyControl.onElementWrite(this, props, DbOpcode.Delete);
+    }
   }
   /** Called after a new Element was inserted.
    * @throws [[IModelError]] if there is a problem
    * @note Any class that overrides this method must call super.
    * @beta
    */
-  protected static onInserted(props: ElementProps, iModel: IModelDb): void {
-    if (iModel.isBriefcaseDb()) { iModel.concurrencyControl.onElementWritten(this, props.id!, DbOpcode.Insert); }
+  protected static onInserted(props: Readonly<ElementProps>, iModel: IModelDb): void {
+    if (iModel.isBriefcaseDb()) {
+      iModel.concurrencyControl.onElementWritten(this, props.id!, DbOpcode.Insert);
+    }
   }
   /** Called after an Element was updated.
    * @throws [[IModelError]] if there is a problem
    * @note Any class that overrides this method must call super.
    * @beta
    */
-  protected static onUpdated(props: ElementProps, iModel: IModelDb): void {
-    if (iModel.isBriefcaseDb()) { iModel.concurrencyControl.onElementWritten(this, props.id!, DbOpcode.Update); }
+  protected static onUpdated(props: Readonly<ElementProps>, iModel: IModelDb): void {
+    if (iModel.isBriefcaseDb()) {
+      iModel.concurrencyControl.onElementWritten(this, props.id!, DbOpcode.Update);
+    }
   }
   /** Called after an Element was deleted.
    * @throws [[IModelError]] if there is a problem
    * @note Any class that overrides this method must call super.
    * @beta
    */
-  protected static onDeleted(_props: ElementProps, _iModel: IModelDb): void { }
+  protected static onDeleted(_props: Readonly<ElementProps>, _iModel: IModelDb): void { }
   /** Called during the iModel transformation process after an Element from the source iModel was *cloned* for the target iModel.
    * The transformation process automatically handles remapping BisCore properties and those that are properly described in ECSchema.
    * This callback is only meant to be overridden if there are other Ids in non-standard locations that need to be remapped or other data that needs to be fixed up after the clone.
@@ -189,7 +199,7 @@ export class Element extends Entity implements ElementProps {
   public toJSON(): ElementProps {
     const val = super.toJSON() as ElementProps;
 
-    if (Id64.isValid(this.code.spec))
+    if (Code.isValid(this.code))
       val.code = this.code;
 
     val.model = this.model;
@@ -245,7 +255,7 @@ export class Element extends Entity implements ElementProps {
   public setJsonProperty(nameSpace: string, value: any) { this.jsonProperties[nameSpace] = value; }
 
   /** Get a display label for this Element. By default returns userLabel if present, otherwise code value. */
-  public getDisplayLabel(): string { return this.userLabel ? this.userLabel : this.code.getValue(); }
+  public getDisplayLabel(): string { return this.userLabel ? this.userLabel : this.code.value; }
 
   /** Get a list of HTML strings that describe this Element for the tooltip. Strings will be listed on separate lines in the tooltip.
    * Any instances of the pattern `%{tag}` will be replaced by the localized value of tag.
@@ -595,6 +605,10 @@ export class Subject extends InformationReferenceElement implements SubjectProps
   public description?: string;
   /** @internal */
   public constructor(props: SubjectProps, iModel: IModelDb) { super(props, iModel); }
+  /** @internal */
+  public toJSON(): SubjectProps { // This override only specializes the return type
+    return super.toJSON() as SubjectProps; // Entity.toJSON takes care of auto-handled properties
+  }
   /** Create a Code for a Subject given a name that is meant to be unique within the scope of its parent Subject.
    * @param iModelDb The IModelDb
    * @param parentSubjectId The Id of the parent Subject that provides the scope for names of its child Subjects.
@@ -1048,7 +1062,7 @@ export class TemplateRecipe3d extends RecipeDefinitionElement {
       modeledElement: { id: modeledElementId },
       isTemplate: true,
     };
-    return iModelDb.models.insertModel(modelProps);
+    return iModelDb.models.insertModel(modelProps); // will be the same value as modeledElementId
   }
 }
 
@@ -1073,13 +1087,55 @@ export abstract class GraphicalType2d extends TypeDefinitionElement {
 }
 
 /** A recipe that uses a 2D template for creating new instances.
- * @internal
+ * @beta
  */
 export class TemplateRecipe2d extends RecipeDefinitionElement {
   /** @internal */
   public static get className(): string { return "TemplateRecipe2d"; }
   /** @internal */
   public constructor(props: ElementProps, iModel: IModelDb) { super(props, iModel); }
+  /** Create a Code for a TemplateRecipe2d given a name that is meant to be unique within the scope of its Model.
+   * @param iModelDb The IModelDb
+   * @param definitionModelId The Id of the [DefinitionModel]($backend) that contains this TemplateRecipe2d element.
+   * @param codeValue The name of the TemplateRecipe2d element.
+   */
+  public static createCode(iModelDb: IModelDb, definitionModelId: CodeScopeProps, codeValue: string): Code {
+    const codeSpec: CodeSpec = iModelDb.codeSpecs.getByName(BisCodeSpec.templateRecipe2d);
+    return new Code({ spec: codeSpec.id, scope: definitionModelId, value: codeValue });
+  }
+  /** Create a TemplateRecipe2d
+   * @param iModelDb The IModelDb
+   * @param definitionModelId The Id of the [DefinitionModel]($backend) that contains this TemplateRecipe2d element.
+   * @param name The name (Code.value) of the TemplateRecipe2d
+   * @returns The newly constructed TemplateRecipe2d
+   * @throws [[IModelError]] if there is a problem creating the TemplateRecipe2d
+   */
+  public static create(iModelDb: IModelDb, definitionModelId: Id64String, name: string, isPrivate?: boolean): TemplateRecipe2d {
+    const elementProps: DefinitionElementProps = {
+      classFullName: this.classFullName,
+      model: definitionModelId,
+      code: this.createCode(iModelDb, definitionModelId, name),
+      isPrivate,
+    };
+    return new TemplateRecipe2d(elementProps, iModelDb);
+  }
+  /** Insert a TemplateRecipe2d and a DrawingModel (sub-model) that will contain the 2d template elements.
+   * @param iModelDb The IModelDb
+   * @param definitionModelId The Id of the [DefinitionModel]($backend) that contains this TemplateRecipe2d element.
+   * @param name The name (Code.value) of the TemplateRecipe2d
+   * @returns The Id of the newly inserted TemplateRecipe2d and the PhysicalModel that sub-models it.
+   * @throws [[IModelError]] if there is a problem inserting the TemplateRecipe2d or its sub-model.
+   */
+  public static insert(iModelDb: IModelDb, definitionModelId: Id64String, name: string, isPrivate?: boolean): Id64String {
+    const element = this.create(iModelDb, definitionModelId, name, isPrivate);
+    const modeledElementId: Id64String = iModelDb.elements.insertElement(element);
+    const modelProps: GeometricModel2dProps = {
+      classFullName: DrawingModel.classFullName,
+      modeledElement: { id: modeledElementId },
+      isTemplate: true,
+    };
+    return iModelDb.models.insertModel(modelProps); // will be the same value as modeledElementId
+  }
 }
 
 /** An abstract base class for elements that establishes a particular modeling perspective for its parent Subject.
@@ -1234,12 +1290,13 @@ export class UrlLink extends LinkElement implements UrlLinkProps {
   }
 }
 
-/** An information element that links to an embedded file.
- * @public
+/** Represents a folder-like structure that organizes repositories (typically files) in an external system.
+ * @note The associated ECClass was added to the BisCore schema in version 1.0.13
+ * @alpha
  */
-export class EmbeddedFileLink extends LinkElement {
+export class FolderLink extends UrlLink {
   /** @internal */
-  public static get className(): string { return "EmbeddedFileLink"; }
+  public static get className(): string { return "FolderLink"; }
 }
 
 /** An information element that links to a repository.
@@ -1249,19 +1306,31 @@ export class RepositoryLink extends UrlLink implements RepositoryLinkProps {
   /** @internal */
   public static get className(): string { return "RepositoryLink"; }
   public repositoryGuid?: GuidString;
+  /** @note This property was added to the BisCore schema in version 1.0.13 */
+  public format?: string;
 
   /** @internal */
   public constructor(props: RepositoryLinkProps, iModel: IModelDb) {
     super(props, iModel);
     this.repositoryGuid = props.repositoryGuid;
+    this.format = props.format;
   }
 
   /** @internal */
   public toJSON(): RepositoryLinkProps {
     const val = super.toJSON() as RepositoryLinkProps;
     val.repositoryGuid = this.repositoryGuid;
+    val.format = this.format;
     return val;
   }
+}
+
+/** An information element that links to an embedded file.
+ * @public
+ */
+export class EmbeddedFileLink extends LinkElement {
+  /** @internal */
+  public static get className(): string { return "EmbeddedFileLink"; }
 }
 
 /** A real world entity is modeled as a Role Element when a set of external circumstances define an important

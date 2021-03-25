@@ -3,7 +3,12 @@ Release Tag;API Item
 alpha;AccuDrawCommandItems
 alpha;AccuDrawDialog(props: AccuDrawDialogProps): JSX.Element
 alpha;AccuDrawDialogProps 
+alpha;AccuDrawKeyboardShortcuts
 alpha;AccuDrawPopupManager
+alpha;AccuDrawUiSettings
+internal;AccuDrawUiSettingsChangedEvent 
+alpha;AccuDrawWidget(): JSX.Element
+alpha;AccuDrawWidgetControl 
 public;Action
 internal;ActionButtonItem(props: ActionButtonProps): JSX.Element
 public;class ActionButtonItemDef 
@@ -24,6 +29,7 @@ beta;ActivityMessagePopup(props: ActivityMessagePopupProps): JSX.Element | null
 beta;ActivityMessagePopupProps 
 beta;ActivityMessageProps
 public;ActivityMessageUpdatedEvent 
+internal;addMissingWidgets(frontstageDef: FrontstageDef, initialState: NineZoneState): NineZoneState
 internal;addPanelWidgets(state: NineZoneState, frontstageDef: FrontstageDef, side: PanelSide): NineZoneState
 internal;addWidgets(state: NineZoneState, widgets: ReadonlyArray
 alpha;AnalysisAnimationTimelineDataProvider 
@@ -61,6 +67,7 @@ beta;BasicToolWidget(props: BasicToolWidgetProps): JSX.Element
 beta;BasicToolWidgetProps
 public;BooleanListenerProps
 public;BooleanSyncUiListener 
+alpha;BumpToolSetting 
 alpha;Calculator 
 internal;CalculatorEngine
 internal;CalculatorKeyType
@@ -179,15 +186,18 @@ public;ElementTooltipChangedEventArgs
 alpha;EmphasizeElementsChangedArgs
 beta;ExpandableSection 
 beta;ExpandableSectionProps 
-internal;expandWidget: 
+internal;expandWidget: (base:
 beta;ExtensibleToolbarProps
+beta;featureOverridesActiveStateFunc(state: Readonly
+alpha;FocusToolSettings 
 public;FooterModeField 
 public;FooterModeFieldProps 
-alpha;FrameworkAccuDraw 
+internal;FrameworkAccuDraw 
 beta;FrameworkRootState
 internal;FrameworkStagePanel 
 internal;FrameworkStagePanelProps
 beta;FrameworkState
+alpha;FrameworkToolAdmin 
 beta;FrameworkUiAdmin 
 alpha;FrameworkVersion(props: FrameworkVersionProps): JSX.Element
 alpha;FrameworkVersion = "1" | "2"
@@ -223,14 +233,15 @@ internal;getBadgeClassName(badgeType: BadgeType | undefined): "uifw-badge-new" |
 alpha;getCategories(imodel: IModelConnection, viewport?: Viewport, filteredProvider?: IPresentationTreeDataProvider): Promise
 internal;getExtendedZone: (zoneId: WidgetZoneId, zones: ZonesManagerProps, defProvider: ZoneDefProvider) => ZoneManagerProps
 beta;getFeatureOverrideSyncEventIds(): string[]
-internal;getFirstItem: (groupItemDef: GroupItemDef) => ActionButtonItemDef | import("../shared/CommandItemDef").CommandItemDef | import("../shared/ToolItemDef").ToolItemDef | GroupItemDef | undefined
+internal;getFirstItem: (groupItemDef: GroupItemDef) => AnyItemDef | undefined
 internal;getFirstItemId: (groupItemDef: GroupItemDef) => string
 internal;getFloatingZoneBounds: (props: ZoneManagerProps) => RectangleProps
 internal;getFloatingZoneStyle: (props: ZoneManagerProps) =>
 beta;getIsHiddenIfFeatureOverridesActive(): ConditionalBooleanValue
 beta;getIsHiddenIfSelectionNotActive(): ConditionalBooleanValue
 internal;getNestedStagePanelKey: (location: StagePanelLocation_2) => NestedStagePanelKey
-internal;getPanelSide(location: StagePanelLocation_2): PanelSide
+internal;getPanelZoneWidgets(frontstageDef: FrontstageDef, panelZone: WidgetIdTypes): WidgetDef[]
+beta;getQuantityFormatsSettingsManagerEntry(itemPriority: number, opts?: Partial
 beta;getSelectionContextSyncEventIds(): string[]
 internal;getStableWidgetProps(widgetProps: WidgetProps, stableId: string): WidgetProps
 internal;getStagePanelType: (location: StagePanelLocation_2) => StagePanelType
@@ -341,6 +352,8 @@ public;ModalFrontstageClosedEventArgs
 internal;ModalFrontstageComposer({ stageInfo }:
 public;ModalFrontstageInfo
 public;ModalFrontstageProps 
+alpha;ModalFrontstageRequestedCloseEvent 
+alpha;ModalFrontstageRequestedCloseEventArgs
 public;ModelessDialog 
 public;ModelessDialogChangedEvent 
 public;ModelessDialogManager
@@ -403,6 +416,8 @@ internal;ProjectScope
 internal;ProjectServices
 public;PromptField: import("react-redux").ConnectedComponent
 public;PropsHelper
+beta;QuantityFormatSettingsPanel({ initialQuantityType, availableUnitSystems }: QuantityFormatterSettingsOptions): JSX.Element
+beta;QuantityFormatterSettingsOptions
 alpha;ReactContent
 public;ReactMessage = ReactMessage_2
 public;ReactNotifyMessageDetails
@@ -411,6 +426,7 @@ public;ReducerActions
 public;ReducerMapActions
 beta;ReducerRegistry
 beta;ReducerRegistryInstance: ReducerRegistry
+internal;removeMissingWidgets(frontstageDef: FrontstageDef, initialState: NineZoneState): NineZoneState
 alpha;RestoreFrontstageLayoutTool 
 internal;restoreNineZoneState(frontstageDef: FrontstageDef, saved: SavedNineZoneState): NineZoneState
 beta;ReviewToolWidget 
@@ -441,10 +457,11 @@ beta;SessionStateActionsProps
 beta;SessionStateActionsUnion = ActionsUnion
 beta;sessionStateMapDispatchToProps:
 beta;SessionStateReducer(state: SessionState | undefined, action: SessionStateActionsUnion): DeepReadonly
-internal;setPanelSize: 
+internal;setPanelSize: (base:
+beta;SettingsModalFrontstage 
 internal;settingsStatusToUiSettingsStatus(status: SettingsStatus): UiSettingsStatus
-internal;setWidgetLabel: 
-internal;setWidgetState: 
+internal;setWidgetLabel: (base:
+internal;setWidgetState: (base:
 alpha;SheetCard 
 alpha;SheetCardProps
 alpha;SheetData
@@ -452,7 +469,7 @@ alpha;SheetNavigationAid
 alpha;SheetNavigationAidControl 
 alpha;SheetNavigationProps 
 alpha;SheetsModalFrontstage 
-internal;showWidget: 
+internal;showWidget: (base:
 public;SignIn 
 public;SignInProps 
 public;SignOutModalFrontstage 
@@ -573,6 +590,7 @@ beta;ToolWidgetComposerProps
 public;ToolWidgetDef 
 public;ToolWidgetProps 
 public;ToolWidgetPropsEx 
+internal;toPanelSide(location: StagePanelLocation_2): PanelSide
 internal;TrackingTime
 internal;UiActivityEvent 
 internal;UiActivityEventArgs
@@ -599,7 +617,7 @@ beta;useDefaultStatusBarItems: (manager: StatusBarItemsManager_2) => readonly Co
 beta;useDefaultToolbarItems: (manager: ToolbarItemsManager) => readonly CommonToolbarItem[]
 internal;useFrameworkVersion(): FrameworkVersion
 internal;useFrontstageManager(frontstageDef: FrontstageDef): void
-internal;useGroupedItems: (items: readonly BackstageItem[]) => GroupedItems
+internal;useGroupedItems: (items: ReadonlyArray
 internal;useHorizontalToolSettingNodes(): ToolSettingsEntry[] | undefined
 beta;useIsBackstageOpen: (manager: BackstageManager) => boolean
 internal;useItemsManager(frontstageDef: FrontstageDef): void
@@ -660,6 +678,7 @@ internal;WidgetInfo
 beta;WidgetManager
 internal;WidgetPanelsFrontstage: React.NamedExoticComponent
 internal;WidgetPanelsFrontstageContent(): JSX.Element | null
+internal;WidgetPanelsFrontstageState
 internal;WidgetPanelsStatusBar(props: CommonProps): JSX.Element | null
 internal;WidgetPanelsTab(): JSX.Element
 internal;WidgetPanelsToolbars(): JSX.Element

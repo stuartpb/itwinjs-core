@@ -2,6 +2,147 @@
   "name": "@bentley/ui-components",
   "entries": [
     {
+      "version": "2.13.0",
+      "tag": "@bentley/ui-components_v2.13.0",
+      "date": "Tue, 09 Mar 2021 20:28:13 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Updates to use new QuantityParserResult"
+          },
+          {
+            "comment": "Upgrade react-resize-detector to avoid lodash security vulnerability"
+          },
+          {
+            "comment": "Fixed broken double angle bracket link syntax"
+          },
+          {
+            "comment": "Fix solar timeline component so that sunTime is properly set for project location."
+          },
+          {
+            "comment": "Add ui-components for displaying and editing FormatProps that are used to Format and Parse Quantities."
+          },
+          {
+            "comment": "Updated to use TypeScript 4.1"
+          },
+          {
+            "comment": "Add a captureClicks prop to ColorPickerPopup that will stop propagation of click events from the popup."
+          },
+          {
+            "comment": "`MutableTreeModel`: Add `changeNodeId` method."
+          },
+          {
+            "comment": "`MutableTreeModel`: Allow `undefined` child count in `setNumChildren`."
+          },
+          {
+            "comment": "begin rename project from iModel.js to iTwin.js"
+          }
+        ]
+      }
+    },
+    {
+      "version": "2.12.3",
+      "tag": "@bentley/ui-components_v2.12.3",
+      "date": "Mon, 08 Mar 2021 15:32:00 GMT",
+      "comments": {}
+    },
+    {
+      "version": "2.12.2",
+      "tag": "@bentley/ui-components_v2.12.2",
+      "date": "Wed, 03 Mar 2021 18:48:53 GMT",
+      "comments": {}
+    },
+    {
+      "version": "2.12.1",
+      "tag": "@bentley/ui-components_v2.12.1",
+      "date": "Tue, 23 Feb 2021 20:54:45 GMT",
+      "comments": {}
+    },
+    {
+      "version": "2.12.0",
+      "tag": "@bentley/ui-components_v2.12.0",
+      "date": "Thu, 18 Feb 2021 22:10:13 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "UI 'pickers' that use Popup component with fixed content should set closeOnNestedPopupOutsideClick prop."
+          },
+          {
+            "comment": "Consider string values starting with `pw:\\` or `pw://` to be URLs without checking the rest of the string."
+          },
+          {
+            "comment": "`ControlledTree`: Fix calling `scrollToNode` too early triggering an assertion error."
+          },
+          {
+            "comment": "Update TimelineComponent.tsx to properly respond to changed props."
+          }
+        ]
+      }
+    },
+    {
+      "version": "2.11.2",
+      "tag": "@bentley/ui-components_v2.11.2",
+      "date": "Thu, 18 Feb 2021 02:50:59 GMT",
+      "comments": {}
+    },
+    {
+      "version": "2.11.1",
+      "tag": "@bentley/ui-components_v2.11.1",
+      "date": "Thu, 04 Feb 2021 17:22:41 GMT",
+      "comments": {}
+    },
+    {
+      "version": "2.11.0",
+      "tag": "@bentley/ui-components_v2.11.0",
+      "date": "Thu, 28 Jan 2021 13:39:27 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Update components that support providing refs via React.forwardRef to work better with document generation."
+          },
+          {
+            "comment": "Add 'showCaret' prop to ColorPickers that show a popup. The caret icon will face up or down depending of popup state."
+          },
+          {
+            "comment": "Updates due to quantity unit system changes."
+          },
+          {
+            "comment": "Lock react-select to 3.1.0 and @types/react-select to 3.0.26 until we can fi"
+          },
+          {
+            "comment": "Created new `CategoryPropertyDataFilterer` which allows us to filter `PropertyCategory` and get matches count."
+          },
+          {
+            "comment": "Updated FilteringDataProvider, now it filters not only PropertyRecords, but PropertyCategories also."
+          },
+          {
+            "comment": "Updated `VirtualizedPropertyGrid` to pass through `HighlightedPropertyProps` and highlight `PropertyCategory` matches."
+          },
+          {
+            "comment": "Implemented `CategoryPropertyDataFilterer` in `presentation-test-app` -> `PropertiesWidget`"
+          },
+          {
+            "comment": "Updated filterers to return type of the filtered item, so now `VirtualizedPropertyGrid` can distinguish what types of items need to be highlighted. This feature was implemented in `presentation-test-app` -> `PropertiesWidget`"
+          },
+          {
+            "comment": "Update `NavigationPropertyTypeConverter` to handle navigation properties represented by `InstanceKey`"
+          },
+          {
+            "comment": "Added ui-core learning docs content and added Notification.md, Style.md & Tooltip.md ui-core learning doc files."
+          },
+          {
+            "comment": "Fix test warnings."
+          },
+          {
+            "comment": "Update to latest react-dnd version."
+          },
+          {
+            "comment": "Always clone the ViewState for a ViewportComponent to avoid attaching the same ViewState to multiple viewports."
+          }
+        ]
+      }
+    },
+    {
       "version": "2.10.3",
       "tag": "@bentley/ui-components_v2.10.3",
       "date": "Fri, 08 Jan 2021 18:34:03 GMT",

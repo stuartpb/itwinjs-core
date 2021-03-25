@@ -25,7 +25,7 @@ import {
 } from "./PresentationManagerOptions";
 import { PresentationRpcInterface, PresentationRpcRequestOptions, PresentationRpcResponse } from "./PresentationRpcInterface";
 import { SelectionScope } from "./selection/SelectionScope";
-import { PartialHierarchyModificationJSON } from "./Update";
+import { HierarchyCompareInfoJSON, PartialHierarchyModificationJSON } from "./Update";
 import { Omit, PagedResponse } from "./Utils";
 
 /**
@@ -136,11 +136,6 @@ export class RpcRequestsHandler implements IDisposable {
       this.rpcClient.getFilteredNodePaths.bind(this.rpcClient), options, filterText);
   }
 
-  public async loadHierarchy(options: HierarchyRequestOptions<IModelRpcProps>): Promise<void> {
-    return this.request<void, HierarchyRequestOptions<IModelRpcProps>>(
-      this.rpcClient.loadHierarchy.bind(this.rpcClient), options);
-  }
-
   public async getContentDescriptor(options: ContentDescriptorRequestOptions<IModelRpcProps, KeySetJSON>): Promise<DescriptorJSON | undefined> {
     return this.request<DescriptorJSON | undefined, ContentDescriptorRequestOptions<IModelRpcProps, KeySetJSON>>(
       this.rpcClient.getContentDescriptor.bind(this.rpcClient), options); // eslint-disable-line deprecation/deprecation
@@ -186,6 +181,10 @@ export class RpcRequestsHandler implements IDisposable {
   }
   public async compareHierarchies(options: PresentationDataCompareOptions<IModelRpcProps, NodeKeyJSON>): Promise<PartialHierarchyModificationJSON[]> {
     return this.request<PartialHierarchyModificationJSON[], PresentationDataCompareOptions<IModelRpcProps, NodeKeyJSON>>(
-      this.rpcClient.compareHierarchies.bind(this.rpcClient), options);
+      this.rpcClient.compareHierarchies.bind(this.rpcClient), options); // eslint-disable-line deprecation/deprecation
+  }
+  public async compareHierarchiesPaged(options: PresentationDataCompareOptions<IModelRpcProps, NodeKeyJSON>): Promise<HierarchyCompareInfoJSON> {
+    return this.request<HierarchyCompareInfoJSON, PresentationDataCompareOptions<IModelRpcProps, NodeKeyJSON>>(
+      this.rpcClient.compareHierarchiesPaged.bind(this.rpcClient), options);
   }
 }

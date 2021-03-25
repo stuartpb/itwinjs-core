@@ -2,21 +2,20 @@
 * Copyright (c) Bentley Systems, Incorporated. All rights reserved.
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
-import { assert, Id64, Id64Array, Id64String } from "@bentley/bentleyjs-core";
+import { assert, Id64String } from "@bentley/bentleyjs-core";
 import {
-  IModelJson,
-  LineSegment3d,
-  LineString3d,
-  Point3d,
-  Transform,
-  Vector3d,
-  YawPitchRollAngles,
+  IModelJson, LineString3d, Point3d, Sphere, Vector3d, YawPitchRollAngles,
 } from "@bentley/geometry-core";
-import { Code, ColorDef, GeometryStreamProps, IModelWriteRpcInterface, LinePixels, PhysicalElementProps } from "@bentley/imodeljs-common";
 import {
-  AccuDrawHintBuilder, AccuDrawShortcuts, BeButtonEvent, DecorateContext, DynamicsContext, ElementEditor3d, EventHandled, GraphicType, HitDetail, IModelApp, InteractiveEditingSession,
-  LocateFilterStatus, LocateResponse, PrimitiveTool, Tool,
+  Code, ColorDef, ElementGeometry, GeometryPartProps, GeometryStreamBuilder, GeometryStreamProps, IModel, PhysicalElementProps,
+} from "@bentley/imodeljs-common";
+import { EditTools } from "@bentley/imodeljs-editor-frontend";
+import {
+  AccuDraw,
+  AccuDrawHintBuilder, BeButtonEvent, DecorateContext, DynamicsContext,
+  EventHandled, GraphicType, HitDetail, IModelApp, NotifyMessageDetails, OutputMessagePriority, PrimitiveTool, Tool,
 } from "@bentley/imodeljs-frontend";
+import { BasicManipulationCommandIpc, editorBuiltInCmdIds } from "@bentley/imodeljs-editor-common";
 import { setTitle } from "./Title";
 
 // Simple tools for testing interactive editing. They require the iModel to have been opened in read-write mode.
@@ -35,235 +34,27 @@ export class EditingSessionTool extends Tool {
 
   private async _run(): Promise<void> {
     const imodel = IModelApp.viewManager.selectedView?.iModel;
-    if (!imodel)
+    if (!imodel || !imodel.isBriefcaseConnection())
       return;
 
-    const session = InteractiveEditingSession.get(imodel);
+    const session = imodel.editingSession;
     if (session)
       await session.end();
     else
-      await InteractiveEditingSession.begin(imodel);
+      await imodel.beginEditingSession();
 
     setTitle(imodel);
   }
 }
 
-export abstract class UndoRedoTool extends Tool {
-  protected abstract get isUndo(): boolean;
-
-  public run(): boolean {
-    const imodel = IModelApp.viewManager.selectedView?.iModel;
-    if (imodel) {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      IModelWriteRpcInterface.getClient().undoRedo(imodel.getRpcProps(), this.isUndo);
-    }
-
-    return true;
-  }
-}
-
-export class UndoTool extends UndoRedoTool {
-  public static toolId = "DtaUndo";
-  protected get isUndo() { return true; }
-}
-
-export class RedoTool extends UndoRedoTool {
-  public static toolId = "DtaRedo";
-  protected get isUndo() { return false; }
-}
-
-/** Delete all elements currently in the selection set. */
-export class DeleteElementsTool extends Tool {
-  public static toolId = "DeleteElements";
-  public static get minArgs() { return 0; }
-  public static get maxArgs() { return 0; }
-
-  public run(): boolean {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this._run();
-    return true;
-  }
-
-  private async _run(): Promise<void> {
-    const imodel = IModelApp.viewManager.selectedView?.iModel;
-    if (!imodel)
-      return;
-
-    const elements = imodel.selectionSet.elements;
-    if (0 === elements.size)
-      return;
-
-    try {
-      await IModelWriteRpcInterface.getClient().deleteElements(imodel.getRpcProps(), Array.from(elements));
-      await imodel.saveChanges();
-    } catch (err) {
-      alert(err.toString());
-    }
-  }
-}
-
-/** A basic interactive editing tool. */
-abstract class InteractiveEditingTool extends PrimitiveTool {
-  private _editor?: ElementEditor3d;
-
-  protected async getEditor(): Promise<ElementEditor3d> {
-    if (!this._editor)
-      this._editor = await ElementEditor3d.start(this.iModel);
-
-    return this._editor;
-  }
-
-  public onCleanup(): void {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.closeEditor();
-  }
-
-  private async closeEditor(): Promise<void> {
-    if (this._editor) {
-      await this._editor.end();
-      this._editor = undefined;
-    }
-  }
-}
-
-/** Moves elements to a different location. */
-export class MoveElementTool extends InteractiveEditingTool {
-  public static toolId = "MoveElements";
-  private _useSelection = false;
-  private _elementIds: Id64Array = [];
-  private _startPoint?: Point3d;
-  private _endPoint?: Point3d;
-
-  private takeSelectionSet(): void {
-    this._useSelection = (undefined !== this.targetView && this.iModel.selectionSet.isActive);
-    if (!this._useSelection)
-      return;
-
-    this._elementIds.length = 0;
-    for (const id of this.iModel.selectionSet.elements)
-      if (Id64.isValidId64(id) && !Id64.isTransient(id))
-        this._elementIds.push(id);
-  }
-
-  private setupAndPromptForNextAction(): void {
-    IModelApp.accuSnap.enableSnap(true);
-    if (!this._useSelection)
-      IModelApp.accuSnap.enableLocate(true);
-
-    this.showPrompt();
-  }
-
-  private showPrompt(): void {
-    let msg;
-    if (undefined === this._startPoint)
-      msg = this._useSelection ? "Start point for move" : "Identify element";
-    else
-      msg = undefined === this._endPoint ? "End point for move" : "Confirm move";
-
-    IModelApp.notifications.outputPrompt(msg);
-  }
-
-  public requireWriteableTarget(): boolean {
-    return true;
-  }
-
-  public onUnsuspend(): void {
-    this.showPrompt();
-  }
-
-  public onPostInstall(): void {
-    super.onPostInstall();
-    this.takeSelectionSet();
-    this.setupAndPromptForNextAction();
-  }
-
-  public async onStartPoint(pt: Point3d): Promise<void> {
-    const editor = await this.getEditor();
-    await editor.startModifyingElements(this._elementIds);
-    this._startPoint = pt;
-    this.beginDynamics();
-    this.setupAndPromptForNextAction();
-  }
-
-  public async onDataButtonDown(ev: BeButtonEvent): Promise<EventHandled> {
-    if (undefined === this._startPoint) {
-      if (!this._useSelection) {
-        const hit = await IModelApp.locateManager.doLocate(new LocateResponse(), true, ev.point, ev.viewport, ev.inputSource);
-        if (undefined === hit || !hit.isElementHit)
-          return EventHandled.No;
-
-        this._elementIds.push(hit.sourceId);
-      }
-
-      await this.onStartPoint(ev.point);
-      return EventHandled.No;
-    }
-
-    assert(undefined === this._endPoint);
-    this._endPoint = ev.point;
-    this.endDynamics();
-
-    const delta = this._endPoint.minus(this._startPoint);
-    const transform = Transform.createTranslation(delta);
-
-    const editor = await this.getEditor();
-    await editor.applyTransform(transform.toJSON());
-    await editor.write();
-    await this.saveChanges();
-
-    if (this.shouldRestart()) {
-      const startPoint = this._endPoint;
-      this._endPoint = undefined;
-      this.onStartPoint(startPoint); // eslint-disable-line @typescript-eslint/no-floating-promises
-    } else {
-      this.onReinitialize();
-    }
-
-    return EventHandled.No;
-  }
-
-  public onDynamicFrame(ev: BeButtonEvent, context: DynamicsContext): void {
-    if (undefined === this._startPoint)
-      return;
-
-    const builder = context.target.createGraphicBuilder(GraphicType.WorldOverlay, context.viewport);
-    builder.setSymbology(context.viewport.getContrastToBackgroundColor(), ColorDef.black, 3, LinePixels.HiddenLine);
-    builder.addLineString([this._startPoint.clone(), ev.point.clone()]);
-    context.addGraphic(builder.finish());
-  }
-
-  public async onResetButtonUp(_ev: BeButtonEvent): Promise<EventHandled> {
-    this.onReinitialize();
-    return EventHandled.No;
-  }
-
-  private shouldRestart(): boolean {
-    return !this._useSelection && 0 !== this._elementIds.length;
-  }
-
-  public onReinitialize(): void {
-    if (!this.shouldRestart())
-      this.exitTool();
-    else
-      this.onRestartTool();
-  }
-
-  public onRestartTool(): void {
-    const tool = new MoveElementTool();
-    if (!tool.run())
-      tool.exitTool();
-  }
-
-  public async filterHit(hit: HitDetail, _out: LocateResponse): Promise<LocateFilterStatus> {
-    return hit.isElementHit ? LocateFilterStatus.Accept : LocateFilterStatus.Reject;
-  }
-}
-
 /** Places a line string. The first model in the view's model selector and the first category in its category selector are used. */
-export class PlaceLineStringTool extends InteractiveEditingTool {
+export class PlaceLineStringTool extends PrimitiveTool {
   public static toolId = "PlaceLineString";
   private readonly _points: Point3d[] = [];
   private _snapGeomId?: Id64String;
+  private _testGeomJson = false;
+  private _testGeomParts = false;
+  protected _startedCmd?: string;
 
   public requireWriteableTarget(): boolean { return true; }
 
@@ -302,7 +93,7 @@ export class PlaceLineStringTool extends InteractiveEditingTool {
       return undefined;
 
     const geom = IModelJson.Writer.toIModelJson(LineString3d.create(this._points));
-    return geom ? [ geom ] : undefined;
+    return geom ? [geom] : undefined;
   }
 
   public decorate(context: DecorateContext): void {
@@ -330,7 +121,6 @@ export class PlaceLineStringTool extends InteractiveEditingTool {
   }
 
   public async onDataButtonDown(ev: BeButtonEvent): Promise<EventHandled> {
-    await this.getEditor();
     this._points.push(ev.point.clone());
     this.setupAndPromptForNextAction();
 
@@ -338,6 +128,16 @@ export class PlaceLineStringTool extends InteractiveEditingTool {
       this.beginDynamics();
 
     return EventHandled.No;
+  }
+
+  protected async startCommand(): Promise<string> {
+    if (undefined !== this._startedCmd)
+      return this._startedCmd;
+    return EditTools.startCommand<string>(editorBuiltInCmdIds.cmdBasicManipulation, this.iModel.key);
+  }
+
+  public static callCommand<T extends keyof BasicManipulationCommandIpc>(method: T, ...args: Parameters<BasicManipulationCommandIpc[T]>): ReturnType<BasicManipulationCommandIpc[T]> {
+    return EditTools.callCommand(method, ...args) as ReturnType<BasicManipulationCommandIpc[T]>;
   }
 
   private async createElement(): Promise<void> {
@@ -369,24 +169,77 @@ export class PlaceLineStringTool extends InteractiveEditingTool {
 
     const origin = this._points[0];
     const angles = new YawPitchRollAngles();
-    const pts = this._points.map((p) => p.minus(origin));
 
-    const primitive = this._points.length === 2 ? LineSegment3d.create(pts[0], pts[1]) : LineString3d.create(pts);
-    const geom = IModelJson.Writer.toIModelJson(primitive);
-    const props: PhysicalElementProps = { classFullName: "Generic:PhysicalObject", model, category, code: Code.createEmpty() };
+    const matrix = AccuDraw.getCurrentOrientation(vp, true, true);
+    ElementGeometry.Builder.placementAnglesFromPoints(this._points, matrix?.getRow(2), angles);
 
-    const editor = await this.getEditor();
-    return editor.createElement(props, origin, angles, geom);
+    try {
+      this._startedCmd = await this.startCommand();
+
+      if (this._testGeomJson) {
+        const builder = new GeometryStreamBuilder();
+        const primitive = LineString3d.create(this._points);
+
+        builder.setLocalToWorld3d(origin, angles); // Establish world to local transform...
+        if (!builder.appendGeometry(primitive))
+          return;
+
+        if (this._testGeomParts) {
+          const partBuilder = new GeometryStreamBuilder();
+          const sphere = Sphere.createCenterRadius(Point3d.createZero(), this._points[0].distance(this._points[1]) * 0.05);
+
+          if (!partBuilder.appendGeometry(sphere))
+            return;
+
+          const partProps: GeometryPartProps = { classFullName: "BisCore:GeometryPart", model: IModel.dictionaryId, code: Code.createEmpty(), geom: partBuilder.geometryStream };
+          const partId = await PlaceLineStringTool.callCommand("insertGeometryPart", partProps);
+
+          for (const pt of this._points) {
+            if (!builder.appendGeometryPart3d(partId, pt))
+              return;
+          }
+        }
+
+        const elemProps: PhysicalElementProps = { classFullName: "Generic:PhysicalObject", model, category, code: Code.createEmpty(), placement: { origin, angles }, geom: builder.geometryStream };
+        await PlaceLineStringTool.callCommand("insertGeometricElement", elemProps);
+        await this.saveChanges();
+      } else {
+        const builder = new ElementGeometry.Builder();
+        const primitive = LineString3d.create(this._points);
+
+        builder.setLocalToWorld3d(origin, angles); // Establish world to local transform...
+        if (!builder.appendGeometryQuery(primitive))
+          return;
+
+        if (this._testGeomParts) {
+          const partBuilder = new ElementGeometry.Builder();
+          const sphere = Sphere.createCenterRadius(Point3d.createZero(), this._points[0].distance(this._points[1]) * 0.05);
+
+          if (!partBuilder.appendGeometryQuery(sphere))
+            return;
+
+          const partProps: GeometryPartProps = { classFullName: "BisCore:GeometryPart", model: IModel.dictionaryId, code: Code.createEmpty() };
+          const partId = await PlaceLineStringTool.callCommand("insertGeometryPart", partProps, { entryArray: partBuilder.entries });
+
+          for (const pt of this._points) {
+            if (!builder.appendGeometryPart3d(partId, pt))
+              return;
+          }
+        }
+
+        const elemProps: PhysicalElementProps = { classFullName: "Generic:PhysicalObject", model, category, code: Code.createEmpty(), placement: { origin, angles } };
+        await PlaceLineStringTool.callCommand("insertGeometricElement", elemProps, { entryArray: builder.entries });
+        await this.saveChanges();
+      }
+    } catch (err) {
+      IModelApp.notifications.outputMessage(new NotifyMessageDetails(OutputMessagePriority.Error, err.toString()));
+    }
   }
 
   public async onResetButtonUp(_ev: BeButtonEvent): Promise<EventHandled> {
     if (this._points.length >= 2) {
       IModelApp.notifications.outputPrompt("");
-
       await this.createElement();
-      const editor = await this.getEditor();
-      await editor.write();
-      await this.saveChanges();
     }
 
     this.onReinitialize();
@@ -404,13 +257,6 @@ export class PlaceLineStringTool extends InteractiveEditingTool {
       this.setupAndPromptForNextAction();
 
     return true;
-  }
-
-  public async onKeyTransition(wentDown: boolean, keyEvent: KeyboardEvent): Promise<EventHandled> {
-    if (EventHandled.Yes === await super.onKeyTransition(wentDown, keyEvent))
-      return EventHandled.Yes;
-
-    return wentDown && AccuDrawShortcuts.processShortcutKey(keyEvent) ? EventHandled.Yes : EventHandled.No;
   }
 
   public onRestartTool(): void {

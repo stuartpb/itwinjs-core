@@ -3,17 +3,19 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 import { assert } from "chai";
+import { ElectronApp } from "@bentley/electron-manager/lib/ElectronFrontend";
 import { NativeApp } from "@bentley/imodeljs-frontend";
+import { rpcInterfaces } from "../../common/RpcInterfaces";
 import { TestUtility } from "../hub/TestUtility";
 
-describe("NativeApp Storage", () => {
+describe("NativeApp Storage frontend", () => {
   before(async () => {
-    await NativeApp.startup();
+    await ElectronApp.startup({ iModelApp: { rpcInterfaces } });
     await TestUtility.purgeStorageCache();
   });
 
   after(async () => {
-    await NativeApp.shutdown();
+    await ElectronApp.shutdown();
   });
 
   it("Primitive Type ", async () => {
@@ -37,7 +39,7 @@ describe("NativeApp Storage", () => {
       }
     }
     assert.equal((await test1.getKeys()).length, dataset.length);
-    await test1.close(true);
+    await NativeApp.closeStorage(test1, true);
   });
 
   it("Override and type check", async () => {
@@ -78,6 +80,7 @@ describe("NativeApp Storage", () => {
     assert.equal((await test1.getData("key1") as Uint8Array).length, testArray.length);
     await test1.removeData("key1");
     assert.isUndefined(await test1.getData("key1"));
+    await NativeApp.closeStorage(test1, true);
   });
 
 });

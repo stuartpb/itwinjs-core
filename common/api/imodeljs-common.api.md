@@ -4,6 +4,7 @@
 
 ```ts
 
+import { AccessTokenProps } from '@bentley/itwin-client';
 import { Angle } from '@bentley/geometry-core';
 import { AngleProps } from '@bentley/geometry-core';
 import { AnyGeometryQuery } from '@bentley/geometry-core';
@@ -16,6 +17,7 @@ import { BriefcaseStatus } from '@bentley/bentleyjs-core';
 import { ByteStream } from '@bentley/bentleyjs-core';
 import { ChangeSetStatus } from '@bentley/bentleyjs-core';
 import { ClientRequestContext } from '@bentley/bentleyjs-core';
+import { ClientRequestContextProps } from '@bentley/bentleyjs-core';
 import { ClipPlane } from '@bentley/geometry-core';
 import { ClipPlaneContainment } from '@bentley/geometry-core';
 import { ClipVector } from '@bentley/geometry-core';
@@ -346,6 +348,8 @@ export interface BackgroundMapProps {
     globeMode?: GlobeMode;
     groundBias?: number;
     nonLocatable?: boolean;
+    // @beta
+    planarClipMask?: PlanarClipMaskProps;
     providerData?: {
         mapType?: BackgroundMapType;
     };
@@ -370,6 +374,8 @@ export class BackgroundMapSettings {
     readonly groundBias: number;
     get locatable(): boolean;
     readonly mapType: BackgroundMapType;
+    // @beta
+    readonly planarClipMask: PlanarClipMaskSettings;
     readonly providerName: BackgroundMapProviderName;
     readonly terrainSettings: TerrainSettings;
     // (undocumented)
@@ -387,6 +393,23 @@ export enum BackgroundMapType {
     Hybrid = 3,
     // (undocumented)
     Street = 1
+}
+
+// @public
+export type Base64EncodedString = string;
+
+// @public
+export namespace Base64EncodedString {
+    const prefix = "encoding=base64;";
+    export function ensurePrefix(base64: string): Base64EncodedString;
+    export function fromUint8Array(bytes: Uint8Array): Base64EncodedString;
+    export function hasPrefix(str: string): boolean;
+    export function stripPrefix(base64: Base64EncodedString): string;
+    export function toUint8Array(base64: Base64EncodedString): Uint8Array;
+    const // @beta
+    reviver: (_name: string, value: any) => any;
+    const // @beta
+    replacer: (_name: string, value: any) => any;
 }
 
 // @alpha
@@ -445,67 +468,43 @@ export { BentleyStatus }
 
 // @public
 export enum BisCodeSpec {
-    // (undocumented)
+    // @internal (undocumented)
     annotationFrameStyle = "bis:AnnotationFrameStyle",
-    // (undocumented)
+    // @internal (undocumented)
     annotationLeaderStyle = "bis:AnnotationLeaderStyle",
-    // (undocumented)
+    // @internal (undocumented)
     annotationTextStyle = "bis:AnnotationTextStyle",
-    // (undocumented)
     auxCoordSystem2d = "bis:AuxCoordSystem2d",
-    // (undocumented)
     auxCoordSystem3d = "bis:AuxCoordSystem3d",
-    // (undocumented)
     auxCoordSystemSpatial = "bis:AuxCoordSystemSpatial",
-    // (undocumented)
     categorySelector = "bis:CategorySelector",
-    // (undocumented)
+    // @internal (undocumented)
     colorBook = "bis:ColorBook",
-    // (undocumented)
     displayStyle = "bis:DisplayStyle",
-    // (undocumented)
     drawing = "bis:Drawing",
-    // (undocumented)
     drawingCategory = "bis:DrawingCategory",
-    // (undocumented)
+    externalSource = "bis:ExternalSource",
+    externalSourceAttachment = "bis:ExternalSourceAttachment",
     geometryPart = "bis:GeometryPart",
-    // (undocumented)
     graphicalType2d = "bis:GraphicalType2d",
-    // (undocumented)
     informationPartitionElement = "bis:InformationPartitionElement",
-    // (undocumented)
     lineStyle = "bis:LineStyle",
-    // (undocumented)
     linkElement = "bis:LinkElement",
-    // (undocumented)
     modelSelector = "bis:ModelSelector",
-    // (undocumented)
     nullCodeSpec = "bis:NullCodeSpec",
-    // (undocumented)
     physicalMaterial = "bis:PhysicalMaterial",
-    // (undocumented)
     physicalType = "bis:PhysicalType",
-    // (undocumented)
     renderMaterial = "bis:RenderMaterial",
-    // (undocumented)
     sheet = "bis:Sheet",
-    // (undocumented)
     spatialCategory = "bis:SpatialCategory",
-    // (undocumented)
     spatialLocationType = "bis:SpatialLocationType",
-    // (undocumented)
     subCategory = "bis:SubCategory",
-    // (undocumented)
     subject = "bis:Subject",
-    // (undocumented)
     templateRecipe2d = "bis:TemplateRecipe2d",
-    // (undocumented)
     templateRecipe3d = "bis:TemplateRecipe3d",
-    // (undocumented)
+    // @internal (undocumented)
     textAnnotationSeed = "bis:TextAnnotationSeed",
-    // (undocumented)
     texture = "bis:Texture",
-    // (undocumented)
     viewDefinition = "bis:ViewDefinition"
 }
 
@@ -537,7 +536,7 @@ export interface BRepCutProps {
 // @beta (undocumented)
 export namespace BRepEntity {
     export interface DataProps {
-        data?: string;
+        data?: Base64EncodedString;
         faceSymbology?: FaceSymbologyProps[];
         transform?: TransformProps;
         type?: Type;
@@ -618,10 +617,38 @@ export interface BriefcaseDownloader {
     requestCancel: () => Promise<boolean>;
 }
 
+// @public
+export enum BriefcaseIdValue {
+    // @internal @deprecated (undocumented)
+    DeprecatedStandalone = 1,
+    FirstValid = 2,
+    Illegal = 4294967295,
+    LastValid = 16777205,
+    Max = 16777216,
+    Standalone = 0
+}
+
 // @beta
 export interface BriefcaseProps {
     briefcaseId: number;
     iModelId: GuidString;
+}
+
+// @internal (undocumented)
+export interface BriefcasePushAndPullNotifications {
+    // (undocumented)
+    notifyPulledChanges: (arg: {
+        parentChangeSetId: string;
+    }) => void;
+    // (undocumented)
+    notifyPushedChanges: (arg: {
+        parentChangeSetId: string;
+    }) => void;
+    // (undocumented)
+    notifySavedChanges: (arg: {
+        hasPendingTxns: boolean;
+        time: number;
+    }) => void;
 }
 
 export { BriefcaseStatus }
@@ -768,6 +795,10 @@ export interface ChangedElements {
     // (undocumented)
     modelIds?: Id64String[];
     // (undocumented)
+    newChecksums?: number[][];
+    // (undocumented)
+    oldChecksums?: number[][];
+    // (undocumented)
     opcodes: number[];
     // (undocumented)
     parentClassIds?: Id64String[];
@@ -777,6 +808,13 @@ export interface ChangedElements {
     properties?: Id64String[][];
     // (undocumented)
     type: number[];
+}
+
+// @beta
+export interface ChangedEntities {
+    deleted?: CompressedId64Set;
+    inserted?: CompressedId64Set;
+    updated?: CompressedId64Set;
 }
 
 // @internal (undocumented)
@@ -945,7 +983,7 @@ export class CloudStorageTileCache extends CloudStorageCache<TileContentIdentifi
 
 // @public
 export class Code implements CodeProps {
-    constructor(val: CodeProps);
+    constructor(codeProps: CodeProps);
     static createEmpty(): Code;
     // @internal (undocumented)
     static equalCodes(c1: CodeProps, c2: CodeProps): boolean;
@@ -953,14 +991,17 @@ export class Code implements CodeProps {
     equals(other: Code): boolean;
     // (undocumented)
     static fromJSON(json?: any): Code;
-    // (undocumented)
+    // @deprecated (undocumented)
     getValue(): string;
     static isEmpty(c: CodeProps): boolean;
     static isValid(c: CodeProps): boolean;
     scope: string;
     spec: Id64String;
-    value?: string;
-}
+    // (undocumented)
+    toJSON(): CodeProps;
+    get value(): string;
+    set value(val: string);
+    }
 
 // @public
 export interface CodeProps {
@@ -1451,6 +1492,8 @@ export enum ContentFlags {
     // (undocumented)
     AllowInstancing = 1,
     // (undocumented)
+    ExternalTextures = 8,
+    // (undocumented)
     IgnoreAreaPatterns = 4,
     // (undocumented)
     ImprovedElision = 2,
@@ -1494,6 +1537,8 @@ export interface ContextRealityModelProps {
     name?: string;
     // @alpha (undocumented)
     orbitGtBlob?: OrbitGtBlobProps;
+    // @beta (undocumented)
+    planarClipMask?: PlanarClipMaskProps;
     realityDataId?: string;
     // (undocumented)
     tilesetUrl: string;
@@ -1531,8 +1576,8 @@ export const CURRENT_REQUEST: unique symbol;
 
 // @internal
 export enum CurrentImdlVersion {
-    Combined = 1376256,
-    Major = 21,
+    Combined = 1507328,
+    Major = 23,
     Minor = 0
 }
 
@@ -1574,12 +1619,6 @@ export interface DecorationGeometryProps {
     readonly id: Id64String;
 }
 
-// @alpha
-export const defaultDesktopAuthorizationClientExpiryBuffer: number;
-
-// @alpha
-export const defaultMobileAuthorizationClientExpiryBuffer: number;
-
 // @internal (undocumented)
 export const defaultTileOptions: TileOptions;
 
@@ -1593,38 +1632,6 @@ export interface DefinitionElementProps extends ElementProps {
 export interface DeletedElementGeometryChange {
     readonly id: Id64String;
     readonly type: DbOpcode.Delete;
-}
-
-// @alpha
-export interface DesktopAuthorizationClientConfiguration {
-    clientId: string;
-    expiryBuffer?: number;
-    redirectUri: string;
-    scope: string;
-}
-
-// @internal
-export class DesktopAuthorizationClientMessages {
-    // (undocumented)
-    static readonly getAccessToken: string;
-    // (undocumented)
-    static readonly getAccessTokenComplete: string;
-    // (undocumented)
-    static readonly initialize: string;
-    // (undocumented)
-    static readonly initializeComplete: string;
-    // (undocumented)
-    static readonly onUserStateChanged: string;
-    // (undocumented)
-    static readonly onUserStateChangedComplete: string;
-    // (undocumented)
-    static readonly signIn: string;
-    // (undocumented)
-    static readonly signInComplete: string;
-    // (undocumented)
-    static readonly signOut: string;
-    // (undocumented)
-    static readonly signOutComplete: string;
 }
 
 // @internal
@@ -1665,6 +1672,7 @@ export class DisplayStyle3dSettings extends DisplayStyleSettings {
     set ambientOcclusionSettings(ao: AmbientOcclusion.Settings);
     // @beta
     applyOverrides(overrides: DisplayStyle3dSettingsProps): void;
+    clearSunTime(): void;
     // @internal (undocumented)
     get environment(): EnvironmentProps;
     set environment(environment: EnvironmentProps);
@@ -1681,8 +1689,10 @@ export class DisplayStyle3dSettings extends DisplayStyleSettings {
     get planProjectionSettings(): Iterable<[Id64String, PlanProjectionSettings]> | undefined;
     // @beta
     setPlanProjectionSettings(modelId: Id64String, settings: PlanProjectionSettings | undefined): void;
+    setSunTime(timePoint: number, location: IModel | Cartographic): void;
     get solarShadows(): SolarShadowSettings;
     set solarShadows(solarShadows: SolarShadowSettings);
+    get sunTime(): number | undefined;
     // @beta
     get thematic(): ThematicDisplay;
     set thematic(thematic: ThematicDisplay);
@@ -1738,6 +1748,11 @@ export interface DisplayStyleProps extends DefinitionElementProps {
     };
 }
 
+// @beta
+export interface DisplayStyleRealityModelPlanarClipMaskProps extends PlanarClipMaskProps {
+    modelId?: Id64String;
+}
+
 // @public
 export class DisplayStyleSettings {
     constructor(jsonProperties: {
@@ -1767,15 +1782,21 @@ export class DisplayStyleSettings {
     dropExcludedElement(id: Id64String): void;
     dropExcludedElements(id: Id64String | Iterable<Id64String>): void;
     dropModelAppearanceOverride(id: Id64String): void;
+    // @beta
+    dropModelPlanarClipMaskOverride(id: Id64String): boolean;
     dropSubCategoryOverride(id: Id64String): void;
     // @internal (undocumented)
     equalModelAppearanceOverrides(other: DisplayStyleSettings): boolean;
+    // @internal (undocumented)
+    equalPlanarClipMaskOverrides(other: DisplayStyleSettings): boolean;
     // @internal (undocumented)
     equalSubCategoryOverrides(other: DisplayStyleSettings): boolean;
     get excludedElementIds(): OrderedId64Iterable;
     // @deprecated
     get excludedElements(): Set<Id64String>;
     getModelAppearanceOverride(id: Id64String): FeatureAppearance | undefined;
+    // @beta
+    getModelPlanarClipMask(id: Id64String): PlanarClipMaskSettings | undefined;
     getSubCategoryOverride(id: Id64String): SubCategoryOverride | undefined;
     get hasModelAppearanceOverride(): boolean;
     get hasSubCategoryOverride(): boolean;
@@ -1808,15 +1829,17 @@ export class DisplayStyleSettings {
     readonly onLightsChanged: BeEvent<(newLights: LightSettings) => void>;
     // @alpha
     readonly onMapImageryChanged: BeEvent<(newImagery: Readonly<MapImagerySettings>) => void>;
-    readonly onModelAppearanceOverrideChanged: BeEvent<(modelId: string, newAppearance: FeatureAppearance | undefined) => void>;
+    readonly onModelAppearanceOverrideChanged: BeEvent<(modelId: Id64String, newAppearance: FeatureAppearance | undefined) => void>;
     readonly onMonochromeColorChanged: BeEvent<(newColor: ColorDef) => void>;
     readonly onMonochromeModeChanged: BeEvent<(newMode: MonochromeMode) => void>;
     // @beta
     readonly onOverridesApplied: BeEvent<(overrides: Readonly<DisplayStyleSettingsProps>) => void>;
     // @beta
-    readonly onPlanProjectionSettingsChanged: BeEvent<(modelId: string, newSettings: PlanProjectionSettings | undefined) => void>;
+    readonly onPlanProjectionSettingsChanged: BeEvent<(modelId: Id64String, newSettings: PlanProjectionSettings | undefined) => void>;
+    // @beta
+    readonly onRealityModelPlanarClipMaskChanged: BeEvent<(idOrIndex: Id64String | number, newSettings: PlanarClipMaskSettings | undefined) => void>;
     // @internal
-    readonly onScheduleScriptPropsChanged: BeEvent<(newProps: readonly RenderSchedule.ModelTimelineProps[] | undefined) => void>;
+    readonly onScheduleScriptPropsChanged: BeEvent<(newProps: Readonly<RenderSchedule.ModelTimelineProps[]> | undefined) => void>;
     readonly onSolarShadowsChanged: BeEvent<(newSettings: SolarShadowSettings) => void>;
     readonly onSubCategoryOverridesChanged: BeEvent<() => void>;
     // @beta
@@ -1825,7 +1848,11 @@ export class DisplayStyleSettings {
     readonly onTimePointChanged: BeEvent<(newTimePoint: number | undefined) => void>;
     readonly onViewFlagsChanged: BeEvent<(newFlags: Readonly<ViewFlags>) => void>;
     overrideModelAppearance(modelId: Id64String, ovr: FeatureAppearance): void;
+    // @beta
+    overrideModelPlanarClipMask(modelId: Id64String, planarClipMask: PlanarClipMaskSettings): boolean;
     overrideSubCategory(id: Id64String, ovr: SubCategoryOverride): void;
+    // @internal (undocumented)
+    raiseRealityModelPlanarClipMaskChangedEvent(idOrIndex: Id64String | number, ovr?: PlanarClipMaskSettings): void;
     // @internal (undocumented)
     get scheduleScriptProps(): RenderSchedule.ModelTimelineProps[] | undefined;
     set scheduleScriptProps(props: RenderSchedule.ModelTimelineProps[] | undefined);
@@ -1861,6 +1888,8 @@ export interface DisplayStyleSettingsProps {
     modelOvr?: DisplayStyleModelAppearanceProps[];
     monochromeColor?: ColorDefProps;
     monochromeMode?: MonochromeMode;
+    // @beta
+    planarClipOvr?: DisplayStyleRealityModelPlanarClipMaskProps[];
     // @beta
     scheduleScript?: RenderSchedule.ModelTimelineProps[];
     subCategoryOvr?: DisplayStyleSubCategoryProps[];
@@ -2066,99 +2095,10 @@ export class EdgeArgs {
     get numEdges(): number;
 }
 
-// @alpha
-export abstract class Editor3dRpcInterface extends RpcInterface {
+// @internal
+export interface EditingSessionNotifications {
     // (undocumented)
-    applyTransform(_tokenProps: IModelRpcProps, _editorId: GuidString, _tprops: TransformProps): Promise<any>;
-    // (undocumented)
-    createElement(_tokenProps: IModelRpcProps, _editorId: GuidString, _props: GeometricElement3dProps, _origin?: Point3d, _angles?: YawPitchRollAngles, _geometry?: any): Promise<void>;
-    // (undocumented)
-    end(_tokenProps: IModelRpcProps, _editorId: GuidString): Promise<void>;
-    static getClient(): Editor3dRpcInterface;
-    static readonly interfaceName = "Editor3dRpcInterface";
-    static interfaceVersion: string;
-    // (undocumented)
-    popState(_tokenProps: IModelRpcProps, _editorId: GuidString): Promise<void>;
-    // (undocumented)
-    pushState(_tokenProps: IModelRpcProps, _editorId: GuidString): Promise<void>;
-    // (undocumented)
-    start(_tokenProps: IModelRpcProps, _editorId: GuidString): Promise<void>;
-    // (undocumented)
-    startModifyingElements(_tokenProps: IModelRpcProps, _editorId: GuidString, _elementIds: Id64Array): Promise<void>;
-    // (undocumented)
-    writeAllChangesToBriefcase(_tokenProps: IModelRpcProps, _editorId: GuidString, _opts: Editor3dRpcInterfaceWriteOptions): Promise<GeometricElement3dProps[] | Id64Array | void>;
-}
-
-// @alpha (undocumented)
-export interface Editor3dRpcInterfaceWriteOptions {
-    returnPropsOptions?: Editor3dRpcInterfaceWriteReturnPropsOptions;
-    returnType?: Editor3dRpcInterfaceWriteReturnType;
-}
-
-// @alpha (undocumented)
-export interface Editor3dRpcInterfaceWriteReturnPropsOptions {
-    geometry?: boolean;
-}
-
-// @alpha (undocumented)
-export enum Editor3dRpcInterfaceWriteReturnType {
-    Ids = 1,
-    None = 0,
-    Props = 2
-}
-
-// @beta
-export abstract class ElectronRpcConfiguration extends RpcConfiguration {
-    // (undocumented)
-    static readonly isElectron: boolean;
-    abstract protocol: ElectronRpcProtocol;
-    // (undocumented)
-    static targetWindowId?: number;
-}
-
-// @beta
-export class ElectronRpcManager extends RpcManager {
-    static initializeClient(params: ElectronRpcParams, interfaces: RpcInterfaceDefinition[]): ElectronRpcConfiguration;
-    static initializeImpl(params: ElectronRpcParams, interfaces: RpcInterfaceDefinition[]): ElectronRpcConfiguration;
-    }
-
-// @beta
-export interface ElectronRpcParams {
-    // (undocumented)
-    protocol?: typeof ElectronRpcProtocol;
-}
-
-// @beta
-export class ElectronRpcProtocol extends RpcProtocol {
-    constructor(configuration: ElectronRpcConfiguration);
-    // (undocumented)
-    static instances: Map<string, ElectronRpcProtocol>;
-    // @internal (undocumented)
-    onRpcClientInitialized(definition: RpcInterfaceDefinition, _client: RpcInterface): void;
-    // @internal (undocumented)
-    onRpcClientTerminated(definition: RpcInterfaceDefinition, _client: RpcInterface): void;
-    // @internal (undocumented)
-    onRpcImplInitialized(definition: RpcInterfaceDefinition, _impl: RpcInterface): void;
-    // @internal (undocumented)
-    onRpcImplTerminated(definition: RpcInterfaceDefinition, _impl: RpcInterface): void;
-    // @internal (undocumented)
-    requests: Map<string, ElectronRpcRequest>;
-    readonly requestType: typeof ElectronRpcRequest;
-    transferChunkThreshold: number;
-    // @internal (undocumented)
-    readonly transport: ElectronIpcTransport<IpcTransportMessage, IpcTransportMessage>;
-}
-
-// @beta (undocumented)
-export class ElectronRpcRequest extends RpcRequest {
-    // @internal (undocumented)
-    dispose(): void;
-    protected load(): Promise<import("../core/RpcMarshaling").RpcSerializedValue>;
-    // @internal (undocumented)
-    notifyResponse(fulfillment: RpcRequestFulfillment): void;
-    readonly protocol: ElectronRpcProtocol;
-    protected send(): Promise<number>;
-    protected setHeader(_name: string, _value: string): void;
+    notifyGeometryChanged: (modelProps: ModelGeometryChangesProps[]) => void;
 }
 
 // @public
@@ -2175,26 +2115,32 @@ export interface ElementAspectProps extends EntityProps {
 
 // @alpha
 export namespace ElementGeometry {
-    export function appendGeometryParams(geomParams: GeometryParams, entries: ElementGeometryDataEntry[]): boolean;
+    export function appendGeometryParams(geomParams: GeometryParams, entries: ElementGeometryDataEntry[], worldToLocal?: Transform): boolean;
     export class Builder {
         appendBRepData(brep: BRepEntity.DataProps): boolean;
         appendGeometryParamsChange(geomParams: GeometryParams): boolean;
-        appendGeometryPart(partId: Id64String, partToElement?: Transform): boolean;
+        appendGeometryPart(partId: Id64String, partTransform?: Transform): boolean;
         appendGeometryPart2d(partId: Id64String, instanceOrigin?: Point2d, instanceRotation?: Angle, instanceScale?: number): boolean;
         appendGeometryPart3d(partId: Id64String, instanceOrigin?: Point3d, instanceRotation?: YawPitchRollAngles, instanceScale?: number): boolean;
         appendGeometryQuery(geometry: GeometryQuery): boolean;
         appendGeometryRanges(): boolean;
         appendImageGraphic(image: ImageGraphic): boolean;
         appendTextString(text: TextString): boolean;
-        // (undocumented)
         readonly entries: ElementGeometryDataEntry[];
-    }
-    export function fromBRep(brep: BRepEntity.DataProps): ElementGeometryDataEntry | undefined;
-    export function fromGeometryPart(partId: Id64String, partToElement?: Transform): ElementGeometryDataEntry | undefined;
-    export function fromGeometryQuery(geom: GeometryQuery): ElementGeometryDataEntry | undefined;
-    export function fromImageGraphic(image: ImageGraphicProps): ElementGeometryDataEntry | undefined;
+        get localToWorld(): Transform | undefined;
+        static placementAngleFromPoints(pts: Point3d[], result?: Angle): Angle;
+        static placementAnglesFromPoints(pts: Point3d[], defaultUp?: Vector3d, result?: YawPitchRollAngles): YawPitchRollAngles;
+        setLocalToWorld(localToWorld?: Transform): void;
+        setLocalToWorld2d(origin: Point2d, angle?: Angle): void;
+        setLocalToWorld3d(origin: Point3d, angles?: YawPitchRollAngles): void;
+        get worldToLocal(): Transform | undefined;
+        }
+    export function fromBRep(brep: BRepEntity.DataProps, worldToLocal?: Transform): ElementGeometryDataEntry | undefined;
+    export function fromGeometryPart(partId: Id64String, partTransform?: Transform, worldToLocal?: Transform): ElementGeometryDataEntry | undefined;
+    export function fromGeometryQuery(geom: GeometryQuery, worldToLocal?: Transform): ElementGeometryDataEntry | undefined;
+    export function fromImageGraphic(image: ImageGraphicProps, worldToLocal?: Transform): ElementGeometryDataEntry | undefined;
     export function fromSubGraphicRange(bbox: ElementAlignedBox3d): ElementGeometryDataEntry | undefined;
-    export function fromTextString(text: TextStringProps): ElementGeometryDataEntry | undefined;
+    export function fromTextString(text: TextStringProps, worldToLocal?: Transform): ElementGeometryDataEntry | undefined;
     export function isAppearanceEntry(entry: ElementGeometryDataEntry): boolean;
     export function isGeometricEntry(entry: ElementGeometryDataEntry): boolean;
     export function isGeometryQueryEntry(entry: ElementGeometryDataEntry): boolean;
@@ -2206,6 +2152,7 @@ export namespace ElementGeometry {
         readonly entryArray: ElementGeometryDataEntry[];
         next(): IteratorResult<IteratorEntry>;
         readonly placement: Placement3d;
+        requestWorldCoordinates(): void;
         readonly viewIndependent?: boolean;
     }
     export interface IteratorData {
@@ -2216,13 +2163,15 @@ export namespace ElementGeometry {
     }
     // (undocumented)
     export class IteratorEntry implements IteratorData {
-        constructor(geomParams: GeometryParams, localToWorld: Transform);
+        constructor(geomParams: GeometryParams, localToWorld: Transform, applyLocalToWorld?: boolean);
         // (undocumented)
         readonly geomParams: GeometryParams;
         // (undocumented)
         localRange?: Range3d;
         // (undocumented)
         readonly localToWorld?: Transform;
+        // (undocumented)
+        get outputTransform(): Transform | undefined;
         toBRepData(wantBRepData?: boolean): BRepEntity.DataProps | undefined;
         toGeometryPart(partToLocal?: Transform, partToWorld?: Transform): Id64String | undefined;
         toGeometryQuery(): GeometryQuery | undefined;
@@ -2232,15 +2181,16 @@ export namespace ElementGeometry {
         get value(): ElementGeometryDataEntry;
         set value(value: ElementGeometryDataEntry);
         }
-    export function toBRep(entry: ElementGeometryDataEntry, wantBRepData?: boolean): BRepEntity.DataProps | undefined;
+    export function toBRep(entry: ElementGeometryDataEntry, wantBRepData?: boolean, localToWorld?: Transform): BRepEntity.DataProps | undefined;
     export function toElementAlignedBox3d(bbox: Float64Array): ElementAlignedBox3d | undefined;
     export function toGeometryPart(entry: ElementGeometryDataEntry, partToElement?: Transform): Id64String | undefined;
-    export function toGeometryQuery(entry: ElementGeometryDataEntry): GeometryQuery | undefined;
-    export function toImageGraphic(entry: ElementGeometryDataEntry): ImageGraphicProps | undefined;
+    export function toGeometryQuery(entry: ElementGeometryDataEntry, localToWorld?: Transform): GeometryQuery | undefined;
+    export function toImageGraphic(entry: ElementGeometryDataEntry, localToWorld?: Transform): ImageGraphicProps | undefined;
     export function toSubGraphicRange(entry: ElementGeometryDataEntry): ElementAlignedBox3d | undefined;
-    export function toTextString(entry: ElementGeometryDataEntry): TextStringProps | undefined;
+    export function toTextString(entry: ElementGeometryDataEntry, localToWorld?: Transform): TextStringProps | undefined;
     export function toTransform(sourceToWorld: Float64Array): Transform | undefined;
-    export function updateGeometryParams(entry: ElementGeometryDataEntry, geomParams: GeometryParams): boolean;
+    export function transformBRep(entry: ElementGeometryDataEntry, inputTransform: Transform): boolean;
+    export function updateGeometryParams(entry: ElementGeometryDataEntry, geomParams: GeometryParams, localToWorld?: Transform): boolean;
 }
 
 // @alpha
@@ -2402,6 +2352,7 @@ export interface EntityProps {
 
 // @public
 export interface EntityQueryParams {
+    bindings?: any[] | object;
     from?: string;
     limit?: number;
     offset?: number;
@@ -2418,24 +2369,6 @@ export interface EnvironmentProps {
     sky?: SkyBoxProps;
 }
 
-// @internal
-export namespace Events {
-    // (undocumented)
-    export namespace NativeApp {
-        const // (undocumented)
-        namespace = "NativeApp";
-        const // (undocumented)
-        onMemoryWarning = "onMemoryWarning";
-        const // (undocumented)
-        onBriefcaseDownloadProgress = "download-progress";
-        const // (undocumented)
-        onInternetConnectivityChanged = "onInternetConnectivityChanged";
-        const // (undocumented)
-        onUserStateChanged = "onUserStateChanged";
-        const modelGeometryChanges = "modelGeometryChanges";
-    }
-}
-
 // @alpha
 export interface ExtantElementGeometryChange {
     readonly id: Id64String;
@@ -2450,7 +2383,43 @@ export interface ExternalSourceAspectProps extends ElementAspectProps {
     jsonProperties?: any;
     kind: string;
     scope: RelatedElementProps;
+    // (undocumented)
+    source?: RelatedElementProps;
     version?: string;
+}
+
+// @beta
+export interface ExternalSourceAttachmentProps extends ElementProps {
+    // (undocumented)
+    attaches?: RelatedElementProps;
+    // (undocumented)
+    pitch?: number;
+    // (undocumented)
+    role?: ExternalSourceAttachmentRole;
+    // (undocumented)
+    roll?: number;
+    // (undocumented)
+    scale?: XYZProps;
+    // (undocumented)
+    translation?: XYZProps;
+    // (undocumented)
+    yaw?: number;
+}
+
+// @beta
+export enum ExternalSourceAttachmentRole {
+    SpecifyContext = 0,
+    SpecifyPart = 1
+}
+
+// @beta
+export interface ExternalSourceProps extends ElementProps {
+    // (undocumented)
+    connectorName?: string;
+    // (undocumented)
+    connectorVersion?: string;
+    // (undocumented)
+    repository?: RelatedElementProps;
 }
 
 // @public
@@ -3140,9 +3109,6 @@ export enum GeometrySummaryVerbosity {
     Full = 30
 }
 
-// @internal
-export const getIModelElectronApi: () => IModelElectronApi | undefined;
-
 // @internal (undocumented)
 export function getMaximumMajorTileFormatVersion(maxMajorVersion: number, formatVersion?: number): number;
 
@@ -3642,7 +3608,7 @@ export class ImageBuffer {
     protected constructor(data: Uint8Array, format: ImageBufferFormat, width: number);
     // @internal (undocumented)
     protected static computeHeight(data: Uint8Array, format: ImageBufferFormat, width: number): number;
-    static create(data: Uint8Array, format: ImageBufferFormat, width: number): ImageBuffer | undefined;
+    static create(data: Uint8Array, format: ImageBufferFormat, width: number): ImageBuffer;
     readonly data: Uint8Array;
     readonly format: ImageBufferFormat;
     static getNumBytesPerPixel(format: ImageBufferFormat): number;
@@ -3783,8 +3749,6 @@ export abstract class IModel implements IModelProps {
     getConnectionProps(): IModelConnectionProps;
     static getDefaultSubCategoryId(categoryId: Id64String): Id64String;
     getEcefTransform(): Transform;
-    // @internal (undocumented)
-    protected abstract getEventSourceProps(): IModelEventSourceProps;
     getRpcProps(): IModelRpcProps;
     get globalOrigin(): Point3d;
     set globalOrigin(org: Point3d);
@@ -3813,8 +3777,8 @@ export abstract class IModel implements IModelProps {
     toJSON(): IModelConnectionProps;
 }
 
-// @internal (undocumented)
-export type IModelConnectionProps = IModelProps & IModelRpcProps & IModelEventSourceProps;
+// @alpha (undocumented)
+export type IModelConnectionProps = IModelProps & IModelRpcProps;
 
 // @beta
 export interface IModelCoordinatesRequestProps {
@@ -3832,26 +3796,6 @@ export interface IModelCoordinatesResponseProps {
     iModelCoords: PointWithStatus[];
 }
 
-// @internal (undocumented)
-export interface IModelElectronApi extends IModelElectronIpc {
-    // (undocumented)
-    invoke(channel: string, ...args: any[]): Promise<any>;
-    // (undocumented)
-    sendSync(channel: string, ...args: any[]): any;
-}
-
-// @internal (undocumented)
-export interface IModelElectronIpc {
-    // (undocumented)
-    on: (channel: string, listener: (event: any, ...args: any[]) => void) => void;
-    // (undocumented)
-    once: (channel: string, listener: (event: any, ...args: any[]) => void) => void;
-    // (undocumented)
-    removeListener: (channel: string, listener: (event: any, ...args: any[]) => void) => void;
-    // (undocumented)
-    send: (channel: string, ...data: any[]) => void;
-}
-
 // @public
 export interface IModelEncryptionProps {
     password?: string;
@@ -3860,12 +3804,6 @@ export interface IModelEncryptionProps {
 // @public
 export class IModelError extends BentleyError {
     constructor(errorNumber: number | IModelStatus | DbResult | BentleyStatus | BriefcaseStatus | RepositoryStatus | ChangeSetStatus | RpcInterfaceStatus | AuthStatus, message: string, log?: LogFunction, category?: string, getMetaData?: GetMetaDataFunction);
-}
-
-// @internal
-export interface IModelEventSourceProps {
-    // (undocumented)
-    eventSourceName: string;
 }
 
 // @public
@@ -3912,6 +3850,8 @@ export abstract class IModelReadRpcInterface extends RpcInterface {
     getMassProperties(_iModelToken: IModelRpcProps, _props: MassPropertiesRequestProps): Promise<MassPropertiesResponseProps>;
     // (undocumented)
     getModelProps(_iModelToken: IModelRpcProps, _modelIds: Id64String[]): Promise<ModelProps[]>;
+    // @alpha (undocumented)
+    getTextureImage(_iModelToken: IModelRpcProps, _textureLoadProps: TextureLoadProps): Promise<Uint8Array | undefined>;
     // (undocumented)
     getToolTipMessage(_iModelToken: IModelRpcProps, _elementId: string): Promise<string[]>;
     // (undocumented)
@@ -3931,7 +3871,7 @@ export abstract class IModelReadRpcInterface extends RpcInterface {
     // (undocumented)
     queryModelRanges(_iModelToken: IModelRpcProps, _modelIds: Id64String[]): Promise<Range3dProps[]>;
     // (undocumented)
-    queryRows(_iModelToken: IModelRpcProps, _ecsql: string, _bindings?: any[] | object, _limit?: QueryLimit, _quota?: QueryQuota, _priority?: QueryPriority, _restartToken?: string): Promise<QueryResponse>;
+    queryRows(_iModelToken: IModelRpcProps, _ecsql: string, _bindings?: any[] | object, _limit?: QueryLimit, _quota?: QueryQuota, _priority?: QueryPriority, _restartToken?: string, _abbreviateBlobs?: boolean): Promise<QueryResponse>;
     // (undocumented)
     readFontJson(_iModelToken: IModelRpcProps): Promise<any>;
     // @beta (undocumented)
@@ -3955,6 +3895,8 @@ export { IModelStatus }
 
 // @public (undocumented)
 export abstract class IModelTileRpcInterface extends RpcInterface {
+    // @internal
+    generateTileContent(_rpcProps: IModelRpcProps, _treeId: string, _contentId: string, _guid: string | undefined): Promise<Uint8Array>;
     // (undocumented)
     static getClient(): IModelTileRpcInterface;
     // @beta (undocumented)
@@ -3962,12 +3904,14 @@ export abstract class IModelTileRpcInterface extends RpcInterface {
     static readonly interfaceName = "IModelTileRpcInterface";
     static interfaceVersion: string;
     // @internal
+    isUsingExternalTileCache(): Promise<boolean>;
+    // @internal
     purgeTileTrees(_tokenProps: IModelRpcProps, _modelIds: Id64Array | undefined): Promise<void>;
     // @internal (undocumented)
     queryVersionInfo(): Promise<TileVersionInfo>;
     // @internal
     requestElementGraphics(_rpcProps: IModelRpcProps, _request: ElementGraphicsRequestProps): Promise<Uint8Array | undefined>;
-    // @internal (undocumented)
+    // @internal @deprecated (undocumented)
     requestTileContent(iModelToken: IModelRpcProps, treeId: string, contentId: string, isCanceled?: () => boolean, guid?: string): Promise<Uint8Array>;
     // @internal (undocumented)
     requestTileTreeProps(_tokenProps: IModelRpcProps, _id: string): Promise<IModelTileTreeProps>;
@@ -4006,24 +3950,35 @@ export class IModelVersion {
     }
 
 // @public
-export interface IModelVersionProps {
-    // (undocumented)
-    afterChangeSetId?: GuidString;
-    // (undocumented)
-    first?: boolean;
-    // (undocumented)
-    latest?: boolean;
-    // (undocumented)
-    versionName?: string;
-}
+export type IModelVersionProps = {
+    first: true;
+    latest?: never;
+    afterChangeSetId?: never;
+    versionName?: never;
+} | {
+    latest: true;
+    first?: never;
+    afterChangeSetId?: never;
+    versionName?: never;
+} | {
+    afterChangeSetId: GuidString;
+    first?: never;
+    latest?: never;
+    versionName?: never;
+} | {
+    versionName: string;
+    first?: never;
+    latest?: never;
+    afterChangeSetId?: never;
+};
 
 // @internal
 export abstract class IModelWriteRpcInterface extends RpcInterface {
-    // (undocumented)
+    // @deprecated (undocumented)
     createAndInsertPhysicalModel(_tokenProps: IModelRpcProps, _newModelCode: CodeProps, _privateModel: boolean): Promise<Id64String>;
-    // (undocumented)
+    // @deprecated (undocumented)
     createAndInsertSpatialCategory(_tokenProps: IModelRpcProps, _scopeModelId: Id64String, _categoryName: string, _appearance: SubCategoryAppearance.Props): Promise<Id64String>;
-    // (undocumented)
+    // @deprecated (undocumented)
     deleteElements(_tokenProps: IModelRpcProps, _ids: Id64Array): Promise<void>;
     // (undocumented)
     doConcurrencyControlRequest(_tokenProps: IModelRpcProps): Promise<void>;
@@ -4041,7 +3996,7 @@ export abstract class IModelWriteRpcInterface extends RpcInterface {
     static interfaceVersion: string;
     // (undocumented)
     lockModel(_tokenProps: IModelRpcProps, _modelId: Id64String, _level: LockLevel): Promise<void>;
-    // (undocumented)
+    // @deprecated (undocumented)
     openForWrite(_iModelToken: IModelRpcOpenProps): Promise<IModelConnectionProps>;
     // (undocumented)
     pullAndMergeChanges(_tokenProps: IModelRpcProps): Promise<IModelConnectionProps>;
@@ -4057,7 +4012,7 @@ export abstract class IModelWriteRpcInterface extends RpcInterface {
     saveThumbnail(_iModelToken: IModelRpcProps, _val: Uint8Array): Promise<void>;
     // (undocumented)
     synchConcurrencyControlResourcesCache(_tokenProps: IModelRpcProps): Promise<void>;
-    // (undocumented)
+    // @deprecated (undocumented)
     undoRedo(_rpc: IModelRpcProps, _undo: boolean): Promise<IModelStatus>;
     // (undocumented)
     updateProjectExtents(_iModelToken: IModelRpcProps, _newExtents: AxisAlignedBox3dProps): Promise<void>;
@@ -4075,7 +4030,7 @@ export const initializeRpcRequest: () => void;
 // @internal (undocumented)
 export const INSTANCE: unique symbol;
 
-// @internal
+// @beta
 export enum InternetConnectivityStatus {
     // (undocumented)
     Offline = 1,
@@ -4099,6 +4054,158 @@ export const Interpolation: {
 // @beta (undocumented)
 export type InterpolationFunction = (v: any, k: number) => number;
 
+// @internal (undocumented)
+export enum IpcAppChannel {
+    // (undocumented)
+    AppNotify = "ipcApp-notify",
+    // (undocumented)
+    EditingSession = "editing-session",
+    // (undocumented)
+    Functions = "ipc-app",
+    // (undocumented)
+    PushPull = "push-pull",
+    // (undocumented)
+    Txns = "txns"
+}
+
+// @internal
+export interface IpcAppFunctions {
+    cancelElementGraphicsRequests: (key: string, _requestIds: string[]) => Promise<void>;
+    cancelTileContentRequests: (tokenProps: IModelRpcProps, _contentIds: TileTreeContentIds[]) => Promise<void>;
+    closeIModel: (key: string) => Promise<void>;
+    getRedoString: (key: string) => Promise<string>;
+    getUndoString: (key: string, allowCrossSessions?: boolean) => Promise<string>;
+    hasPendingTxns: (key: string) => Promise<boolean>;
+    // (undocumented)
+    isInteractiveEditingSupported: (key: string) => Promise<boolean>;
+    isRedoPossible: (key: string) => Promise<boolean>;
+    isUndoPossible: (key: string) => Promise<boolean>;
+    log: (_timestamp: number, _level: LogLevel, _category: string, _message: string, _metaData?: any) => Promise<void>;
+    openBriefcase: (_args: OpenBriefcaseProps) => Promise<IModelConnectionProps>;
+    openStandalone: (_filePath: string, _openMode: OpenMode, _opts?: StandaloneOpenOptions) => Promise<IModelConnectionProps>;
+    pullAndMergeChanges: (key: string, version?: IModelVersionProps) => Promise<void>;
+    pushChanges: (key: string, description: string) => Promise<string>;
+    queryConcurrency: (pool: "io" | "cpu") => Promise<number>;
+    // (undocumented)
+    reinstateTxn: (key: string) => Promise<IModelStatus>;
+    // (undocumented)
+    reverseAllTxn: (key: string) => Promise<IModelStatus>;
+    // (undocumented)
+    reverseTxns: (key: string, numOperations: number, allowCrossSessions?: boolean) => Promise<IModelStatus>;
+    saveChanges: (key: string, description?: string) => Promise<void>;
+    // (undocumented)
+    toggleInteractiveEditingSession: (key: string, _startSession: boolean) => Promise<boolean>;
+}
+
+// @internal
+export interface IpcAppNotifications {
+    // (undocumented)
+    notifyApp: () => void;
+}
+
+// @internal
+export type IpcInvokeReturn = {
+    result: any;
+    error?: never;
+} | {
+    result?: never;
+    error: {
+        name: string;
+        message: string;
+        errorNumber: number;
+        stack?: string;
+    };
+};
+
+// @beta
+export type IpcListener = (evt: Event, ...args: any[]) => void;
+
+// @beta
+export interface IpcSocket {
+    addListener: (channel: string, listener: IpcListener) => RemoveFunction;
+    removeListener: (channel: string, listener: IpcListener) => void;
+    send: (channel: string, ...data: any[]) => void;
+}
+
+// @beta
+export interface IpcSocketBackend extends IpcSocket {
+    handle: (channel: string, handler: (...args: any[]) => Promise<any>) => RemoveFunction;
+}
+
+// @beta
+export interface IpcSocketFrontend extends IpcSocket {
+    invoke: (channel: string, ...args: any[]) => Promise<any>;
+}
+
+// @internal (undocumented)
+export abstract class IpcWebSocket implements IpcSocket {
+    constructor();
+    // (undocumented)
+    addListener(channel: string, listener: IpcListener): RemoveFunction;
+    // (undocumented)
+    protected _channels: Map<string, Set<IpcListener>>;
+    // (undocumented)
+    static receivers: Set<(evt: Event, message: IpcWebSocketMessage) => void>;
+    // (undocumented)
+    removeListener(channel: string, listener: IpcListener): void;
+    // (undocumented)
+    abstract send(channel: string, ...data: any[]): void;
+    // (undocumented)
+    static transport: IpcWebSocketTransport;
+}
+
+// @internal (undocumented)
+export class IpcWebSocketBackend extends IpcWebSocket implements IpcSocketBackend {
+    constructor();
+    // (undocumented)
+    handle(channel: string, handler: (event: Event, methodName: string, ...args: any[]) => Promise<any>): RemoveFunction;
+    // (undocumented)
+    send(channel: string, ...data: any[]): void;
+}
+
+// @internal (undocumented)
+export class IpcWebSocketFrontend extends IpcWebSocket implements IpcSocketFrontend {
+    constructor();
+    // (undocumented)
+    invoke(channel: string, methodName: string, ...args: any[]): Promise<any>;
+    // (undocumented)
+    send(channel: string, ...data: any[]): void;
+}
+
+// @internal (undocumented)
+export interface IpcWebSocketMessage {
+    // (undocumented)
+    channel: string;
+    // (undocumented)
+    data?: any[];
+    // (undocumented)
+    method?: string;
+    // (undocumented)
+    request?: number;
+    // (undocumented)
+    response?: number;
+    // (undocumented)
+    type: IpcWebSocketMessageType;
+}
+
+// @internal (undocumented)
+export enum IpcWebSocketMessageType {
+    // (undocumented)
+    Invoke = 2,
+    // (undocumented)
+    Push = 1,
+    // (undocumented)
+    Response = 3,
+    // (undocumented)
+    Send = 0
+}
+
+// @internal (undocumented)
+export abstract class IpcWebSocketTransport {
+    // (undocumented)
+    abstract send(message: IpcWebSocketMessage): void;
+}
+
 // @internal
 export function isKnownTileFormat(format: number): boolean;
 
@@ -4107,6 +4214,9 @@ export function isPowerOfTwo(num: number): boolean;
 
 // @internal (undocumented)
 export function isValidImageSourceFormat(format: ImageSourceFormat): boolean;
+
+// @beta
+export const iTwinChannel: (channel: string) => string;
 
 // @public (undocumented)
 export interface LatAndLong {
@@ -4301,12 +4411,10 @@ export interface MapLayerProps {
     isBase?: boolean;
     maxZoom?: number;
     name?: string;
-    password?: string;
     subLayers?: MapSubLayerProps[];
     transparency?: number;
     transparentBackground?: boolean;
     url?: string;
-    userName?: string;
     visible?: boolean;
 }
 
@@ -4331,7 +4439,9 @@ export class MapLayerSettings {
     // (undocumented)
     readonly name: string;
     // (undocumented)
-    readonly password?: string;
+    password?: string;
+    // (undocumented)
+    setCredentials(userName?: string, password?: string): void;
     subLayerById(id?: SubLayerId): MapSubLayerSettings | undefined;
     // (undocumented)
     readonly subLayers: MapSubLayerSettings[];
@@ -4343,7 +4453,7 @@ export class MapLayerSettings {
     // (undocumented)
     readonly url: string;
     // (undocumented)
-    readonly userName?: string;
+    userName?: string;
     // (undocumented)
     readonly visible: boolean;
 }
@@ -4493,86 +4603,6 @@ export class MeshPolylineList extends Array<MeshPolyline> {
 }
 
 // @alpha
-export interface MobileAuthorizationClientConfiguration {
-    clientId: string;
-    expiryBuffer?: number;
-    redirectUri: string;
-    scope: string;
-}
-
-// @beta (undocumented)
-export type MobileRpcChunks = Array<string | Uint8Array>;
-
-// @beta
-export abstract class MobileRpcConfiguration extends RpcConfiguration {
-    static get args(): any;
-    static get isIOSFrontend(): any;
-    static get isMobileBackend(): boolean;
-    static get isMobileFrontend(): boolean;
-    static get platform(): RpcMobilePlatform;
-    // (undocumented)
-    abstract protocol: MobileRpcProtocol;
-    // @internal (undocumented)
-    static setup: {
-        obtainPort: () => number;
-        checkPlatform: () => boolean;
-    };
-}
-
-// @beta (undocumented)
-export interface MobileRpcGateway {
-    // (undocumented)
-    connectionId: number;
-    // (undocumented)
-    handler: (payload: ArrayBuffer | string, connectionId: number) => void;
-    // (undocumented)
-    port: number;
-    // (undocumented)
-    sendBinary: (message: Uint8Array, connectionId: number) => void;
-    // (undocumented)
-    sendString: (message: string, connectionId: number) => void;
-}
-
-// @beta
-export class MobileRpcManager {
-    static initializeClient(interfaces: RpcInterfaceDefinition[]): MobileRpcConfiguration;
-    static initializeImpl(interfaces: RpcInterfaceDefinition[]): MobileRpcConfiguration;
-    // @internal (undocumented)
-    static ready(): Promise<void>;
-}
-
-// @beta
-export class MobileRpcProtocol extends RpcProtocol {
-    constructor(configuration: MobileRpcConfiguration, endPoint: RpcEndpoint);
-    // (undocumented)
-    static encodeRequest(request: MobileRpcRequest): Promise<MobileRpcChunks>;
-    // (undocumented)
-    static encodeResponse(fulfillment: RpcRequestFulfillment): MobileRpcChunks;
-    // (undocumented)
-    static obtainInterop(): MobileRpcGateway;
-    // (undocumented)
-    requests: Map<string, MobileRpcRequest>;
-    // (undocumented)
-    readonly requestType: typeof MobileRpcRequest;
-    // (undocumented)
-    sendToBackend(message: MobileRpcChunks): void;
-    // (undocumented)
-    sendToFrontend(message: MobileRpcChunks, connection?: number): void;
-    // (undocumented)
-    socket: WebSocket;
-    }
-
-// @beta (undocumented)
-export class MobileRpcRequest extends RpcRequest {
-    protected load(): Promise<RpcSerializedValue>;
-    // @internal (undocumented)
-    notifyResponse(fulfillment: RpcRequestFulfillment): void;
-    readonly protocol: MobileRpcProtocol;
-    protected send(): Promise<number>;
-    protected setHeader(_name: string, _value: string): void;
-}
-
-// @alpha
 export class ModelClipGroup {
     clip?: ClipVector;
     clone(): ModelClipGroup;
@@ -4633,6 +4663,12 @@ export interface ModelGeometryChangesProps {
     readonly updated?: ElementIdsAndRangesProps;
 }
 
+// @beta
+export interface ModelIdAndGeometryGuid {
+    guid: GuidString;
+    id: Id64String;
+}
+
 // @public
 export interface ModelLoadProps {
     // (undocumented)
@@ -4677,42 +4713,58 @@ export enum MonochromeMode {
     Scaled = 1
 }
 
-// @internal
-export abstract class NativeAppRpcInterface extends RpcInterface {
-    acquireNewBriefcaseId(_iModelId: GuidString): Promise<number>;
-    authGetAccessToken(): Promise<string>;
-    authInitialize(_issuer: string, _config: any): Promise<void>;
-    authSignIn(): Promise<void>;
-    authSignOut(): Promise<void>;
-    cancelElementGraphicsRequests(_rpcProps: IModelRpcProps, _requestIds: string[]): Promise<void>;
-    cancelTileContentRequests(_iModelToken: IModelRpcProps, _contentIds: TileTreeContentIds[]): Promise<void>;
-    checkInternetConnectivity(): Promise<InternetConnectivityStatus>;
-    closeBriefcase(_key: string): Promise<void>;
-    deleteBriefcaseFiles(_fileName: string): Promise<void>;
-    downloadBriefcase(_requestProps: RequestNewBriefcaseProps, _reportProgress: boolean): Promise<LocalBriefcaseProps>;
-    getBriefcaseFileName(_props: BriefcaseProps): Promise<string>;
-    getCachedBriefcases(_iModelId?: GuidString): Promise<LocalBriefcaseProps[]>;
-    static getClient(): NativeAppRpcInterface;
-    getConfig(): Promise<any>;
-    static readonly interfaceName = "NativeAppRpcInterface";
-    static interfaceVersion: string;
+// @alpha
+export interface NativeAppAuthorizationConfiguration {
+    readonly clientId: string;
+    readonly expiryBuffer?: number;
     // (undocumented)
-    isInteractiveEditingSupported(_tokenProps: IModelRpcProps): Promise<boolean>;
-    log(_timestamp: number, _level: LogLevel, _category: string, _message: string, _metaData?: any): Promise<void>;
-    open(_args: OpenBriefcaseProps): Promise<IModelConnectionProps>;
-    overrideInternetConnectivity(_overriddenBy: OverriddenBy, _status?: InternetConnectivityStatus): Promise<void>;
-    requestCancelDownloadBriefcase(_fileName: string): Promise<boolean>;
-    storageGet(_storageId: string, _key: string): Promise<StorageValue | undefined>;
-    storageKeys(_storageId: string): Promise<string[]>;
-    storageMgrClose(_storageId: string, _deleteIt: boolean): Promise<void>;
-    storageMgrNames(): Promise<string[]>;
-    storageMgrOpen(_storageId: string): Promise<string>;
-    storageRemove(_storageId: string, _key: string): Promise<void>;
-    storageRemoveAll(_storageId: string): Promise<void>;
-    storageSet(_storageId: string, _key: string, _value: StorageValue): Promise<void>;
-    // (undocumented)
-    toggleInteractiveEditingSession(_tokenProps: IModelRpcProps, _startSession: boolean): Promise<boolean>;
+    issuerUrl?: string;
+    readonly redirectUri: string;
+    readonly scope: string;
 }
+
+// @internal (undocumented)
+export const nativeAppChannel = "nativeApp";
+
+// @internal
+export interface NativeAppFunctions {
+    acquireNewBriefcaseId: (_iModelId: GuidString) => Promise<number>;
+    checkInternetConnectivity: () => Promise<InternetConnectivityStatus>;
+    deleteBriefcaseFiles: (_fileName: string) => Promise<void>;
+    downloadBriefcase: (_requestProps: RequestNewBriefcaseProps, _reportProgress: boolean, _interval?: number) => Promise<LocalBriefcaseProps>;
+    // (undocumented)
+    getAccessTokenProps: () => Promise<AccessTokenProps>;
+    getBriefcaseFileName: (_props: BriefcaseProps) => Promise<string>;
+    getCachedBriefcases: (_iModelId?: GuidString) => Promise<LocalBriefcaseProps[]>;
+    getConfig: () => Promise<any>;
+    // (undocumented)
+    initializeAuth: (props: ClientRequestContextProps, config: NativeAppAuthorizationConfiguration) => Promise<void>;
+    overrideInternetConnectivity: (_overriddenBy: OverriddenBy, _status: InternetConnectivityStatus) => Promise<void>;
+    requestCancelDownloadBriefcase: (_fileName: string) => Promise<boolean>;
+    signIn: () => Promise<void>;
+    signOut: () => Promise<void>;
+    // (undocumented)
+    silentLogin: (token: AccessTokenProps) => Promise<void>;
+    storageGet: (_storageId: string, _key: string) => Promise<StorageValue | undefined>;
+    storageKeys: (_storageId: string) => Promise<string[]>;
+    storageMgrClose: (_storageId: string, _deleteOnClose: boolean) => Promise<void>;
+    storageMgrNames: () => Promise<string[]>;
+    storageMgrOpen: (_storageId: string) => Promise<string>;
+    storageRemove: (_storageId: string, _key: string) => Promise<void>;
+    storageRemoveAll: (_storageId: string) => Promise<void>;
+    storageSet: (_storageId: string, _key: string, _value: StorageValue) => Promise<void>;
+}
+
+// @internal
+export interface NativeAppNotifications {
+    // (undocumented)
+    notifyInternetConnectivityChanged: (status: InternetConnectivityStatus) => void;
+    // (undocumented)
+    notifyUserStateChanged: (accessToken?: AccessTokenProps) => void;
+}
+
+// @internal (undocumented)
+export const nativeAppNotify = "nativeApp-notify";
 
 // @public
 export interface NavigationBindingValue {
@@ -4998,7 +5050,7 @@ export interface OrbitGtBlobProps {
     sasToken: string;
 }
 
-// @internal
+// @beta
 export enum OverriddenBy {
     // (undocumented)
     Browser = 0,
@@ -5138,6 +5190,52 @@ export interface Placement3dProps {
 
 // @public (undocumented)
 export type PlacementProps = Placement2dProps | Placement3dProps;
+
+// @beta
+export enum PlanarClipMaskMode {
+    ExcludeElements = 5,
+    IncludeElements = 4,
+    IncludeSubCategories = 3,
+    Models = 2,
+    None = 0,
+    Priority = 1
+}
+
+// @beta
+export enum PlanarClipMaskPriority {
+    BackgroundMap = -2048,
+    BIM = 2048,
+    GlobalRealityModel = -1024,
+    Maximum = 4096,
+    RealityModel = 0
+}
+
+// @beta
+export interface PlanarClipMaskProps {
+    mode: PlanarClipMaskMode;
+    modelIds?: CompressedId64Set;
+    priority?: number;
+    subCategoryOrElementIds?: CompressedId64Set;
+    transparency?: number;
+}
+
+// @beta
+export class PlanarClipMaskSettings {
+    clone(changedProps?: PlanarClipMaskProps): PlanarClipMaskSettings;
+    static create(mode: PlanarClipMaskMode, modelIds?: Id64Set, subCategoryOrElementIds?: Id64Set, transparency?: number): PlanarClipMaskSettings | undefined;
+    static createByPriority(priority: number, transparency?: number): PlanarClipMaskSettings;
+    static defaults: PlanarClipMaskSettings;
+    // (undocumented)
+    equals(other: PlanarClipMaskSettings): boolean;
+    static fromJSON(json?: PlanarClipMaskProps): PlanarClipMaskSettings;
+    get isValid(): boolean;
+    readonly mode: PlanarClipMaskMode;
+    readonly modelIds?: CompressedId64Set;
+    readonly priority?: number;
+    readonly subCategoryOrElementIds?: CompressedId64Set;
+    toJSON(): PlanarClipMaskProps;
+    readonly transparency?: number;
+}
 
 // @beta
 export class PlanProjectionSettings {
@@ -5579,14 +5677,6 @@ export enum QueryResponseStatus {
     Timeout = 4
 }
 
-// @internal
-export interface QueuedEvent {
-    data: any;
-    eventId: number;
-    eventName: string;
-    namespace: string;
-}
-
 // @public
 export enum Rank {
     Application = 2,
@@ -5631,6 +5721,9 @@ export interface RelatedElementProps {
 // @public
 export interface RelationshipProps extends EntityProps, SourceAndTarget {
 }
+
+// @beta
+export type RemoveFunction = () => void;
 
 // @beta
 export abstract class RenderMaterial {
@@ -5814,6 +5907,8 @@ export namespace RenderTexture {
 // @public
 export interface RepositoryLinkProps extends UrlLinkProps {
     // (undocumented)
+    format?: string;
+    // (undocumented)
     repositoryGuid?: GuidString;
 }
 
@@ -5939,6 +6034,7 @@ export abstract class RpcConfiguration {
     // @internal (undocumented)
     static supply(definition: RpcInterface): RpcConfiguration;
     static throwOnTokenMismatch: boolean;
+    transientFaultLimit: number;
 }
 
 // @public (undocumented)
@@ -6086,16 +6182,6 @@ export class RpcManager {
 export class RpcMarshaling {
     static deserialize(protocol: RpcProtocol | undefined, value: RpcSerializedValue): any;
     static serialize(protocol: RpcProtocol | undefined, value: any): Promise<RpcSerializedValue>;
-}
-
-// @beta
-export enum RpcMobilePlatform {
-    // (undocumented)
-    Android = 1,
-    // (undocumented)
-    iOS = 2,
-    // (undocumented)
-    Unknown = 0
 }
 
 // @internal
@@ -6357,6 +6443,8 @@ export abstract class RpcRequest<TResponse = any> {
     // (undocumented)
     cancel(): void;
     readonly client: RpcInterface;
+    // (undocumented)
+    protected computeRetryAfter(attempts: number): number;
     get connecting(): boolean;
     static current(context: RpcInterface): RpcRequest;
     // @internal (undocumented)
@@ -6383,15 +6471,20 @@ export abstract class RpcRequest<TResponse = any> {
     get pending(): boolean;
     readonly protocol: RpcProtocol;
     // (undocumented)
-    protected _rawPromise: Promise<Response>;
-    get rawResponse(): Promise<Response>;
+    protected _rawPromise: Promise<Response | undefined>;
+    get rawResponse(): Promise<Response | undefined>;
+    // (undocumented)
+    protected recordTransientFault(): void;
     // (undocumented)
     protected reject(reason: any): void;
     // (undocumented)
+    protected resetTransientFaultCount(): void;
+    // (undocumented)
     protected _resolveRaw: (value?: Response | PromiseLike<Response> | undefined) => void;
-    readonly response: Promise<TResponse>;
+    readonly response: Promise<TResponse | undefined>;
     // (undocumented)
     protected _response: Response | undefined;
+    get retryAfter(): number | null;
     retryInterval: number;
     protected abstract send(): Promise<number>;
     protected abstract setHeader(name: string, value: string): void;
@@ -6401,7 +6494,7 @@ export abstract class RpcRequest<TResponse = any> {
     get status(): RpcRequestStatus;
     // (undocumented)
     submit(): Promise<void>;
-}
+    }
 
 // @public
 export type RpcRequestCallback_T = (request: RpcRequest) => void;
@@ -6418,7 +6511,9 @@ export enum RpcRequestEvent {
     // (undocumented)
     PendingUpdateReceived = 1,
     // (undocumented)
-    StatusChanged = 0
+    StatusChanged = 0,
+    // (undocumented)
+    TransientErrorReceived = 2
 }
 
 // @public
@@ -6430,6 +6525,8 @@ export interface RpcRequestFulfillment {
     interfaceName: string;
     rawResult: any;
     result: RpcSerializedValue;
+    // (undocumented)
+    retry?: string;
     status: number;
 }
 
@@ -6448,11 +6545,15 @@ export type RpcRequestNotFoundHandler = (request: RpcRequest, response: RpcNotFo
 // @public
 export enum RpcRequestStatus {
     // (undocumented)
+    BadGateway = 10,
+    // (undocumented)
     Cancelled = 8,
     // (undocumented)
     Created = 1,
     // (undocumented)
     Disposed = 6,
+    // (undocumented)
+    GatewayTimeout = 12,
     // (undocumented)
     NoContent = 9,
     // (undocumented)
@@ -6464,9 +6565,17 @@ export enum RpcRequestStatus {
     // (undocumented)
     Resolved = 4,
     // (undocumented)
+    ServiceUnavailable = 11,
+    // (undocumented)
     Submitted = 2,
     // (undocumented)
     Unknown = 0
+}
+
+// @public (undocumented)
+export namespace RpcRequestStatus {
+    // (undocumented)
+    export function isTransientError(status: RpcRequestStatus): boolean;
 }
 
 // @public
@@ -6785,15 +6894,13 @@ export interface SnapshotOpenOptions extends IModelEncryptionProps, OpenDbKey {
 // @public
 export class SolarLight {
     constructor(json?: SolarLightProps);
-    // (undocumented)
     readonly alwaysEnabled: boolean;
     clone(changedProps?: SolarLightProps): SolarLight;
-    // (undocumented)
     readonly direction: Readonly<Vector3d>;
     // (undocumented)
     equals(rhs: SolarLight): boolean;
-    // (undocumented)
     readonly intensity: number;
+    readonly timePoint?: number;
     // (undocumented)
     toJSON(): SolarLightProps | undefined;
 }
@@ -6803,6 +6910,7 @@ export interface SolarLightProps {
     alwaysEnabled?: boolean;
     direction?: XYZProps;
     intensity?: number;
+    timePoint?: number;
 }
 
 // @public
@@ -6885,21 +6993,10 @@ export interface SpatialViewDefinitionProps extends ViewDefinition3dProps {
     modelSelectorId: Id64String;
 }
 
-// @internal
-export abstract class StandaloneIModelRpcInterface extends RpcInterface {
-    // (undocumented)
-    close(_iModelRpcProps: IModelRpcProps): Promise<boolean>;
-    static getClient(): StandaloneIModelRpcInterface;
-    static readonly interfaceName = "StandaloneIModelRpcInterface";
-    static interfaceVersion: string;
-    // (undocumented)
-    openFile(_filePath: string, _openMode: OpenMode, _opts?: StandaloneOpenOptions): Promise<IModelConnectionProps>;
-}
-
 // @beta
 export type StandaloneOpenOptions = OpenDbKey;
 
-// @internal
+// @beta
 export type StorageValue = string | number | boolean | null | Uint8Array;
 
 // @public
@@ -6991,13 +7088,16 @@ export interface SubjectProps extends ElementProps {
 // @alpha (undocumented)
 export type SubLayerId = string | number;
 
+// @beta
+export interface SynchronizationConfigLinkProps extends UrlLinkProps {
+    // (undocumented)
+    lastSuccessfulRun?: string;
+}
+
 // @public
 export enum SyncMode {
-    // (undocumented)
     FixedVersion = 1,
-    // (undocumented)
     PullAndPush = 2,
-    // (undocumented)
     PullOnly = 3
 }
 
@@ -7099,6 +7199,11 @@ export enum TextureFlags {
     None = 0
 }
 
+// @alpha
+export interface TextureLoadProps {
+    name: Id64String;
+}
+
 // @beta
 export class TextureMapping {
     constructor(tx: RenderTexture, params: TextureMapping.Params);
@@ -7187,7 +7292,7 @@ export enum TextureMapUnits {
 
 // @beta
 export interface TextureProps extends DefinitionElementProps {
-    data: string;
+    data: Base64EncodedString;
     description?: string;
     flags: TextureFlags;
     format: ImageSourceFormat;
@@ -7424,6 +7529,8 @@ export interface TileOptions {
     // (undocumented)
     readonly disableMagnification: boolean;
     // (undocumented)
+    readonly enableExternalTextures: boolean;
+    // (undocumented)
     readonly enableImprovedElision: boolean;
     // (undocumented)
     readonly enableInstancing: boolean;
@@ -7596,6 +7703,36 @@ export class Tweens {
     removeAll(): void;
     // (undocumented)
     update(time?: number, preserve?: boolean): boolean;
+}
+
+// @public
+export enum TxnAction {
+    Abandon = 2,
+    Commit = 1,
+    Merge = 5,
+    None = 0,
+    Reinstate = 4,
+    Reverse = 3
+}
+
+// @internal
+export interface TxnNotifications {
+    // (undocumented)
+    notifyAfterUndoRedo: (isUndo: boolean) => void;
+    // (undocumented)
+    notifyBeforeUndoRedo: (isUndo: boolean) => void;
+    // (undocumented)
+    notifyChangesApplied: () => void;
+    // (undocumented)
+    notifyCommit: () => void;
+    // (undocumented)
+    notifyCommitted: () => void;
+    // (undocumented)
+    notifyElementsChanged: (changes: ChangedEntities) => void;
+    // (undocumented)
+    notifyGeometryGuidsChanged: (changes: ModelIdAndGeometryGuid[]) => void;
+    // (undocumented)
+    notifyModelsChanged: (changes: ChangedEntities) => void;
 }
 
 // @public
@@ -8084,6 +8221,8 @@ export abstract class WebAppRpcProtocol extends RpcProtocol {
 // @public
 export class WebAppRpcRequest extends RpcRequest {
     constructor(client: RpcInterface, operation: string, parameters: any[]);
+    // (undocumented)
+    protected computeRetryAfter(attempts: number): number;
     protected static computeTransportType(value: RpcSerializedValue, source: any): RpcContentType;
     // (undocumented)
     protected handleUnknownResponse(code: number): void;
@@ -8112,8 +8251,6 @@ export class WebAppRpcRequest extends RpcRequest {
 export abstract class WipRpcInterface extends RpcInterface {
     // (undocumented)
     attachChangeCache(_iModelToken: IModelRpcProps): Promise<void>;
-    // (undocumented)
-    detachChangeCache(_iModelToken: IModelRpcProps): Promise<void>;
     // (undocumented)
     getChangedElements(_iModelToken: IModelRpcProps, _startChangesetId: string, _endChangesetId: string): Promise<ChangedElements | undefined>;
     static getClient(): WipRpcInterface;

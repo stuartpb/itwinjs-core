@@ -4,15 +4,41 @@
 
 ```ts
 
-import { CommandMethodProps } from '@bentley/imodeljs-editor-common';
-import { CommandResult } from '@bentley/imodeljs-editor-common';
+import { BasicManipulationCommandIpc } from '@bentley/imodeljs-editor-common';
+import { CompressedId64Set } from '@bentley/bentleyjs-core';
+import { EditCommandIpc } from '@bentley/imodeljs-editor-common';
+import { GeometricElementProps } from '@bentley/imodeljs-common';
+import { GeometryPartProps } from '@bentley/imodeljs-common';
+import { Id64String } from '@bentley/bentleyjs-core';
 import { IModelDb } from '@bentley/imodeljs-backend';
-import { PingResult } from '@bentley/imodeljs-editor-common';
-import { StartCommandProps } from '@bentley/imodeljs-editor-common';
+import { IModelStatus } from '@bentley/bentleyjs-core';
+import { InsertGeometricElementData } from '@bentley/imodeljs-editor-common';
+import { InsertGeometryPartData } from '@bentley/imodeljs-editor-common';
+import { Matrix3dProps } from '@bentley/geometry-core';
+import { TransformProps } from '@bentley/geometry-core';
+
+// @alpha (undocumented)
+export class BasicManipulationCommand extends EditCommand implements BasicManipulationCommandIpc {
+    constructor(iModel: IModelDb, _str: string);
+    // (undocumented)
+    static commandId: string;
+    // (undocumented)
+    deleteElements(ids: CompressedId64Set): Promise<IModelStatus>;
+    // (undocumented)
+    insertGeometricElement(props: GeometricElementProps, data?: InsertGeometricElementData): Promise<Id64String>;
+    // (undocumented)
+    insertGeometryPart(props: GeometryPartProps, data?: InsertGeometryPartData): Promise<Id64String>;
+    // (undocumented)
+    rotatePlacement(ids: CompressedId64Set, matrixProps: Matrix3dProps, aboutCenter: boolean): Promise<IModelStatus>;
+    // (undocumented)
+    protected _str: string;
+    // (undocumented)
+    transformPlacement(ids: CompressedId64Set, transProps: TransformProps): Promise<IModelStatus>;
+}
 
 // @alpha
-export class EditCommand {
-    constructor(iModel: IModelDb, _arg?: any);
+export class EditCommand implements EditCommandIpc {
+    constructor(iModel: IModelDb, ..._args: any[]);
     static commandId: string;
     // (undocumented)
     get ctor(): EditCommandType;
@@ -22,9 +48,13 @@ export class EditCommand {
     // (undocumented)
     onFinish(): void;
     // (undocumented)
-    onPing(): CommandResult<PingResult>;
+    onStart(): Promise<any>;
     // (undocumented)
-    onStart(): CommandResult<any>;
+    ping(): Promise<{
+        commandId: string;
+        version: string;
+        [propName: string]: any;
+    }>;
     // (undocumented)
     static version: string;
 }
@@ -32,15 +62,13 @@ export class EditCommand {
 // @alpha
 export class EditCommandAdmin {
     // (undocumented)
-    static callMethod(method: CommandMethodProps<any>): CommandResult<any>;
+    static get activeCommand(): EditCommand | undefined;
     // (undocumented)
     static readonly commands: Map<string, typeof EditCommand>;
     static register(commandType: EditCommandType): void;
     static registerModule(moduleObj: any): void;
     // (undocumented)
-    static runCommand(cmd?: EditCommand): CommandResult<any>;
-    // (undocumented)
-    static startCommand(props: StartCommandProps<any>): CommandResult<any>;
+    static runCommand(cmd?: EditCommand): Promise<any> | undefined;
     static unRegister(commandId: string): void;
 }
 

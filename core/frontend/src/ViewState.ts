@@ -31,7 +31,7 @@ import { RenderClipVolume } from "./render/RenderClipVolume";
 import { RenderMemory } from "./render/RenderMemory";
 import { RenderScheduleState } from "./RenderScheduleState";
 import { StandardView, StandardViewId } from "./StandardView";
-import { TileTreeReference, TileTreeSet } from "./tile/internal";
+import { DisclosedTileTreeSet, TileTreeReference } from "./tile/internal";
 import { DecorateContext, SceneContext } from "./ViewContext";
 import { areaToEyeHeight, areaToEyeHeightFromGcs, GlobalLocation } from "./ViewGlobalLocation";
 import { ViewingSpace } from "./ViewingSpace";
@@ -201,16 +201,17 @@ export abstract class ViewState extends ElementState {
     };
   }
 
-  /** Get the ViewFlags from the [[DisplayStyleState]] of this ViewState.
-   * @note Do not modify this object directly. Instead, use the setter as follows:
-   *
-   *  ```ts
-   *  const flags = viewState.viewFlags.clone();
-   *  flags.renderMode = RenderMode.SmoothShade; // or whatever alterations are desired
-   *  viewState.viewFlags = flags;
-   *  ```ts
+  /** Flags controlling various aspects of this view's [[DisplayStyleState]].
+   * @note Don't modify this object directly - clone it and modify the clone, then pass the clone to the setter.
+   * @see [DisplayStyleSettings.viewFlags]($common)
    */
-  public get viewFlags(): ViewFlags { return this.displayStyle.viewFlags; }
+  public get viewFlags(): ViewFlags {
+    return this.displayStyle.viewFlags;
+  }
+  public set viewFlags(flags: ViewFlags) {
+    this.displayStyle.viewFlags = flags;
+  }
+
   /** Get the AnalysisDisplayProperties from the displayStyle of this ViewState. */
   public get analysisStyle(): AnalysisStyle | undefined { return this.displayStyle.settings.analysisStyle; }
 
@@ -270,7 +271,7 @@ export abstract class ViewState extends ElementState {
   }
 
   /** Get the name of the [[ViewDefinition]] from which this ViewState originated. */
-  public get name(): string { return this.code.getValue(); }
+  public get name(): string { return this.code.value; }
 
   /** Get this view's background color. */
   public get backgroundColor(): ColorDef { return this.displayStyle.backgroundColor; }
@@ -380,7 +381,7 @@ export abstract class ViewState extends ElementState {
   /** Disclose *all* TileTrees currently in use by this view. This set may include trees not reported by [[forEachTileTreeRef]] - e.g., those used by view attachments, map-draped terrain, etc.
    * @internal
    */
-  public discloseTileTrees(trees: TileTreeSet): void {
+  public discloseTileTrees(trees: DisclosedTileTreeSet): void {
     this.forEachTileTreeRef((ref) => trees.disclose(ref));
   }
 
@@ -388,9 +389,9 @@ export abstract class ViewState extends ElementState {
    * @internal
    */
   public collectStatistics(stats: RenderMemory.Statistics): void {
-    const trees = new TileTreeSet();
+    const trees = new DisclosedTileTreeSet();
     this.discloseTileTrees(trees);
-    for (const tree of trees.trees)
+    for (const tree of trees)
       tree.collectStatistics(stats);
 
     this.collectNonTileTreeStatistics(stats);
@@ -1033,6 +1034,28 @@ export abstract class ViewState extends ElementState {
     return this.modelDisplayTransformProvider ? this.modelDisplayTransformProvider.getModelDisplayTransform(modelId, baseTransform) : baseTransform;
   }
 
+  /** @internal */
+  public transformPointByModelDisplayTransform(modelId: string | undefined, pnt: Point3d, inverse: boolean): void {
+    if (undefined !== modelId && undefined !== this.modelDisplayTransformProvider) {
+      const transform = this.modelDisplayTransformProvider.getModelDisplayTransform(modelId, Transform.createIdentity());
+      const newPnt = inverse ? transform.multiplyInversePoint3d(pnt) : transform.multiplyPoint3d(pnt);
+      if (undefined !== newPnt)
+        pnt.set(newPnt.x, newPnt.y, newPnt.z);
+    }
+  }
+
+  /** @internal */
+  public transformNormalByModelDisplayTransform(modelId: string | undefined, normal: Vector3d): void {
+    if (undefined !== modelId && undefined !== this.modelDisplayTransformProvider) {
+      const transform = this.modelDisplayTransformProvider.getModelDisplayTransform(modelId, Transform.createIdentity());
+      const newVec = transform.matrix.multiplyInverse(normal);
+      if (undefined !== newVec) {
+        newVec.normalizeInPlace();
+        normal.set(newVec.x, newVec.y, newVec.z);
+      }
+    }
+  }
+
   /** Invoked when this view becomes the view displayed by the specified [[Viewport]].
    * A ViewState can be attached to at most **one** Viewport.
    * @note If you override this method you **must** call `super.attachToViewport`.
@@ -1079,6 +1102,14 @@ export abstract class ViewState extends ElementState {
     // In attachToViewport, we register event listeners on the category selector. We remove them in detachFromViewport.
     // So a non-empty list of event listener removal functions indicates we are currently attached to a viewport.
     return this._unregisterCategorySelectorListeners.length > 0;
+  }
+
+  /** Returns an iterator over additional Viewports used to construct this view's scene. e.g., those used for ViewAttachments and section drawings.
+   * This exists chiefly for display-performance-test-app to determine when all tiles required for the view have been loaded.
+   * @internal
+   */
+  public get secondaryViewports(): Iterable<Viewport> {
+    return [];
   }
 }
 
@@ -1273,27 +1304,8 @@ export abstract class ViewState3d extends ViewState {
     targetPoint = this.cartographicToRoot(targetPointCartographic)!;
 
     targetPointCartographic.height = eyeHeight;
-    let lEyePoint = this.cartographicToRoot(targetPointCartographic)!;
-
-    targetPointCartographic.latitude += 10.0;
-    const northOfEyePoint = this.cartographicToRoot(targetPointCartographic)!;
-    let upVector = northOfEyePoint.unitVectorTo(lEyePoint)!;
-    if (this.globeMode === GlobeMode.Plane)
-      upVector = Vector3d.create(Math.abs(upVector.x), Math.abs(upVector.y), Math.abs(upVector.z));
-
-    if (0 !== pitchAngleRadians) {
-      const pitchAxis = upVector.unitCrossProduct(Vector3d.createStartEnd(targetPoint, lEyePoint));
-      if (undefined !== pitchAxis) {
-        const pitchMatrix = Matrix3d.createRotationAroundVector(pitchAxis, Angle.createRadians(pitchAngleRadians))!;
-        const pitchTransform = Transform.createFixedPointAndMatrix(targetPoint, pitchMatrix);
-        lEyePoint = pitchTransform.multiplyPoint3d(lEyePoint);
-        pitchMatrix.multiplyVector(upVector, upVector);
-      }
-    }
-
-    this.lookAtUsingLensAngle(lEyePoint, targetPoint, upVector, this.camera.getLensAngle());
-
-    return lEyePoint.distance(origEyePoint);
+    const lEyePoint = this.cartographicToRoot(targetPointCartographic)!;
+    return this.finishLookAtGlobalLocation(targetPointCartographic, origEyePoint, lEyePoint, targetPoint, pitchAngleRadians);
   }
 
   /** Look at a global location, placing the camera's eye at the specified eye height above a viewed location using the GCS.
@@ -1311,7 +1323,7 @@ export abstract class ViewState3d extends ViewState {
     if (location !== undefined && location.area !== undefined)
       eyeHeight = await areaToEyeHeightFromGcs(this, location.area, location.center.height);
 
-    const origEyePoint = eyePoint !== undefined ? eyePoint.clone() : this.getEyePoint().clone();
+    const origEyePoint = eyePoint !== undefined ? eyePoint.clone() : this.getEyeOrOrthographicViewPoint().clone();
 
     let targetPoint = origEyePoint;
     const targetPointCartographic = location !== undefined ? location.center.clone() : this.rootToCartographic(targetPoint)!;
@@ -1319,10 +1331,13 @@ export abstract class ViewState3d extends ViewState {
     targetPoint = (await this.cartographicToRootFromGcs(targetPointCartographic))!;
 
     targetPointCartographic.height = eyeHeight;
-    let lEyePoint = (await this.cartographicToRootFromGcs(targetPointCartographic))!;
+    const lEyePoint = (await this.cartographicToRootFromGcs(targetPointCartographic))!;
+    return this.finishLookAtGlobalLocation(targetPointCartographic, origEyePoint, lEyePoint, targetPoint, pitchAngleRadians);
+  }
 
+  private finishLookAtGlobalLocation(targetPointCartographic: Cartographic, origEyePoint: Point3d, lEyePoint: Point3d, targetPoint: Point3d, pitchAngleRadians: number): number {
     targetPointCartographic.latitude += 10.0;
-    const northOfEyePoint = (await this.cartographicToRootFromGcs(targetPointCartographic))!;
+    const northOfEyePoint = this.cartographicToRoot(targetPointCartographic)!;
     let upVector = northOfEyePoint.unitVectorTo(lEyePoint)!;
     if (this.globeMode === GlobeMode.Plane)
       upVector = Vector3d.create(Math.abs(upVector.x), Math.abs(upVector.y), Math.abs(upVector.z));
@@ -1337,7 +1352,10 @@ export abstract class ViewState3d extends ViewState {
       }
     }
 
+    const isCameraEnabled = this.isCameraEnabled();
     this.lookAtUsingLensAngle(lEyePoint, targetPoint, upVector, this.camera.getLensAngle());
+    if (!isCameraEnabled && this.isCameraEnabled)
+      this.turnCameraOff();
 
     return lEyePoint.distance(origEyePoint);
   }
@@ -1768,6 +1786,20 @@ export abstract class ViewState3d extends ViewState {
 
   /**  Get the distance from the eyePoint to the focus plane for this view. */
   public getFocusDistance(): number { return this.camera.focusDist; }
+
+  /** @internal */
+  public getEyeOrOrthographicViewPoint(): Point3d {
+    if (this.isCameraOn)
+      return this.camera.getEyePoint();
+
+    this.camera.validateLens();
+    const tanHalfAngle = Math.tan(this.camera.lens.radians / 2);
+    const halfDelta = this.getExtents().magnitudeXY();
+    const eyeDistance = tanHalfAngle ? (halfDelta / tanHalfAngle) : 0;
+    const zVector = this.getRotation().getRow(2);
+
+    return this.getCenter().plusScaled(zVector, - eyeDistance);
+  }
   public createAuxCoordSystem(acsName: string): AuxCoordSystemState { return AuxCoordSystem3dState.createNew(acsName, this.iModel); }
 
   public decorate(context: DecorateContext): void {

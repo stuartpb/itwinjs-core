@@ -1,8 +1,9 @@
 sep=;
 Release Tag;API Item
-alpha;CommandError = "CommandNotFound" | "Exception" | "MethodNotFound" | "NoActiveCommand"
-alpha;CommandMethodProps
-alpha;CommandResult
-alpha;editCommandApi:
-alpha;PingResult
-alpha;StartCommandProps
+alpha;BasicManipulationCommandIpc 
+alpha;EditCommandIpc
+alpha;editorBuiltInCmdIds:
+internal;editorChannel = "editor"
+alpha;EditorIpc
+alpha;InsertGeometricElementData
+alpha;InsertGeometryPartData

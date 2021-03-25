@@ -10,7 +10,7 @@ import { GeometryStreamProps } from "@bentley/imodeljs-common";
 import { HitDetail } from "./HitDetail";
 import { IModelApp } from "./IModelApp";
 import { IModelConnection } from "./IModelConnection";
-import { TileTree, TileTreeSet } from "./tile/internal";
+import { DisclosedTileTreeSet, TileTree } from "./tile/internal";
 import { EventController } from "./tools/EventController";
 import { BeButtonEvent, EventHandled } from "./tools/Tool";
 import { ScreenViewport, ViewportDecorator } from "./Viewport";
@@ -84,18 +84,27 @@ export class ViewManager {
   private _invalidateScenes = false;
   private _skipSceneCreation = false;
   private _doIdleWork = false;
+  private _idleWorkTimer?: any;
 
   /** @internal */
   public readonly toolTipProviders: ToolTipProvider[] = [];
 
   private _beginIdleWork() {
     const idleWork = () => {
-      if (this._viewports.length > 0)
+      if (undefined === this._idleWorkTimer)
         return;
+      if (this._viewports.length > 0) {
+        this._idleWorkTimer = undefined;
+        return;
+      }
       if (IModelApp.renderSystem.doIdleWork())
-        setTimeout(idleWork, 1);
+        this._idleWorkTimer = setTimeout(idleWork, 1);
+      else
+        this._idleWorkTimer = undefined;
     };
-    setTimeout(idleWork, 1);
+
+    if (undefined === this._idleWorkTimer)
+      this._idleWorkTimer = setTimeout(idleWork, 1);
   }
 
   /** @internal */
@@ -107,13 +116,17 @@ export class ViewManager {
     this.cursor = "default";
 
     const options = IModelApp.renderSystem.options;
-    this._doIdleWork = true === options.doIdleWork;
+    this._doIdleWork = false !== options.doIdleWork;
     if (this._doIdleWork)
       this._beginIdleWork();
   }
 
   /** @internal */
   public onShutDown() {
+    if (undefined !== this._idleWorkTimer) {
+      clearTimeout(this._idleWorkTimer);
+      this._idleWorkTimer = undefined;
+    }
     this._viewports.length = 0;
     this.decorators.length = 0;
     this.toolTipProviders.length = 0;
@@ -292,7 +305,9 @@ export class ViewManager {
   }
 
   /** Call the specified function on each [[Viewport]] registered with the ViewManager. */
-  public forEachViewport(func: (vp: ScreenViewport) => void) { this._viewports.forEach((vp) => func(vp)); }
+  public forEachViewport(func: (vp: ScreenViewport) => void) {
+    this._viewports.forEach((vp) => func(vp));
+  }
 
   /** Force each registered [[Viewport]] to regenerate all of its cached [[Decorations]] on the next frame. If the decorator parameter is specified, only
    * the specified decorator will have its cached decorations invalidated for all viewports.
@@ -368,7 +383,7 @@ export class ViewManager {
     // A single viewport can display tiles from more than one IModelConnection.
     // NOTE: A viewport may be displaying no trees - but we need to record its IModel so we can purge those which are NOT being displayed
     //  NOTE: That won't catch external tile trees previously used by that viewport.
-    const trees = new TileTreeSet();
+    const trees = new DisclosedTileTreeSet();
     const treesByIModel = new Map<IModelConnection, Set<TileTree>>();
     for (const vp of this._viewports) {
       vp.discloseTileTrees(trees);
@@ -376,7 +391,7 @@ export class ViewManager {
         treesByIModel.set(vp.iModel, new Set<TileTree>());
     }
 
-    for (const tree of trees.trees) {
+    for (const tree of trees) {
       let set = treesByIModel.get(tree.iModel);
       if (undefined === set) {
         set = new Set<TileTree>();

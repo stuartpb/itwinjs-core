@@ -384,7 +384,7 @@ export class BGFBWriter {
       const twoSided = mesh.twoSided;
       const pointIndexOffset = BGFBAccessors.Polyface.createPointIndexVector(this.builder, indexArray);
       if (mesh.data.paramIndex !== undefined && mesh.data.paramIndex.length > 0) {
-        this.fillOneBasedIndexArray(mesh, mesh.data.pointIndex, undefined, 0, indexArray);
+        this.fillOneBasedIndexArray(mesh, mesh.data.paramIndex, undefined, 0, indexArray);
         paramIndexOffset = BGFBAccessors.Polyface.createParamIndexVector(this.builder, indexArray);
       }
 
@@ -422,10 +422,11 @@ export class BGFBWriter {
         auxDataOffset = this.writePolyfaceAuxDataAsFBVariantGeometry(mesh.data.auxData)!;
       }
 
+      const expectedClosure = mesh.expectedClosure;
       const polyfaceOffset = BGFBAccessors.Polyface.createPolyface(this.builder, pointOffset, paramOffset, normalOffset, 0, intColorOffset,
         pointIndexOffset, paramIndexOffset, normalIndexOffset, colorIndexOffset, 0,
         0, 0, meshStyle, twoSided,
-        numPerFace, 0, auxDataOffset);
+        numPerFace, 0, auxDataOffset, expectedClosure);
       return BGFBAccessors.VariantGeometry.createVariantGeometry(this.builder, BGFBAccessors.VariantGeometryUnion.tagPolyface, polyfaceOffset, 0);
 
     }

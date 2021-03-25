@@ -20,6 +20,8 @@ public;BackgroundMapProps
 public;BackgroundMapProviderName = "BingProvider" | "MapBoxProvider"
 public;BackgroundMapSettings
 public;BackgroundMapType
+public;Base64EncodedString = string
+public;Base64EncodedString
 alpha;BaseLayerProps = MapLayerProps | ColorDefProps
 alpha;BaseLayerSettings = MapLayerSettings | ColorDef
 public;BatchType
@@ -42,7 +44,9 @@ public;BRepPrimitive
 alpha;BRepRoundProps
 alpha;BRepThickenProps
 beta;BriefcaseDownloader
+public;BriefcaseIdValue
 beta;BriefcaseProps
+internal;BriefcasePushAndPullNotifications
 beta;calculateSolarAngles(date: Date, location: Cartographic):
 beta;calculateSolarDirection(date: Date, location: Cartographic): Vector3d
 beta;calculateSolarDirectionFromAngles(azimuthElevation:
@@ -56,6 +60,7 @@ public;CategoryProps
 public;CategorySelectorProps 
 internal;ChangeData
 internal;ChangedElements
+beta;ChangedEntities
 internal;ChangedModels
 public;ChangedValueState
 public;ChangeOpCode
@@ -99,13 +104,9 @@ beta;CustomAttribute
 beta;CutStyle
 beta;CutStyleProps
 beta;DecorationGeometryProps
-alpha;defaultDesktopAuthorizationClientExpiryBuffer: number
-alpha;defaultMobileAuthorizationClientExpiryBuffer: number
 internal;defaultTileOptions: TileOptions
 public;DefinitionElementProps 
 alpha;DeletedElementGeometryChange
-alpha;DesktopAuthorizationClientConfiguration
-internal;DesktopAuthorizationClientMessages
 internal;class DevToolsRpcInterface 
 internal;DevToolsStatsOptions
 public;DisplayStyle3dProps 
@@ -115,6 +116,7 @@ public;DisplayStyleLoadProps
 beta;DisplayStyleModelAppearanceProps 
 beta;DisplayStyleOverridesOptions
 public;DisplayStyleProps 
+beta;DisplayStyleRealityModelPlanarClipMaskProps 
 public;DisplayStyleSettings
 public;DisplayStyleSettingsProps
 public;DisplayStyleSubCategoryProps 
@@ -129,15 +131,7 @@ public;ECJsNames
 public;ECSqlSystemProperty
 public;ECSqlValueType
 internal;EdgeArgs
-alpha;class Editor3dRpcInterface 
-alpha;Editor3dRpcInterfaceWriteOptions
-alpha;Editor3dRpcInterfaceWriteReturnPropsOptions
-alpha;Editor3dRpcInterfaceWriteReturnType
-beta;class ElectronRpcConfiguration 
-beta;ElectronRpcManager 
-beta;ElectronRpcParams
-beta;ElectronRpcProtocol 
-beta;ElectronRpcRequest 
+internal;EditingSessionNotifications
 public;ElementAlignedBox2d = Range2d
 public;ElementAlignedBox3d = Range3d
 public;ElementAspectProps 
@@ -159,9 +153,11 @@ beta;EntityMetaDataProps
 public;EntityProps
 public;EntityQueryParams
 public;EnvironmentProps
-internal;Events
 alpha;ExtantElementGeometryChange
 public;ExternalSourceAspectProps 
+beta;ExternalSourceAttachmentProps 
+beta;ExternalSourceAttachmentRole
+beta;ExternalSourceProps 
 public;Feature
 public;FeatureAppearance 
 public;FeatureAppearanceProps
@@ -215,7 +211,6 @@ public;GeometryStreamProps = GeometryStreamEntryProps[]
 beta;GeometrySummaryOptions
 beta;GeometrySummaryRequestProps
 beta;GeometrySummaryVerbosity
-internal;getIModelElectronApi: () => IModelElectronApi | undefined
 internal;getMaximumMajorTileFormatVersion(maxMajorVersion: number, formatVersion?: number): number
 public;GlobeMode
 internal;GltfBufferData
@@ -255,14 +250,11 @@ public;ImageSourceFormat
 internal;ImdlFlags
 internal;ImdlHeader 
 public;class IModel 
-internal;IModelConnectionProps = IModelProps & IModelRpcProps & IModelEventSourceProps
+alpha;IModelConnectionProps = IModelProps & IModelRpcProps
 beta;IModelCoordinatesRequestProps
 beta;IModelCoordinatesResponseProps
-internal;IModelElectronApi 
-internal;IModelElectronIpc
 public;IModelEncryptionProps
 public;IModelError 
-internal;IModelEventSourceProps
 public;IModelNotFoundResponse 
 public;IModelProps
 internal;class IModelReadRpcInterface 
@@ -273,17 +265,32 @@ internal;IModelTileTreeId = PrimaryTileTreeId | ClassifierTileTreeId
 internal;iModelTileTreeIdToString(modelId: Id64String, treeId: IModelTileTreeId, options: TileOptions): string
 internal;IModelTileTreeProps 
 public;IModelVersion
-public;IModelVersionProps
+public;IModelVersionProps =
 internal;class IModelWriteRpcInterface 
 public;InformationPartitionElementProps 
 internal;initializeRpcRequest: () => void
 internal;INSTANCE: unique symbol
-internal;InternetConnectivityStatus
+beta;InternetConnectivityStatus
 beta;Interpolation:
 beta;InterpolationFunction = (v: any, k: number) => number
+internal;IpcAppChannel
+internal;IpcAppFunctions
+internal;IpcAppNotifications
+internal;IpcInvokeReturn =
+beta;IpcListener = (evt: Event, ...args: any[]) => void
+beta;IpcSocket
+beta;IpcSocketBackend 
+beta;IpcSocketFrontend 
+internal;class IpcWebSocket 
+internal;IpcWebSocketBackend 
+internal;IpcWebSocketFrontend 
+internal;IpcWebSocketMessage
+internal;IpcWebSocketMessageType
+internal;class IpcWebSocketTransport
 internal;isKnownTileFormat(format: number): boolean
 public;isPowerOfTwo(num: number): boolean
 internal;isValidImageSourceFormat(format: ImageSourceFormat): boolean
+beta;iTwinChannel: (channel: string) => string
 public;LatAndLong
 public;LatLongAndHeight 
 internal;LightLocationProps 
@@ -312,25 +319,23 @@ internal;MeshEdge
 internal;MeshEdges
 internal;MeshPolyline
 internal;MeshPolylineList 
-alpha;MobileAuthorizationClientConfiguration
-beta;MobileRpcChunks = Array
-beta;class MobileRpcConfiguration 
-beta;MobileRpcGateway
-beta;MobileRpcManager
-beta;MobileRpcProtocol 
-beta;MobileRpcRequest 
 alpha;ModelClipGroup
 internal;ModelClipGroupProps
 alpha;ModelClipGroups
 alpha;ModelGeometryChanges
 alpha;ModelGeometryChanges
 alpha;ModelGeometryChangesProps
+beta;ModelIdAndGeometryGuid
 public;ModelLoadProps
 public;ModelProps 
 public;ModelQueryParams 
 public;ModelSelectorProps 
 public;MonochromeMode
-internal;class NativeAppRpcInterface 
+alpha;NativeAppAuthorizationConfiguration
+internal;nativeAppChannel = "nativeApp"
+internal;NativeAppFunctions
+internal;NativeAppNotifications
+internal;nativeAppNotify = "nativeApp-notify"
 public;NavigationBindingValue
 public;NavigationValue
 public;nextHighestPowerOfTwo(num: number): number
@@ -360,7 +365,7 @@ beta;OpenBriefcaseProps
 public;OpenDbKey
 internal;OPERATION: unique symbol
 alpha;OrbitGtBlobProps
-internal;OverriddenBy
+beta;OverriddenBy
 internal;PackedFeature
 internal;PackedFeatureTable
 public;PartReference
@@ -371,6 +376,10 @@ public;Placement2dProps
 public;Placement3d 
 public;Placement3dProps
 public;PlacementProps = Placement2dProps | Placement3dProps
+beta;PlanarClipMaskMode
+beta;PlanarClipMaskPriority
+beta;PlanarClipMaskProps
+beta;PlanarClipMaskSettings
 beta;PlanProjectionSettings
 beta;PlanProjectionSettingsProps
 internal;PntsHeader 
@@ -398,7 +407,6 @@ public;QueryPriority
 public;QueryQuota
 public;QueryResponse
 public;QueryResponseStatus
-internal;QueuedEvent
 public;Rank
 internal;ReadableFormData 
 internal;readTileContentDescription(stream: ByteStream, sizeMultiplier: number | undefined, is2d: boolean, options: TileOptions, isVolumeClassifier: boolean): TileContentDescription
@@ -406,6 +414,7 @@ internal;REGISTRY: unique symbol
 public;RelatedElement 
 public;RelatedElementProps
 public;RelationshipProps 
+beta;RemoveFunction = () => void
 beta;class RenderMaterial
 beta;RenderMaterial
 beta;RenderMaterialProps 
@@ -437,7 +446,6 @@ public;RpcInvocation
 public;RpcInvocationCallback_T = (invocation: RpcInvocation) => void
 public;RpcManager
 internal;RpcMarshaling
-beta;RpcMobilePlatform
 internal;RpcMultipart
 public;RpcNotFoundResponse 
 internal;RpcOpenAPIDescription
@@ -467,6 +475,7 @@ public;RpcRequestFulfillment
 public;RpcRequestFulfillment
 public;RpcRequestInitialRetryIntervalSupplier_T = (configuration: RpcConfiguration) => number
 public;RpcRequestNotFoundHandler = (request: RpcRequest, response: RpcNotFoundResponse, resubmit: () => void, reject: (reason: any) => void) => void
+public;RpcRequestStatus
 public;RpcRequestStatus
 public;RpcRequestTokenSupplier_T = (request: RpcRequest) => IModelRpcProps | undefined
 public;RpcResponseCacheControl
@@ -505,15 +514,15 @@ public;SolarShadowSettingsProps
 public;SourceAndTarget
 beta;SpatialClassificationProps
 public;SpatialViewDefinitionProps 
-internal;class StandaloneIModelRpcInterface 
 beta;StandaloneOpenOptions = OpenDbKey
-internal;StorageValue = string | number | boolean | null | Uint8Array
+beta;StorageValue = string | number | boolean | null | Uint8Array
 public;SubCategoryAppearance
 public;SubCategoryAppearance
 public;SubCategoryOverride
 public;SubCategoryProps 
 public;SubjectProps 
 alpha;SubLayerId = string | number
+beta;SynchronizationConfigLinkProps 
 public;SyncMode
 public;TerrainHeightOriginMode
 public;TerrainProps
@@ -524,6 +533,7 @@ public;TextString
 public;TextStringPrimitive
 public;TextStringProps
 beta;TextureFlags
+alpha;TextureLoadProps
 beta;TextureMapping
 beta;TextureMapping
 beta;TextureMapProps
@@ -562,6 +572,8 @@ internal;TreeFlags
 beta;Tween
 beta;TweenCallback = (obj: any) => void
 beta;Tweens
+public;TxnAction
+internal;TxnNotifications
 public;TypeDefinition 
 public;TypeDefinitionElementProps 
 internal;TypeOfChange

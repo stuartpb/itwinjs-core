@@ -16,8 +16,8 @@ import { BranchStack } from "./BranchStack";
 import { BatchState } from "./BatchState";
 import { CachedGeometry } from "./CachedGeometry";
 import { Branch } from "./Graphic";
-import { UniformHandle } from "./Handle";
-import { Matrix4 } from "./Matrix";
+import { UniformHandle } from "./UniformHandle";
+import { Matrix3, Matrix4 } from "./Matrix";
 import { RenderCommands } from "./RenderCommands";
 import { desync, sync, SyncToken } from "./Sync";
 import { Target } from "./Target";
@@ -60,6 +60,8 @@ export class BranchUniforms {
   private readonly _mv32 = new Matrix4();
   private readonly _mvp32 = new Matrix4();
   private readonly _m32 = new Matrix4();
+  private readonly _v32 = new Matrix3();
+  private readonly _mvn32 = new Matrix3();
 
   // Working state
   private readonly _scratchTransform = Transform.createIdentity();
@@ -163,6 +165,16 @@ export class BranchUniforms {
       uniform.setMatrix4(this._m32);
   }
 
+  public bindWorldToViewNTransform(uniform: UniformHandle, geom: CachedGeometry, isViewCoords: boolean) {
+    if (this.update(uniform, geom, isViewCoords))
+      uniform.setMatrix3(this._v32);
+  }
+
+  public bindModelViewNTransform(uniform: UniformHandle, geom: CachedGeometry, isViewCoords: boolean) {
+    if (this.update(uniform, geom, isViewCoords))
+      uniform.setMatrix3(this._mvn32);
+  }
+
   private update(uniform: UniformHandle, geometry: CachedGeometry, isViewCoords: boolean): boolean {
     const uniforms = this._target.uniforms[isViewCoords ? "viewRect" : "frustum"];
     if (!sync(uniforms, this))
@@ -189,6 +201,8 @@ export class BranchUniforms {
       // Zero out Z for silly clipping tools...
       mv = modelMatrix.clone(this._scratchTransform);
       mv.matrix.coffs[2] = mv.matrix.coffs[5] = mv.matrix.coffs[8] = 0.0;
+      if (instancedGeom)
+        mv = instancedGeom.getRtcModelTransform(mv);
 
       // Scale based on device-pixel ratio.
       const scale = this._target.devicePixelRatio;
@@ -216,10 +230,17 @@ export class BranchUniforms {
 
     if (this._target.wantThematicDisplay) {
       this._m32.initFromTransform(modelMatrix);
+      this._v32.initFromMatrix3d(this._target.uniforms.frustum.viewMatrix.matrix);
     }
 
     Matrix4d.createTransform(mv, this._mv);
     this._mv32.initFromTransform(mv);
+
+    const inv = this._mv.createInverse();
+    if (undefined !== inv) {
+      const invTr = inv.cloneTransposed();
+      this._mvn32.initFromMatrix3d(invTr.matrixPart());
+    }
 
     // Don't bother computing mvp for instanced geometry - it's not used.
     if (!this._isInstanced) {

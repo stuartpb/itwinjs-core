@@ -30,6 +30,7 @@ import { RenderGraphic, RenderGraphicOwner } from "./RenderGraphic";
 import { RenderMemory } from "./RenderMemory";
 import { RenderTarget } from "./RenderTarget";
 import { ScreenSpaceEffectBuilder, ScreenSpaceEffectBuilderParams } from "./ScreenSpaceEffectBuilder";
+import { ToolAdmin } from "../tools/ToolAdmin";
 
 /* eslint-disable no-restricted-syntax */
 // cSpell:ignore deserializing subcat uninstanced wiremesh qorigin trimesh
@@ -189,6 +190,9 @@ export abstract class RenderSystem implements IDisposable {
 
   /** @internal */
   public get supportsInstancing(): boolean { return true; }
+
+  /** @internal */
+  public get supportsNonuniformScaledInstancing(): boolean { return true; }
 
   /** @internal */
   public get dpiAwareLOD(): boolean { return true === this.options.dpiAwareLOD; }
@@ -440,6 +444,9 @@ export abstract class RenderSystem implements IDisposable {
     });
   }
 
+  /** Create a new texture by its element ID. This texture will be retrieved asynchronously from the backend. A placeholder image will be associated with the texture until the requested image data loads. */
+  public createTextureFromElement(_id: Id64String, _imodel: IModelConnection, _params: RenderTexture.Params, _format: ImageSourceFormat): RenderTexture | undefined { return undefined; }
+
   /** Create a new texture from a cube of HTML images.
    * @internal
    */
@@ -461,6 +468,25 @@ export abstract class RenderSystem implements IDisposable {
 
   /** @internal */
   public collectStatistics(_stats: RenderMemory.Statistics): void { }
+
+  /** A function that is invoked after the WebGL context is lost. Context loss is almost always caused by excessive consumption of GPU memory.
+   * After context loss occurs, the RenderSystem will be unable to interact with WebGL by rendering viewports, creating graphics and textures, etc.
+   * By default, this function invokes [[ToolAdmin.exceptionHandler]] with a brief message describing what occurred.
+   * An application can override this behavior as follows:
+   * ```ts
+   * RenderSystem.contextLossHandler = (): Promise<any> => {
+   *  // your implementation here.
+   * }
+   * ```
+   * @note Context loss is reported by the browser some short time *after* it has occurred. It is not possible to determine the specific cause.
+   * @see [[TileAdmin.gpuMemoryLimit]] to limit the amount of GPU memory consumed thereby reducing the likelihood of context loss.
+   * @see [[TileAdmin.totalTileContentBytes]] for the amount of GPU memory allocated for tile graphics.
+   * @beta
+   */
+  public static async contextLossHandler(): Promise<any> {
+    const msg = IModelApp.i18n.translate("iModelJs:Errors.WebGLContextLost");
+    return ToolAdmin.exceptionHandler(msg);
+  }
 }
 
 /** A RenderSystem provides access to resources used by the internal WebGL-based rendering system.
@@ -572,14 +598,14 @@ export namespace RenderSystem { // eslint-disable-line no-redeclare
      */
     planProjections?: boolean;
 
-    /** By default, shader programs used by the [[RenderSystem]] are not compiled until the first time they are used. This can produce noticeable delays when the user interacts with a [[Viewport]].
-     * To prevent such delays, set this to `true` to allow the RenderSystem to precompile shader programs before any Viewport is opened.
-     * Applications should consider enabling this feature if they do not open a Viewport immediately upon startup - for example, if the user is first expected to select an iModel and a view through the user interface.
+    /** To help prevent delays when a user interacts with a [[Viewport]], the WebGL render system precompiles shader programs before any Viewport is opened.
+     * This particularly helps applications when they do not open a Viewport immediately upon startup - for example, if the user is first expected to select an iModel and a view through the user interface.
      * Shader precompilation will cease once all shader programs have been compiled, or when a Viewport is opened (registered with the [[ViewManager]]).
+     * To disable this feature, set this to `false`.
      *
-     * Default value: false
+     * Default value: true
      *
-     * @beta
+     * @public
      */
     doIdleWork?: boolean;
 
