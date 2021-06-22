@@ -1,219 +1,145 @@
+# 2.16.0 Change Notes
 
-# 2.13.0 Change Notes
+Overview:
 
-## The iModel.js Project Is Renamed iTwin.js
+- [Promoted APIs](#promoted-apis)
+- Breaking Changes:
+  - [Breaking API changes](#breaking-api-changes)
+- [Obtaining element geometry on the frontend](#obtaining-element-geometry-on-the-frontend)
+- Visualization
+  - [Clipping enhancements](#clipping-enhancements)
+    - [Colorization](#colorization)
+    - [Model clip groups](#model-clip-groups)
+    - [Nested clip volumes](#nested-clip-volumes)
+  - [Grid display enhancements](#grid-display-enhancements)
+  - [Schedule script enhancements](#schedule-script-enhancements)
+  - [Querying visible elements](#querying-visible-elements)
+  - [Creating graphics](#creating-graphics)
+  - [Map tile trees refactoring](#map-tile-trees-refactoring)
+- [Presentation](#presentation-changes)
+  - [InstanceLabelOverride enhancements](#instancelabeloverride-enhancements)
+  - [Custom category renderers](#custom-category-renderers)
+  - [Custom category nesting](#custom-category-nesting)
+  - [Presentation rule schema requirements](#presentation-rule-schema-requirements)
 
-The version begins the process of renaming our project from **iModel.js** to **iTwin.js** to better reflect its purpose as the *platform for infrastructure digital twins*.
+## Obtaining element geometry on the frontend
 
-iModels are of course a big part of iTwins, so much of the api remains iModel-centric, and many packages within this repository are appropriately named with the `imodeljs` prefix. But, many parts that don't have a direct relationship to iModels will use the term iTwin going forward to avoid confusion.
-
-The full conversion will be made gradually and incrementally, and will likely take several major release cycles to complete. We will not rename packages, classes, methods, etc. unless they are substantially replaced. That may leave some permanent historical vestiges of this transition, but as they say, c'est la vie.
-
-This version begins the process by redirecting `www.imodeljs.org` to `www.itwinjs.org`, and updating references to the project name in markdown files.
-
-## Breaking API Changes
-
-### Quantity package
-
-The alpha interface `ParseResult` has changed to `QuantityParserResult` which can either be a `ParseQuantityError` or a `ParsedQuantity`.
-New static type guards `Parser.isParsedQuantity` and `Parser.isParseError` can be used to coerce the result into the appropriate type.
-
-The alpha `UnitConversionSpec` interface now requires a "system" property that can be used during parsing to help determine the unit to parse the value.
-
-### Frontend package
-
-The alpha class `QuantityFormatter` now registers its own standard `QuantityTypeDefinitions` during initialization. `CustomQuantityTypeDefinitions` must now be registered to support additional `QuantityTypes`. This replaces the use of `FormatterParserSpecsProvider` to provide custom quantity types. Removed koq methods that were never implemented.
-
-### IModelHostConfiguration.applicationType
-
-The type of the internal member `IModelHostConfiguration.applicationType` had a redundant declaration in `IModelHost.ts`. It is now correctly declared to be of type `IModelJsNative.ApplicationType`. The names of the members were the same, so this will not likely cause problems.
-
-### IModelTransformer and IModelExporter APIs are now async
-
-The *export* methods of [IModelExporter]($backend) and the *process* methods of [IModelTransformer]($backend) are now `async`. This is a breaking API change.
-While exporting and transforming should generally be considered *batch* operations, changing these methods to `async` makes progress reporting and process health monitoring much easier. This is particularly important when processing large iModels.
-
-To react to the changes, add an `await` before each `IModelExporter.export*` and `IModelTransformer.process*` method call and make sure they are called from within an `async` method. No internal logic was changed, so that should be the only changes required.
-
-## GPU memory limits
-
-The [RenderGraphic]($frontend)s used to represent a [Tile]($frontend)'s contents consume WebGL resources - chiefly, GPU memory. If the amount of GPU memory consumed exceeds that available, the WebGL context will be lost, causing an error dialog to be displayed and all rendering to cease. The [TileAdmin]($frontend) can now be configured with a strategy for managing the amount of GPU memory consumed and avoiding context loss. Each strategy defines a maximum amount of GPU memory permitted to be allocated to tile graphics; when that limit is exceeded, graphics for tiles that are not currently being displayed by any [Viewport]($frontend) are discarded one by one until the limit is satisfied or no more tiles remain to be discarded. Graphics are discarded in order from least-recently- to most-recently-displayed, and graphics currently being displayed will not be discarded. The available strategies are:
-
-- "default" - a "reasonable" amount of GPU memory can be consumed.
-- "aggressive" - a conservative amount of GPU memory can be consumed.
-- "relaxed" - a generous amount of GPU memory can be consumed.
-- "none" - an unbounded amount of GPU memory can be consumed - no maximum is imposed.
-
-The precise amount of memory permitted by each strategy varies based on whether or not the client is running on a mobile device; see [TileAdmin.mobileGpuMemoryLimits]($frontend) and [TileAdmin.nonMobileGpuMemoryLimits]($frontend) for precise values. The application can also specify an exact amount in number of bytes instead.
-
-The limit defaults to "default" for mobile devices and "none" for non-mobile devices. To configure the limit when calling [IModelApp.startup]($frontend), specify [TileAdmin.Props.gpuMemoryLimits]($frontend). For example:
+Until now, an element's [GeometryStreamProps]($common) was only available on the backend - [IModelConnection.Elements.getProps]($frontend) always omits the geometry. [IModelConnection.Elements.loadProps]($frontend) has been introduced to provide greater control over which properties are returned. It accepts the Id, federation Guid, or [Code]($common) of the element of interest, and optionally an [ElementLoadOptions]($common) specifying which properties to include or exclude. For example, the following code queries for and iterates over the geometry of a [GeometricElement3d]($backend):
 
 ```ts
-  IModelApp.startup({ tileAdmin: TileAdmin.create({ gpuMemoryLimits: "aggressive" }) });
+  function printGeometryStream(elementId: Id64String, iModel: IModelConnection): void {
+    const props = await iModel.elements.loadProps(elementId, { wantGeometry: true }) as GeometricElement3dProps;
+    assert(undefined !== props, `Element ${elementId} does not exist`);
+    const iterator = GeometryStreamIterator.fromGeometricElement3d(props);
+    for (const entry of iterator)
+      console.log(JSON.stringify(entry));
+  }
 ```
 
-Separate limits for mobile and non-mobile devices can be specified at startup if desired; the appropriate limit will be selected based on the type of device the client is running on:
+Keep in mind that geometry streams can be extremely large. They may also contain data like [BRepEntity.DataProps]($common) that cannot be interpreted on the frontend; for this reason BRep data is omitted from the geometry stream, unless explicitly requested via [ElementLoadOptions.wantBRepData]($common).
 
-```ts
-  IModelApp.startup({ tileAdmin: TileAdmin.create({
-    gpuMemoryLimits: {
-      mobile: "default",
-      nonMobile: "relaxed",
-    }),
-  });
-```
+## Clipping enhancements
 
-To adjust the limit after startup, assign to [TileAdmin.gpuMemoryLimit]($frontend).
+The contents of a [ViewState]($frontend) can be clipped by applying a [ClipVector]($geometry-core) to the view via [ViewState.setViewClip]($frontend). Several enhancements have been made to this feature:
 
-This feature replaces the `@alpha` `TileAdmin.Props.mobileExpirationMemoryThreshold` option.
+### Colorization
 
-## IModelHost and IModelApp Initialization Changes
+[ClipStyle.insideColor]($common) and [ClipStyle.outsideColor]($common) can be used to colorize geometry based on whether it is inside or outside of the clip volume. If the outside color is defined, then that geometry will be drawn in the specified color instead of being clipped. These properties replace the beta [Viewport]($frontend) methods `setInsideColor` and `setOutsideColor` and are saved in the [DisplayStyle]($backend).
 
-Initialization processing of iTwin.js applications, and in particular the order of individual steps for frontend and backend classes has been complicated and vague, involving several steps that vary depending on application type and platform. This release attempts to clarify and simplify that process, while maintaining backwards compatibility. In general, if your code uses [IModelHost.startup]($backend) and [IModelApp.startup]($frontend) for web visualization, it will continue to work without changes. However, for native (desktop and mobile) apps, some refactoring may be necessary. See [IModelHost documentation](../learning/backend/IModelHost.md) for appropriate backend initialization, and [IModelApp documentation](../learning/frontend/IModelApp.md) for frontend initialization.
+### Model clip groups
 
-The `@beta` API's for desktop applications to use Electron via the `@bentley/electron-manager` package have been simplified substantially. Existing code will need to be adjusted to work with this version. The class `ElectronManager` has been removed, and it is now replaced with the classes `ElectronHost` and `ElectronApp`.
+[ModelClipGroups]($common) can be used to apply additional clip volumes to groups of models. Try it out with an [interactive demo](https://www.itwinjs.org/sample-showcase/?group=Viewer+Features&sample=swiping-viewport-sample). Note that [ViewFlags.clipVolume]($common) applies **only** to the view clip - model clips apply regardless of view flags.
 
-To create an Electron application, you should initialize your frontend via:
+### Nested clip volumes
 
-```ts
-  import { ElectronApp } from "@bentley/electron-manager/lib/ElectronFrontend";
-  ...
-  await ElectronApp.startup();
-```
+Clip volumes now nest. For example, if you define a view clip, a model clip group, and a schedule script that applies its own clip volume, then geometry will be clipped by the **intersection** of all three clip volumes. Previously, only one clip volume could be active at a time.
 
-And your backend via:
+## Grid display enhancements
 
-```ts
-  import { ElectronHost } from "@bentley/electron-manager/lib/ElectronBackend";
-  ...
-  await ElectronHost.startup();
-```
+The planar grid that is displayed when [ViewFlags.grid]($common) is now displayed with a shader rather than as explicit geometry.  This improved the overall appearance and efficiency of the grid display and corrects several anomalies when grid display was unstable at the horizon of a perspective view.  The view frustum is now expanded as necessary when grids are displayed to avoid truncating the grid to the displayed geometry.
 
-Likewise, to create an iOS application, you should initialize your frontend via:
+## Schedule script enhancements
 
-```ts
-  import { IOSApp } from "@bentley/mobile-manager/lib/MobileFrontend";
-  ...
-  await IOSApp.startup();
-```
+The [RenderSchedule]($common) API for defining how to animate the contents of a view over time has been cleaned up and expanded. A new [RenderTimeline]($backend) element class has been introduced with version 1.0.13 of the BisCore ECSchema, to host a [RenderSchedule.Script]($common). `DisplayStyleSettings.scheduleScriptProps` has been deprecated in favor of [DisplayStyleSettings.renderTimeline]($common) specifying the Id of the RenderTimeline element hosting the script to be applied to the display style. A [DisplayStyleState]($frontend)'s schedule script is now loaded asynchronously via [DisplayStyleState.load]($frontend) - this is done automatically by [ViewState.load]($frontend) but must be done manually for display styles obtained through other means.
 
-And your backend via:
+Sometimes it is useful to make the elements animated by the script more visible by de-emphasizing elements unaffected by the script. The appearance of non-animated elements can now be controlled by [EmphasizeElements.unanimatedAppearance]($frontend).
 
-```ts
-  import { IOSHost } from "@bentley/mobile-manager/lib/MobileBackend";
-  ...
-  await IOSHost.startup();
-```
+## Querying visible elements
 
-Both frontend and backend `startup` methods take optional arguments to customize the App/Host environments.
+The new `@beta` API [Viewport.queryVisibleFeatures]($frontend) can be used to determine the set of [Feature]($common)s - typically, elements - that are currently visible in the viewport. The API offers a choice between two criteria that can be used to determine visibility:
 
-## ProcessDetector API
+- The feature lit up at least one pixel on the screen. Pixels drawn behind other, transparent pixels are not included in this criterion. Pixel-based queries can be constrained to a sub-region of the viewport.
+- The feature is included in at least one [Tile]($frontend) currently being displayed by the viewport. By this criterion, if a [ClipVector]($geometry-core) is clipping the contents of the viewport, a feature contained in a tile that intersects the clip volume is considered visible even if the feature's geometry would be completely clipped out.
 
-It is frequently necessary to detect the type of JavaScript process currently executing. Previously, there were several ways (sometimes redundant, sometimes conflicting) to do that, depending on the subsystem being used. This release attempts to centralize process classification into the class [ProcessDetector]($bentley) in the `@bentleyjs-core` package. All previous methods for detecting process type have been deprecated in favor of `ProcessDetector`. The deprecated methods will likely be removed in version 3.0.
+## Creating graphics
 
-## Common table expression support in ECSQL
+The new [GraphicBuilderOptions]($frontend) makes it easier to create a [GraphicBuilder]($frontend) and enables some additional features. [DecorateContext.createGraphic]($frontend) and [RenderSystem.createGraphic]($frontend) have been added, superseding [DecorateContext.createGraphicBuilder]($frontend) and [RenderSystem.createGraphicBuilder]($frontend). Each accepts a GraphicBuilderOptions specifying only those aspects of the GraphicBuilder that the caller wishes to customize. In particular, the behavior of pickable decorations can be customized using [GraphicBuilderOptions.pickable]($frontend):
 
-CTE are now supported in ECSQL. For more information read [Common Table Expression](../learning/CommonTableExp.md)
+- [PickableGraphicOptions.noHilite]($frontend) and [PickableGraphicOptions.noFlash]($frontend) can prevent pickable graphics from being flashed and/or hilited by tools.
+- [PickableGraphicOptions.locateOnly]($frontend) allows a pickable graphic to be located by tools but not drawn to the screen.
 
-## Planar clip masks
+## Map tile trees refactoring
 
-Planar clip masks provide a two and a half dimensional method for masking the regions where the background map, reality models and BIM geometry overlap. A planar clip mask is described by [PlanarClipMaskProps]($common).A planar clip mask may be applied to a contexual reality model as a [ContextRealityModelProps.planarClipMask]($common) to the background map as [BackgroundMapProps.planarClipMask]($common) or as an override to attached reality models with the [DisplayStyleSettingsProps.planarClipOvr]($common) array of [DisplayStyleRealityModelPlanarClipMaskProps]($common).   The planar clip mask geometry is not required to be planar as the masks will be generated from their projection to the X-Y plane, therefore any 3D model or reality model can be used to generate a planar clip mask.
+The map tile trees have been moved from [DisplayStyleState]($frontend) to [Viewport]($frontend).  This enables the maps to be maintained correctly when viewports are synchronized.  This will primarily not affect applications except calls to [ViewState.areAllTileTreesLoaded]($frontend) should replaced with [Viewport.areAllTileTreesLoaded]($frontend) if the map tile trees should be tested.
 
-The [PlanarClipMaskProps.mode]($common) specifies how the mask geometry is collected.  [PlanarClipMaskMode]$(common) includes collection of masks by models, subcategories, elements (included or excluded) or by a priority scheme that clips against other models with a higher priority.
+## Presentation changes
 
-### By masking a reality model with a BIM model we can display the BIM model without the overlapping reality model
+### InstanceLabelOverride enhancements
 
-![Building and reality model without mask](./assets/PlanarMask_BuildingNoMask.jpg)
-![Reality model masked by building](./assets/PlanarMask_BuildingMasked.jpg)
+The [InstanceLabelOverride]($presentation-common) rule was enhanced with abilities to compose label using related instance values:
 
-### By masking the background map terrain with the reality model we can display the current state of the quarry without intrusive terrain
+- A `propertySource` attribute was added to [InstanceLabelOverridePropertyValueSpecification]($presentation-common) to allow picking a
+property value from a related instance.
 
-![Quarry and Background Map Terrain without mask](./assets/PlanarMask_QuarryNoMask.jpg)
-![Background Map Terrain masked by quarry reality model](./assets/PlanarMask_QuarryMasked.jpg)
+- A new [InstanceLabelOverrideRelatedInstanceLabelSpecification]($presentation-common) was added to allow taking label of a related
+instance. The related instance, possibly being a of a different ECClass, might have some different label overrides of its own.
 
-### Planar Clip Mask Transparency
+### Custom category renderers
 
-Planar clip masks support transparency.  If a mask is not transparent then the masked geometry is omitted completely, if transparency is included then increasing the transparency will decrease the masking and increase a translucent blending of the masked geometry.  A transparency value of 1 would indicate no masking.  If no transparency is included then the transparency value from the mask elements is used.  In the image below a transparent mask is applied to the reality model to show the underground tunnel.
+[VirtualizedPropertyGrid]($ui-components) now allows developers to fully customize displayed category contents, if the category is assigned a custom renderer via Presentation Rules. You can read more about that in our [Category customization learning page](../learning/presentation/Customization/PropertyCategoryRenderers.md).
 
-![Planar clip mask with transparency](./assets/PlanarMask_TunnelTransparent.jpg)
+### Custom category nesting
 
-## Presentation
+A new `parentId` attribute was added to [PropertyCategorySpecification]($presentation-common) to provide nesting abilities. See more details in our [property categorization page](../learning/presentation/Content/PropertyCategorization.md#category-nesting).
 
-### Highlighting members of GroupInformationElement
+### Presentation rule schema requirements
 
-Presentation rules used by [HiliteSetProvider]($presentation-frontend) have been modified to return geometric elements grouped by *BisCore.GroupInformationElement* instances.
+A new `requiredSchemas` attribute was added to [Ruleset]($presentation-common), [Rule]($presentation-common) and [SubCondition]($presentation-common) definitions. The attribute allows specifying ECSchema requirements for rules and avoid using them when requirements are not met. See the [schema requirements page](../learning/presentation/SchemaRequirements.md) for more details.
 
-### Setting up default formats
+## Promoted APIs
 
-A new feature was introduced, which allows supplying default unit formats to use for formatting properties that don't have a presentation unit for requested unit system. The formats are set when initializing [Presentation]($presentation-backend) and passing `PresentationManagerProps.defaultFormats`.
-Example:
+The following APIs have been promoted to `public`. Public APIs are guaranteed to remain stable for the duration of the current major version of a package.
 
-```ts
-Presentation.initialize({
-  defaultFormats: {
-    length: {
-      unitSystems: [PresentationUnitSystem.BritishImperial],
-      format: MY_DEFAULT_FORMAT_FOR_LENGTHS_IN_BRITISH_IMPERIAL_UNITS,
-    },
-    area: {
-      unitSystems: [PresentationUnitSystem.UsCustomary, PresentationUnitSystem.UsSurvey],
-      format: MY_DEFAULT_FORMAT_FOR_AREAS_IN_US_UNITS,
-    },
-  },
-});
-```
+### [@bentley/webgl-compatibility](https://www.itwinjs.org/reference/webgl-compatibility/)
 
-### Accessing selection in instance filter of content specifications
+- [queryRenderCompatibility]($webgl-compatibility) for querying the client system's compatibility with the iTwin.js rendering system.
+- [WebGLRenderCompatibilityInfo]($webgl-compatibility) for summarizing the client system's compatibility.
+- [WebGLFeature]($webgl-compatibility) for enumerating the required and optionals features used by the iTwin.js rendering system.
+- [WebGLRenderCompatibilityStatus]($webgl-compatibility) for describing a general compatibility rating of a client system.
+- [GraphicsDriverBugs]($webgl-compatibility) for describing any known graphics driver bugs for which iTwin.js will apply workarounds.
+- [ContextCreator]($webgl-compatibility) for describing a function that creates and returns a WebGLContext for [queryRenderCompatibility]($webgl-compatibility).
 
-Added a way to create and filter content that's related to given input through some ID type of property that is not part of a relationship. That can be done by
-using [ContentInstancesOfSpecificClasses specification](../learning/presentation/content/ContentInstancesOfSpecificClasses.md) with an instance filter that makes use
-of the newly added [SelectedInstanceKeys](../learning/presentation/content/ECExpressions.md#instance=filter) ECExpression symbol. Example:
+## Breaking API changes
 
-```json
-{
-  "ruleType": "Content",
-  "condition": "SelectedNode.IsOfClass(\"ECClassDef\", \"ECDbMeta\")",
-  "specifications": [
-    {
-      "specType": "ContentInstancesOfSpecificClasses",
-      "classes": {
-        "schemaName": "BisCore",
-        "classNames": ["Element"]
-      },
-      "arePolymorphic": true,
-      "instanceFilter": "SelectedInstanceKeys.AnyMatches(x => this.IsOfClass(x.ECInstanceId))"
-    }
-  ]
-}
-```
+### @bentley/imodeljs-backend package
 
-The above example creates content for `ECDbMeta.ECClassDef` instances by selecting all `BisCore.Element` instances
-that are of given `ECDbMeta.ECClassDef` instances.
+The arguments for the @beta protected static methods called during modifications have been changed to be more consistent and extensible:
 
-Previously this was not possible, because there is no ECRelationship between `ECDbMeta.ECClassDef` and `BisCore.Element`.
+- [Element]($backend) `[onInsert, onInserted, onUpdate, onUpdated, onDelete, onDeleted]`
+- [Model]($backend) `[onInsert, onInserted, onUpdate, onUpdated, onDelete, onDeleted]`
+- [ElementAspect]($backend) `[onInsert, onInserted, onUpdate, onUpdated, onDelete, onDeleted]`
 
-### ECInstance ECExpression context method enhancements
+In addition, new protected static methods were added:
 
-Added lambda versions for [ECInstance ECExpression context](../learning/presentation/ECExpressions.md#ecinstance) methods: `GetRelatedInstancesCount`,
-`HasRelatedInstance`, `GetRelatedValue`. This allows using those methods without the need of an ECRelationship between "current" ECInstance
-and related ECInstance. Example:
+- [Element]($backend) `[onChildInsert, onChildInserted, onChildUpdate, onChildUpdated, onChildDelete, onChildDeleted, onChildAdd, onChildAdded, onChildDrop, onChildDropped]`
+- [Model]($backend) `[onInsertElement, onInsertedElement, onUpdateElement, onUpdatedElement, onDeleteElement, onDeletedElement]`
 
-```json
-{
-  "ruleType": "RootNodes",
-  "specifications": [
-    {
-      "specType": "InstanceNodesOfSpecificClasses",
-      "classes": {
-        "schemaName": "ECDbMeta",
-        "classNames": ["ECClassDef"]
-      },
-      "instanceFilter": "this.HasRelatedInstance(\"BisCore:Element\", el => el.IsOfClass(this.ECInstanceId))",
-      "groupByClass": false,
-      "groupByLabel": false
-    }
-  ]
-}
-```
+The following method is now `async` to make it easier to integrate with asynchronous status and health reporting services:
 
-The above example returns `ECDbMeta:ECClassDef` instances only if there are `BisCore:Elements` of those classes.
+- [IModelExportHandler.onProgress]($backend)
+
+### @bentley/ecschema-metadata package
+
+Properties getter in @beta [ECClass]($ecschema-metadata) has been changed to return an iterator of properties instead of an array of properties.
+Array indexing and properties like .length will no longer work with the returned iterator, so you may need to create an array from the iterator or use its .next() method. Iterating with for...of loop works the same with iterator as before with an array.\
+This change is made because internally properties are now stored in a map instead of an array, and it is more efficient to return an iterator for the properties to be generated on demand than to create them on the getter.

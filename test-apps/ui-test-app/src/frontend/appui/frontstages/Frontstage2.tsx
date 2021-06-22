@@ -10,20 +10,19 @@ import {
   SelectionContextToolDefinitions,
   SessionStateActionId,
   SyncUiEventId,
-  ToolWidget, UiFramework, Widget, WidgetState, Zone, ZoneState,
+  ToolWidget, UiFramework, Widget, Zone, ZoneState,
 } from "@bentley/ui-framework";
 import { AppTools } from "../../tools/ToolSpecifications";
 import { TreeExampleContentControl } from "../contentviews/TreeExampleContent";
 import { SmallStatusBarWidgetControl } from "../statusbars/SmallStatusBar";
-import { MobxDemoWidgetControl } from "../widgets/MobxDemoWidget/MobxDemoWidgetControl";
 import { NavigationTreeWidgetControl } from "../widgets/NavigationTreeWidget";
 import {
   HorizontalPropertyGridContentControl, HorizontalPropertyGridWidgetControl, VerticalPropertyGridWidgetControl,
 } from "../widgets/PropertyGridDemoWidget";
 import { IModelApp } from "@bentley/imodeljs-frontend";
-import { ConditionalBooleanValue } from "@bentley/ui-abstract";
+import { ConditionalBooleanValue, WidgetState } from "@bentley/ui-abstract";
 
-/* eslint-disable react/jsx-key */
+/* eslint-disable react/jsx-key, deprecation/deprecation */
 
 export class Frontstage2 extends FrontstageProvider {
 
@@ -94,13 +93,6 @@ export class Frontstage2 extends FrontstageProvider {
           <Zone allowsMerging={true} defaultState={ZoneState.Minimized}
             widgets={[
               <Widget iconSpec="icon-placeholder" labelKey="SampleApp:widgets.NavigationTree" control={NavigationTreeWidgetControl} />,
-            ]}
-          />
-        }
-        bottomLeft={
-          <Zone
-            widgets={[
-              <Widget iconSpec="icon-placeholder" labelKey="SampleApp:widgets.MobxDemoWidget" control={MobxDemoWidgetControl} fillZone={true} />,
             ]}
           />
         }

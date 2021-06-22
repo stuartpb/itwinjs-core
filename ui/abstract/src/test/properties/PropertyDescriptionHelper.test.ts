@@ -4,7 +4,7 @@
 *--------------------------------------------------------------------------------------------*/
 import { expect } from "chai";
 import {
-  EnumerationChoice, PropertyDescriptionHelper, PropertyEditorParamTypes, SuppressLabelEditorParams,
+  EnumerationChoice, IconEditorParams, PropertyDescriptionHelper, PropertyEditorParamTypes, RangeEditorParams, SuppressLabelEditorParams,
 } from "../../ui-abstract";
 
 // cSpell:ignore Picklist
@@ -64,6 +64,40 @@ describe("PropertyDescriptionHelper", () => {
       expect(editorDescription.editor?.name).to.eq(editor);
       expect(editorDescription.editor?.params?.length).to.eq(1);
       expect(editorDescription.editor?.params?.[0].type).to.eq(PropertyEditorParamTypes.SuppressEditorLabel);
+    });
+  });
+
+  describe("NumberEditor Description", () => {
+    const typename = "number";
+    it("should build correctly", () => {
+      const editor = "numeric-input";
+      const editorDescription = PropertyDescriptionHelper.buildNumberEditorDescription(testName, testLabel);
+      expect(editorDescription.name).to.eq(testName);
+      expect(editorDescription.typename).to.eq(typename);
+      expect(editorDescription.displayLabel).to.eq(testLabel);
+      expect(editorDescription.editor?.name).to.eq(editor);
+      expect(editorDescription.editor?.params?.length).to.eq(1);
+      expect(editorDescription.editor?.params?.[0].type).to.eq(PropertyEditorParamTypes.Range);
+
+    });
+
+    it("should build with additional editor params correctly", () => {
+      const editor = "numeric-input";
+      const numberParam = {
+        type: PropertyEditorParamTypes.Range,
+        step: 2,
+        precision: 0,
+        minimum: 0,
+        maximum: 1000,
+      } as RangeEditorParams;
+      const editorDescription = PropertyDescriptionHelper.buildNumberEditorDescription(testName, testLabel, numberParam, additionParam);
+      expect(editorDescription.name).to.eq(testName);
+      expect(editorDescription.typename).to.eq(typename);
+      expect(editorDescription.displayLabel).to.eq(testLabel);
+      expect(editorDescription.editor?.name).to.eq(editor);
+      expect(editorDescription.editor?.params?.length).to.eq(2);
+      expect(editorDescription.editor?.params?.[0].type).to.eq(PropertyEditorParamTypes.Range);
+      expect(editorDescription.editor?.params?.[1].type).to.eq(PropertyEditorParamTypes.SuppressEditorLabel);
     });
   });
 
@@ -200,6 +234,34 @@ describe("PropertyDescriptionHelper", () => {
       expect(editorDescription.displayLabel).to.eq(testLabel);
       expect(editorDescription.editor?.name).to.eq(editor);
       expect(editorDescription.editor?.params?.length).to.eq(1);
+      expect(editorDescription.editor?.params?.[0].type).to.eq(PropertyEditorParamTypes.SuppressEditorLabel);
+    });
+
+    it("should build a standard lock property description", () => {
+      const editor = undefined;
+      const editorDescription = PropertyDescriptionHelper.buildLockPropertyDescription(testName);
+      expect(editorDescription.name).to.eq(testName);
+      expect(editorDescription.typename).to.eq(typename);
+      expect(editorDescription.displayLabel).to.eq("");
+      expect(editorDescription.editor?.name).to.eq(editor);
+      expect(editorDescription.editor?.params?.length).to.eq(1);
+      expect(editorDescription.editor?.params?.[0].type).to.eq(PropertyEditorParamTypes.SuppressEditorLabel);
+    });
+
+    it("should build a standard lock property description with additional editor params correctly", () => {
+      // Note: additional params just for testing, currently there are no additional params used by the lock checkbox.
+      const lockAdditionParam = [{
+        type: PropertyEditorParamTypes.Icon,
+        definition: { iconSpec: "icon-test" },
+      } as IconEditorParams];
+
+      const editor = undefined;
+      const editorDescription = PropertyDescriptionHelper.buildLockPropertyDescription(testName, lockAdditionParam);
+      expect(editorDescription.name).to.eq(testName);
+      expect(editorDescription.typename).to.eq(typename);
+      expect(editorDescription.displayLabel).to.eq("");
+      expect(editorDescription.editor?.name).to.eq(editor);
+      expect(editorDescription.editor?.params?.length).to.eq(2);
       expect(editorDescription.editor?.params?.[0].type).to.eq(PropertyEditorParamTypes.SuppressEditorLabel);
     });
   });

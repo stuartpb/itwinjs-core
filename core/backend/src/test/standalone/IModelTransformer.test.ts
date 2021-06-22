@@ -5,16 +5,16 @@
 import { assert } from "chai";
 import * as path from "path";
 import { DbResult, Id64, Id64String, Logger, LogLevel } from "@bentley/bentleyjs-core";
-import { Angle, Point2d, Point3d, Range2d, Range3d, StandardViewIndex, Transform, YawPitchRollAngles } from "@bentley/geometry-core";
+import { Point3d, Range3d, StandardViewIndex, Transform, YawPitchRollAngles } from "@bentley/geometry-core";
 import {
-  AxisAlignedBox3d, Code, ColorDef, CreateIModelProps, IModel, IModelError, PhysicalElementProps, Placement2d, Placement3d,
+  AxisAlignedBox3d, Code, ColorDef, CreateIModelProps, ExternalSourceAspectProps, IModel, IModelError, PhysicalElementProps, Placement3d,
 } from "@bentley/imodeljs-common";
 import {
-  BackendLoggerCategory, BackendRequestContext, CategorySelector, DefinitionPartition, DisplayStyle3d, DocumentListModel, Drawing, DrawingCategory,
-  ECSqlStatement, Element, ElementMultiAspect, ElementRefersToElements, ElementUniqueAspect, ExternalSourceAspect, IModelCloneContext, IModelDb,
-  IModelExporter, IModelExportHandler, IModelJsFs, IModelTransformer, InformationRecordModel, InformationRecordPartition, Model, ModelSelector,
-  OrthographicViewDefinition, PhysicalModel, PhysicalObject, PhysicalPartition, PhysicalType, Relationship, SnapshotDb, SpatialCategory, Subject,
-  TemplateModelCloner, TemplateRecipe2d, TemplateRecipe3d,
+  BackendLoggerCategory, BackendRequestContext, CategorySelector, DisplayStyle3d, ECSqlStatement, Element, ElementMultiAspect,
+  ElementOwnsExternalSourceAspects, ElementRefersToElements, ElementUniqueAspect, ExternalSourceAspect, IModelCloneContext, IModelDb, IModelExporter,
+  IModelExportHandler, IModelJsFs, IModelSchemaLoader, IModelTransformer, InformationRecordModel, InformationRecordPartition, LinkElement, Model, ModelSelector,
+  OrthographicViewDefinition, PhysicalModel, PhysicalObject, PhysicalPartition, PhysicalType, Relationship, RepositoryLink, SnapshotDb,
+  SpatialCategory, Subject,
 } from "../../imodeljs-backend";
 import { IModelTestUtils } from "../IModelTestUtils";
 import {
@@ -243,137 +243,6 @@ describe("IModelTransformer", () => {
     });
   }
 
-  it("should clone from a component library", async () => {
-    const componentLibraryDb: SnapshotDb = IModelTransformerUtils.createComponentLibrary(outputDir);
-    const sourceLibraryModelId = componentLibraryDb.elements.queryElementIdByCode(DefinitionPartition.createCode(componentLibraryDb, IModel.rootSubjectId, "Components"))!;
-    assert.isTrue(Id64.isValidId64(sourceLibraryModelId));
-    const sourceSpatialCategoryId = componentLibraryDb.elements.queryElementIdByCode(SpatialCategory.createCode(componentLibraryDb, IModel.dictionaryId, "Components"))!;
-    assert.isTrue(Id64.isValidId64(sourceSpatialCategoryId));
-    const sourceDrawingCategoryId = componentLibraryDb.elements.queryElementIdByCode(DrawingCategory.createCode(componentLibraryDb, IModel.dictionaryId, "Components"))!;
-    assert.isTrue(Id64.isValidId64(sourceDrawingCategoryId));
-    const cylinderTemplateId = componentLibraryDb.elements.queryElementIdByCode(TemplateRecipe3d.createCode(componentLibraryDb, sourceLibraryModelId, "Cylinder"))!;
-    assert.isTrue(Id64.isValidId64(cylinderTemplateId));
-    const assemblyTemplateId = componentLibraryDb.elements.queryElementIdByCode(TemplateRecipe3d.createCode(componentLibraryDb, sourceLibraryModelId, "Assembly"))!;
-    assert.isTrue(Id64.isValidId64(assemblyTemplateId));
-    const drawingGraphicTemplateId = componentLibraryDb.elements.queryElementIdByCode(TemplateRecipe2d.createCode(componentLibraryDb, sourceLibraryModelId, "DrawingGraphic"))!;
-    assert.isTrue(Id64.isValidId64(drawingGraphicTemplateId));
-    const targetTeamName = "Target";
-    const targetDb: SnapshotDb = IModelTransformerUtils.createTeamIModel(outputDir, targetTeamName, Point3d.createZero(), ColorDef.green);
-    const targetPhysicalModelId = targetDb.elements.queryElementIdByCode(PhysicalPartition.createCode(targetDb, IModel.rootSubjectId, `Physical${targetTeamName}`))!;
-    assert.isTrue(Id64.isValidId64(targetPhysicalModelId));
-    const targetDefinitionModelId = targetDb.elements.queryElementIdByCode(DefinitionPartition.createCode(targetDb, IModel.rootSubjectId, `Definition${targetTeamName}`))!;
-    assert.isTrue(Id64.isValidId64(targetDefinitionModelId));
-    const targetSpatialCategoryId = targetDb.elements.queryElementIdByCode(SpatialCategory.createCode(targetDb, targetDefinitionModelId, `SpatialCategory${targetTeamName}`))!;
-    assert.isTrue(Id64.isValidId64(targetSpatialCategoryId));
-    const targetDrawingCategoryId = targetDb.elements.queryElementIdByCode(DrawingCategory.createCode(targetDb, IModel.dictionaryId, "DrawingCategoryShared"))!;
-    assert.isTrue(Id64.isValidId64(targetDrawingCategoryId));
-    const targetDrawingListModelId = DocumentListModel.insert(targetDb, IModel.rootSubjectId, "Drawings");
-    const targetDrawingId = Drawing.insert(targetDb, targetDrawingListModelId, "Drawing1");
-    const cloner = new TemplateModelCloner(componentLibraryDb, targetDb);
-    try {
-      await cloner.placeTemplate3d(cylinderTemplateId, targetPhysicalModelId, Placement3d.fromJSON());
-      assert.fail("Expected error to be thrown since category not remapped");
-    } catch (error) {
-    }
-    cloner.context.remapElement(sourceSpatialCategoryId, targetSpatialCategoryId);
-    const cylinderLocations: Point3d[] = [
-      Point3d.create(10, 10), Point3d.create(20, 10), Point3d.create(30, 10),
-      Point3d.create(10, 20), Point3d.create(20, 20), Point3d.create(30, 20),
-      Point3d.create(10, 30), Point3d.create(20, 30), Point3d.create(30, 30),
-    ];
-    for (const location of cylinderLocations) {
-      const placement = new Placement3d(location, new YawPitchRollAngles(), new Range3d());
-      const sourceIdToTargetIdMap = await cloner.placeTemplate3d(cylinderTemplateId, targetPhysicalModelId, placement);
-      for (const sourceElementId of sourceIdToTargetIdMap.keys()) {
-        const sourceElement = componentLibraryDb.elements.getElement(sourceElementId);
-        const targetElement = targetDb.elements.getElement(sourceIdToTargetIdMap.get(sourceElementId)!);
-        assert.equal(sourceElement.classFullName, targetElement.classFullName);
-      }
-    }
-    const assemblyLocations: Point3d[] = [Point3d.create(-10, 0), Point3d.create(-20, 0), Point3d.create(-30, 0)];
-    for (const location of assemblyLocations) {
-      const placement = new Placement3d(location, new YawPitchRollAngles(), new Range3d());
-      const sourceIdToTargetIdMap = await cloner.placeTemplate3d(assemblyTemplateId, targetPhysicalModelId, placement);
-      for (const sourceElementId of sourceIdToTargetIdMap.keys()) {
-        const sourceElement = componentLibraryDb.elements.getElement(sourceElementId);
-        const targetElement = targetDb.elements.getElement(sourceIdToTargetIdMap.get(sourceElementId)!);
-        assert.equal(sourceElement.classFullName, targetElement.classFullName);
-        assert.equal(sourceElement.parent?.id ? true : false, targetElement.parent?.id ? true : false);
-      }
-    }
-    try {
-      await cloner.placeTemplate2d(drawingGraphicTemplateId, targetDrawingId, Placement2d.fromJSON());
-      assert.fail("Expected error to be thrown since category not remapped");
-    } catch (error) {
-    }
-    cloner.context.remapElement(sourceDrawingCategoryId, targetDrawingCategoryId);
-    const drawingGraphicLocations: Point2d[] = [
-      Point2d.create(10, 10), Point2d.create(20, 10), Point2d.create(30, 10),
-      Point2d.create(10, 20), Point2d.create(20, 20), Point2d.create(30, 20),
-      Point2d.create(10, 30), Point2d.create(20, 30), Point2d.create(30, 30),
-    ];
-    for (const location of drawingGraphicLocations) {
-      const placement = new Placement2d(location, Angle.zero(), new Range2d());
-      await cloner.placeTemplate2d(drawingGraphicTemplateId, targetDrawingId, placement);
-    }
-    cloner.dispose();
-    componentLibraryDb.close();
-    targetDb.close();
-  });
-
-  it("should combine models", async () => {
-    const sourceDbFile: string = IModelTestUtils.prepareOutputFile("IModelTransformer", "source-separate-models.bim");
-    const sourceDb = SnapshotDb.createEmpty(sourceDbFile, { rootSubject: { name: "Separate Models" } });
-    const sourceCategoryId = SpatialCategory.insert(sourceDb, IModel.dictionaryId, "Category", {});
-    const sourceModelId1 = PhysicalModel.insert(sourceDb, IModel.rootSubjectId, "M1");
-    const sourceModelId2 = PhysicalModel.insert(sourceDb, IModel.rootSubjectId, "M2");
-    const elementProps11: PhysicalElementProps = {
-      classFullName: PhysicalObject.classFullName,
-      model: sourceModelId1,
-      code: Code.createEmpty(),
-      userLabel: "PhysicalObject-M1-E1",
-      category: sourceCategoryId,
-      geom: IModelTransformerUtils.createBox(new Point3d(1, 1, 1)),
-      placement: Placement3d.fromJSON({ origin: { x: 1, y: 1 }, angles: {} }),
-    };
-    const sourceElementId11 = sourceDb.elements.insertElement(elementProps11);
-    const elementProps21: PhysicalElementProps = {
-      classFullName: PhysicalObject.classFullName,
-      model: sourceModelId2,
-      code: Code.createEmpty(),
-      userLabel: "PhysicalObject-M2-E1",
-      category: sourceCategoryId,
-      geom: IModelTransformerUtils.createBox(new Point3d(2, 2, 2)),
-      placement: Placement3d.fromJSON({ origin: { x: 2, y: 2 }, angles: {} }),
-    };
-    const sourceElementId21 = sourceDb.elements.insertElement(elementProps21);
-    sourceDb.saveChanges();
-
-    const targetDbFile: string = IModelTestUtils.prepareOutputFile("IModelTransformer", "target-combined-model.bim");
-    const targetDb = SnapshotDb.createEmpty(targetDbFile, { rootSubject: { name: "Combined Model" } });
-    const targetModelId = PhysicalModel.insert(targetDb, IModel.rootSubjectId, "PhysicalModel-Combined");
-
-    const transformer = new IModelTransformer(sourceDb, targetDb);
-    transformer.context.remapElement(sourceModelId1, targetModelId);
-    transformer.context.remapElement(sourceModelId2, targetModelId);
-    transformer.importer.doNotUpdateElementIds.add(targetModelId); // don't want the target partition CodeValue, etc. to be updated from either source partition
-    await transformer.processAll();
-    targetDb.saveChanges();
-
-    const targetElement11 = targetDb.elements.getElement(transformer.context.findTargetElementId(sourceElementId11));
-    assert.equal(targetElement11.userLabel, "PhysicalObject-M1-E1");
-    assert.equal(targetElement11.model, targetModelId);
-    const targetElement21 = targetDb.elements.getElement(transformer.context.findTargetElementId(sourceElementId21));
-    assert.equal(targetElement21.userLabel, "PhysicalObject-M2-E1");
-    assert.equal(targetElement21.model, targetModelId);
-    const targetPartition = targetDb.elements.getElement(targetModelId);
-    assert.equal(targetPartition.code.value, "PhysicalModel-Combined", "Original CodeValue should be retained");
-
-    transformer.dispose();
-    sourceDb.close();
-    targetDb.close();
-  });
-
   it("should import everything below a Subject", async () => {
     // Source IModelDb
     const sourceDbFile: string = IModelTestUtils.prepareOutputFile("IModelTransformer", "SourceImportSubject.bim");
@@ -405,7 +274,6 @@ describe("IModelTransformer", () => {
     targetDb.close();
   });
 
-  // WIP: Using IModelTransformer within the same iModel is not yet supported
   it.skip("should clone Model within same iModel", async () => {
     // Set up the IModelDb with a populated source Subject and an "empty" target Subject
     const iModelFile: string = IModelTestUtils.prepareOutputFile("IModelTransformer", "CloneModel.bim");
@@ -457,6 +325,87 @@ describe("IModelTransformer", () => {
     targetDb.close();
   });
 
+  it("should include source provenance", async () => {
+    // create source iModel
+    const sourceDbFile = IModelTestUtils.prepareOutputFile("IModelTransformer", "SourceProvenance.bim");
+    const sourceDb = SnapshotDb.createEmpty(sourceDbFile, { rootSubject: { name: "Source Provenance Test" } });
+    const sourceRepositoryId = IModelTransformerUtils.insertRepositoryLink(sourceDb, "master.dgn", "https://test.bentley.com/folder/master.dgn", "DGN");
+    const sourceExternalSourceId = IModelTransformerUtils.insertExternalSource(sourceDb, sourceRepositoryId, "Default Model");
+    const sourceCategoryId = SpatialCategory.insert(sourceDb, IModel.dictionaryId, "SpatialCategory", { color: ColorDef.green.toJSON() });
+    const sourceModelId = PhysicalModel.insert(sourceDb, IModel.rootSubjectId, "Physical");
+    for (const x of [1, 2, 3]) {
+      const physicalObjectProps: PhysicalElementProps = {
+        classFullName: PhysicalObject.classFullName,
+        model: sourceModelId,
+        category: sourceCategoryId,
+        code: Code.createEmpty(),
+        userLabel: `PhysicalObject(${x})`,
+        geom: IModelTransformerUtils.createBox(Point3d.create(1, 1, 1)),
+        placement: Placement3d.fromJSON({ origin: { x }, angles: {} }),
+      };
+      const physicalObjectId = sourceDb.elements.insertElement(physicalObjectProps);
+      const aspectProps: ExternalSourceAspectProps = { // simulate provenance from a Connector
+        classFullName: ExternalSourceAspect.classFullName,
+        element: { id: physicalObjectId, relClassName: ElementOwnsExternalSourceAspects.classFullName },
+        scope: { id: sourceExternalSourceId },
+        source: { id: sourceExternalSourceId },
+        identifier: `ID${x}`,
+        kind: ExternalSourceAspect.Kind.Element,
+      };
+      sourceDb.elements.insertAspect(aspectProps);
+    }
+    sourceDb.saveChanges();
+
+    // create target iModel
+    const targetDbFile: string = IModelTestUtils.prepareOutputFile("IModelTransformer", "SourceProvenance-Target.bim");
+    const targetDb = SnapshotDb.createEmpty(targetDbFile, { rootSubject: { name: "Source Provenance Test (Target)" } });
+
+    // clone
+    const transformer = new IModelTransformer(sourceDb, targetDb, { includeSourceProvenance: true });
+    await transformer.processAll();
+    targetDb.saveChanges();
+
+    // verify target contents
+    assert.equal(1, count(sourceDb, RepositoryLink.classFullName));
+    const targetRepositoryId = targetDb.elements.queryElementIdByCode(LinkElement.createCode(targetDb, IModel.repositoryModelId, "master.dgn"))!;
+    assert.isTrue(Id64.isValidId64(targetRepositoryId));
+    const targetExternalSourceId = IModelTransformerUtils.queryByUserLabel(targetDb, "Default Model");
+    assert.isTrue(Id64.isValidId64(targetExternalSourceId));
+    const targetCategoryId = targetDb.elements.queryElementIdByCode(SpatialCategory.createCode(targetDb, IModel.dictionaryId, "SpatialCategory"))!;
+    assert.isTrue(Id64.isValidId64(targetCategoryId));
+    const targetPhysicalObjectIds = [
+      IModelTransformerUtils.queryByUserLabel(targetDb, "PhysicalObject(1)"),
+      IModelTransformerUtils.queryByUserLabel(targetDb, "PhysicalObject(2)"),
+      IModelTransformerUtils.queryByUserLabel(targetDb, "PhysicalObject(3)"),
+    ];
+    for (const targetPhysicalObjectId of targetPhysicalObjectIds) {
+      assert.isTrue(Id64.isValidId64(targetPhysicalObjectId));
+      const physicalObject = targetDb.elements.getElement<PhysicalObject>(targetPhysicalObjectId, PhysicalObject);
+      assert.equal(physicalObject.category, targetCategoryId);
+      const aspects = targetDb.elements.getAspects(targetPhysicalObjectId, ExternalSourceAspect.classFullName);
+      assert.equal(2, aspects.length, "Expect original source provenance + provenance generated by IModelTransformer");
+      for (const aspect of aspects) {
+        const externalSourceAspect = aspect as ExternalSourceAspect;
+        if (externalSourceAspect.scope.id === transformer.targetScopeElementId) {
+          // provenance added by IModelTransformer
+          assert.equal(externalSourceAspect.kind, ExternalSourceAspect.Kind.Element);
+        } else {
+          // provenance carried over from the source iModel
+          assert.equal(externalSourceAspect.scope.id, targetExternalSourceId);
+          assert.equal(externalSourceAspect.source!.id, targetExternalSourceId);
+          assert.isTrue(externalSourceAspect.identifier.startsWith("ID"));
+          assert.isTrue(physicalObject.userLabel!.includes(externalSourceAspect.identifier[2]));
+          assert.equal(externalSourceAspect.kind, ExternalSourceAspect.Kind.Element);
+        }
+      }
+    }
+
+    // clean up
+    transformer.dispose();
+    sourceDb.close();
+    targetDb.close();
+  });
+
   it("should transform 3d elements in target iModel", async () => {
     // create source iModel
     const sourceDbFile: string = IModelTestUtils.prepareOutputFile("IModelTransformer", "Transform3d-Source.bim");
@@ -495,6 +444,62 @@ describe("IModelTransformer", () => {
     assert.deepEqual(targetModelExtents, new Range3d(101, 200, 0, 110, 209, 1));
     assert.deepEqual(targetModelExtents, transform3d.multiplyRange(sourceModelExtents));
     // clean up
+    transformer.dispose();
+    sourceDb.close();
+    targetDb.close();
+  });
+
+  it("should combine models", async () => {
+    const sourceDbFile: string = IModelTestUtils.prepareOutputFile("IModelTransformer", "source-separate-models.bim");
+    const sourceDb = SnapshotDb.createEmpty(sourceDbFile, { rootSubject: { name: "Separate Models" } });
+    const sourceCategoryId = SpatialCategory.insert(sourceDb, IModel.dictionaryId, "Category", {});
+    const sourceModelId1 = PhysicalModel.insert(sourceDb, IModel.rootSubjectId, "M1");
+    const sourceModelId2 = PhysicalModel.insert(sourceDb, IModel.rootSubjectId, "M2");
+    const elementProps11: PhysicalElementProps = {
+      classFullName: PhysicalObject.classFullName,
+      model: sourceModelId1,
+      code: Code.createEmpty(),
+      userLabel: "PhysicalObject-M1-E1",
+      category: sourceCategoryId,
+      geom: IModelTransformerUtils.createBox(new Point3d(1, 1, 1)),
+      placement: Placement3d.fromJSON({ origin: { x: 1, y: 1 }, angles: {} }),
+    };
+    const sourceElementId11 = sourceDb.elements.insertElement(elementProps11);
+    const elementProps21: PhysicalElementProps = {
+      classFullName: PhysicalObject.classFullName,
+      model: sourceModelId2,
+      code: Code.createEmpty(),
+      userLabel: "PhysicalObject-M2-E1",
+      category: sourceCategoryId,
+      geom: IModelTransformerUtils.createBox(new Point3d(2, 2, 2)),
+      placement: Placement3d.fromJSON({ origin: { x: 2, y: 2 }, angles: {} }),
+    };
+    const sourceElementId21 = sourceDb.elements.insertElement(elementProps21);
+    sourceDb.saveChanges();
+    assert.equal(count(sourceDb, PhysicalPartition.classFullName), 2);
+    assert.equal(count(sourceDb, PhysicalModel.classFullName), 2);
+    assert.equal(count(sourceDb, PhysicalObject.classFullName), 2);
+
+    const targetDbFile: string = IModelTestUtils.prepareOutputFile("IModelTransformer", "target-combined-model.bim");
+    const targetDb = SnapshotDb.createEmpty(targetDbFile, { rootSubject: { name: "Combined Model" } });
+    const targetModelId = PhysicalModel.insert(targetDb, IModel.rootSubjectId, "PhysicalModel-Combined");
+
+    const transformer = new PhysicalModelConsolidator(sourceDb, targetDb, targetModelId);
+    await transformer.processAll();
+    targetDb.saveChanges();
+
+    const targetElement11 = targetDb.elements.getElement(transformer.context.findTargetElementId(sourceElementId11));
+    assert.equal(targetElement11.userLabel, "PhysicalObject-M1-E1");
+    assert.equal(targetElement11.model, targetModelId);
+    const targetElement21 = targetDb.elements.getElement(transformer.context.findTargetElementId(sourceElementId21));
+    assert.equal(targetElement21.userLabel, "PhysicalObject-M2-E1");
+    assert.equal(targetElement21.model, targetModelId);
+    const targetPartition = targetDb.elements.getElement(targetModelId);
+    assert.equal(targetPartition.code.value, "PhysicalModel-Combined", "Original CodeValue should be retained");
+    assert.equal(count(targetDb, PhysicalPartition.classFullName), 1);
+    assert.equal(count(targetDb, PhysicalModel.classFullName), 1);
+    assert.equal(count(targetDb, PhysicalObject.classFullName), 2);
+
     transformer.dispose();
     sourceDb.close();
     targetDb.close();
@@ -628,7 +633,7 @@ describe("IModelTransformer", () => {
     assert.notEqual(sourceDb1.iModelId, sourceDb2.iModelId); // iModelId must be different to detect provenance scope conflicts
 
     const targetDbFile = IModelTestUtils.prepareOutputFile("IModelTransformer", "ConflictingScopes.bim");
-    const targetDb = SnapshotDb.createEmpty(targetDbFile, { rootSubject: { name: "Conflicting Scopes Test" }});
+    const targetDb = SnapshotDb.createEmpty(targetDbFile, { rootSubject: { name: "Conflicting Scopes Test" } });
 
     const transformer1 = new IModelTransformer(sourceDb1, targetDb); // did not set targetScopeElementId
     const transformer2 = new IModelTransformer(sourceDb2, targetDb); // did not set targetScopeElementId
@@ -732,7 +737,7 @@ describe("IModelTransformer", () => {
     await exporter.iModelExporter.exportAll();
     await exporter.iModelExporter.exportElement(IModel.rootSubjectId);
     await exporter.iModelExporter.exportChildElements(IModel.rootSubjectId);
-    await exporter.iModelExporter.exportRepositoryLinks();
+    await exporter.iModelExporter.exportRepositoryLinks(); // eslint-disable-line deprecation/deprecation
     await exporter.iModelExporter.exportModelContents(IModel.repositoryModelId);
     await exporter.iModelExporter.exportRelationships(ElementRefersToElements.classFullName);
     // make sure the exporter actually visited something
@@ -886,4 +891,71 @@ describe("IModelTransformer", () => {
     IModelTransformerUtils.dumpIModelInfo(mergedDb);
     mergedDb.close();
   });
+
+  it("processSchemas should handle out-of-order exported schemas", async () => {
+    const testSchema1Path = IModelTestUtils.prepareOutputFile("IModelTransformer", "TestSchema1.ecschema.xml");
+    IModelJsFs.writeFileSync(testSchema1Path, `<?xml version="1.0" encoding="UTF-8"?>
+      <ECSchema schemaName="TestSchema1" alias="ts1" version="01.00" xmlns="http://www.bentley.com/schemas/Bentley.ECXML.3.1">
+          <ECSchemaReference name="BisCore" version="01.00" alias="bis"/>
+          <ECEntityClass typeName="TestElement1">
+            <BaseClass>bis:PhysicalElement</BaseClass>
+            <ECProperty propertyName="MyProp1" typeName="string"/>
+          </ECEntityClass>
+      </ECSchema>`
+    );
+
+    const testSchema2Path = IModelTestUtils.prepareOutputFile("IModelTransformer", "TestSchema2.ecschema.xml");
+    IModelJsFs.writeFileSync(testSchema2Path, `<?xml version="1.0" encoding="UTF-8"?>
+      <ECSchema schemaName="TestSchema2" alias="ts2" version="01.00.00" xmlns="http://www.bentley.com/schemas/Bentley.ECXML.3.2">
+          <ECSchemaReference name="BisCore" version="01.00.00" alias="bis"/>
+          <ECSchemaReference name="TestSchema1" version="01.00.00" alias="ts1"/>
+          <ECEntityClass typeName="TestElement2">
+            <BaseClass>ts1:TestElement1</BaseClass>
+            <ECProperty propertyName="MyProp2" typeName="string"/>
+          </ECEntityClass>
+      </ECSchema>`
+    );
+
+    const sourceDbPath = IModelTestUtils.prepareOutputFile("IModelTransformer", "OrderTestSource.bim");
+    const sourceDb = SnapshotDb.createEmpty(sourceDbPath, { rootSubject: { name: "Order Test" } });
+
+    const requestContext = new BackendRequestContext();
+    await sourceDb.importSchemas(requestContext, [testSchema1Path, testSchema2Path]);
+    sourceDb.saveChanges();
+
+    class OrderedExporter extends IModelExporter {
+      public async exportSchemas() {
+        const schemaLoader = new IModelSchemaLoader(this.sourceDb);
+        const schema1 = schemaLoader.getSchema("TestSchema1");
+        const schema2 = schemaLoader.getSchema("TestSchema2");
+        // by importing schema2 (which references schema1) first, we
+        // prove that the import order in processSchemas does not matter
+        await this.handler.callProtected.onExportSchema(schema2);
+        await this.handler.callProtected.onExportSchema(schema1);
+      }
+    }
+
+    const targetDbPath = IModelTestUtils.prepareOutputFile("IModelTransformer", "OrderTestTarget.bim");
+    const targetDb = SnapshotDb.createEmpty(targetDbPath, { rootSubject: { name: "Order Test" } });
+    const transformer = new IModelTransformer(new OrderedExporter(sourceDb), targetDb);
+
+    let error: any;
+    try {
+      await transformer.processSchemas(new BackendRequestContext());
+    } catch (_error) {
+      error = _error;
+    }
+    assert.isUndefined(error);
+
+    targetDb.saveChanges();
+    const targetImportedSchemasLoader = new IModelSchemaLoader(targetDb);
+    const schema1InTarget = targetImportedSchemasLoader.getSchema("TestSchema1");
+    assert.isDefined(schema1InTarget);
+    const schema2InTarget = targetImportedSchemasLoader.getSchema("TestSchema2");
+    assert.isDefined(schema2InTarget);
+
+    sourceDb.close();
+    targetDb.close();
+  });
+
 });

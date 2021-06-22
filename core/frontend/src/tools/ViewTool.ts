@@ -11,11 +11,11 @@ import {
   Angle, AngleSweep, Arc3d, AxisOrder, ClipUtilities, Constant, CurveLocationDetail, Geometry, LineString3d, Matrix3d, Plane3dByOriginAndUnitNormal,
   Point2d, Point3d, Range2d, Range3d, Ray3d, Transform, Vector2d, Vector3d, XAndY, YawPitchRollAngles,
 } from "@bentley/geometry-core";
-import { Cartographic, ColorDef, Frustum, LinePixels, Npc, NpcCenter } from "@bentley/imodeljs-common";
+import { Cartographic, ColorDef, Frustum, LinePixels, NpcCenter } from "@bentley/imodeljs-common";
 import {
-  DialogItem, DialogItemValue, DialogPropertySyncItem, PropertyDescription, PropertyEditorParamTypes, SuppressLabelEditorParams,
+  DialogItem, DialogProperty, DialogPropertySyncItem, PropertyDescriptionHelper,
 } from "@bentley/ui-abstract";
-import { AccuDraw } from "../AccuDraw";
+import { AccuDraw, AccuDrawHintBuilder } from "../AccuDraw";
 import { TentativeOrAccuSnap } from "../AccuSnap";
 import { BingLocationProvider } from "../BingLocation";
 import { CoordSystem } from "../CoordSystem";
@@ -377,7 +377,7 @@ export abstract class ViewManip extends ViewTool {
   /** @internal */
   public pickDepthPoint(ev: BeButtonEvent, isPreview: boolean = false): Point3d | undefined {
     if (!isPreview && ev.viewport && undefined !== this.getDepthPointGeometryId())
-      ev.viewport.setFlashed(undefined, 0.0);
+      ev.viewport.setFlashed(undefined);
 
     this.clearDepthPoint();
     if (isPreview && this.inDynamicUpdate)
@@ -521,7 +521,7 @@ export abstract class ViewManip extends ViewTool {
     if (ev.viewport && (showDepthChanged || prevSourceId)) {
       const currSourceId = this.getDepthPointGeometryId();
       if (currSourceId !== prevSourceId)
-        ev.viewport.setFlashed(currSourceId, 0.25);
+        ev.viewport.setFlashed(currSourceId);
       ev.viewport.invalidateDecorations();
     }
   }
@@ -768,15 +768,8 @@ export abstract class ViewManip extends ViewTool {
     const vp = this.viewport;
     if (!vp)
       return false;
-    const testPtView = vp.worldToView(testPt);
-    const frustum = vp.getFrustum(CoordSystem.View);
 
-    const screenRange = Point3d.create(
-      frustum.points[Npc._000].distance(frustum.points[Npc._100]),
-      frustum.points[Npc._000].distance(frustum.points[Npc._010]),
-      frustum.points[Npc._000].distance(frustum.points[Npc._001]));
-
-    return (!((testPtView.x < 0 || testPtView.x > screenRange.x) || (testPtView.y < 0 || testPtView.y > screenRange.y)));
+    return vp.isPointVisibleXY(testPt);
   }
 
   /** @internal */
@@ -1245,8 +1238,16 @@ class ViewRotate extends HandleWithInertia {
       plane.getNormalRef().setFrom(vp.view.getZVector());
       return true;
     }
-    if (super.adjustDepthPoint(isValid, vp, plane, source))
+    if (super.adjustDepthPoint(isValid, vp, plane, source)) {
+      if (DepthPointSource.Geometry === source && vp instanceof ScreenViewport) {
+        // If we had hit something we might need to undo the model display transform of the hit.
+        const hitDetail = vp.picker.getHit(0);
+        if (undefined !== hitDetail && undefined !== hitDetail.modelId) {
+          vp.view.transformPointByModelDisplayTransform(hitDetail.modelId, plane.getOriginRef(), false);
+        }
+      }
       return true;
+    }
     plane.getOriginRef().setFrom(this.viewTool.targetCenterWorld);
     return false;
   }
@@ -3008,8 +3009,13 @@ export class ZoomViewTool extends ViewManip {
   public onReinitialize(): void { super.onReinitialize(); this.provideToolAssistance("Zoom.Prompts.FirstPoint"); }
 }
 
-/** A tool that performs the walk operation using mouse+keyboard or touch controls
- * @beta
+/** A tool that performs the walk operation using mouse+keyboard or touch controls.
+ * Keyboard and mouse controls are similar to those used by many video games:
+ *  - Mouse motion: look around.
+ *  - W, A, S, D (or arrow keys): move forward, left, right, or backward respectively.
+ *  - E, Q (or PgUp, PgDn): move up and down respectively.
+ *  - +, - (or scroll wheel): increase or decrease velocity.
+ * @public
  */
 export class LookAndMoveTool extends ViewManip {
   public static toolId = "View.LookAndMove";
@@ -3161,7 +3167,7 @@ export class FitViewTool extends ViewTool {
 }
 
 /** A tool that views a location on the background map from a satellite's perspective; the viewed location is derived from the position of the current camera's eye above the background map. Operates on the selected view.
- * @beta
+ * @public
  */
 export class ViewGlobeSatelliteTool extends ViewTool {
   public static toolId = "View.GlobeSatellite";
@@ -3175,6 +3181,7 @@ export class ViewGlobeSatelliteTool extends ViewTool {
     this.doAnimate = doAnimate;
   }
 
+  /** @internal */
   public async onDataButtonDown(ev: BeButtonEvent): Promise<EventHandled> {
     if (ev.viewport)
       return (await this._beginSatelliteView(ev.viewport, this.oneShot, this.doAnimate)) ? EventHandled.Yes : EventHandled.No;
@@ -3182,6 +3189,7 @@ export class ViewGlobeSatelliteTool extends ViewTool {
     return EventHandled.No;
   }
 
+  /** @internal */
   public onPostInstall() {
     super.onPostInstall();
     const viewport = undefined === this.viewport ? IModelApp.viewManager.selectedView : this.viewport;
@@ -3215,7 +3223,7 @@ export class ViewGlobeSatelliteTool extends ViewTool {
 }
 
 /** A tool that views a location on the background map from a bird's eye perspective; the viewed location is derived from the position of the current camera's eye above the background map. Operates on the selected view.
- * @beta
+ * @public
  */
 export class ViewGlobeBirdTool extends ViewTool {
   public static toolId = "View.GlobeBird";
@@ -3229,6 +3237,7 @@ export class ViewGlobeBirdTool extends ViewTool {
     this.doAnimate = doAnimate;
   }
 
+  /** @internal */
   public async onDataButtonDown(ev: BeButtonEvent): Promise<EventHandled> {
     if (ev.viewport)
       return (await this._beginDoBirdView(ev.viewport, this.oneShot, this.doAnimate)) ? EventHandled.Yes : EventHandled.No;
@@ -3236,6 +3245,7 @@ export class ViewGlobeBirdTool extends ViewTool {
     return EventHandled.No;
   }
 
+  /** @internal */
   public onPostInstall() {
     super.onPostInstall();
     const viewport = undefined === this.viewport ? IModelApp.viewManager.selectedView : this.viewport;
@@ -3271,7 +3281,7 @@ export class ViewGlobeBirdTool extends ViewTool {
 /** A tool that views a location on the background map corresponding to a specified string.
  * This will either look down at the location using a bird's eye height, or, if a range is available, the entire range corresponding to the location will be viewed.
  * Operates on the selected view.
- * @beta
+ * @public
  */
 export class ViewGlobeLocationTool extends ViewTool {
   private _globalLocation?: GlobalLocation;
@@ -3290,8 +3300,11 @@ export class ViewGlobeLocationTool extends ViewTool {
   public static get minArgs() { return 1; }
   public static get maxArgs() { return undefined; }
 
-  // arguments: latitude longitude | string
-  // the latitude and longitude arguments are specified in degrees
+  /** This runs the tool based on the provided location arguments.
+   * arguments: latitude longitude | string
+   * If specified, the latitude and longitude arguments are numbers specified in degrees.
+   * If specified, the string argument contains a location name. Examples of location name include named geographic areas like "Seattle, WA" or "Alaska", a specific address like "1600 Pennsylvania Avenue NW, Washington, DC 20500", or a place name like "Philadelphia Museum of Art".
+   **/
   public parseAndRun(...args: string[]): boolean {
     if (2 === args.length) { // try to parse latitude and longitude
       const latitude = parseFloat(args[0]);
@@ -3324,6 +3337,7 @@ export class ViewGlobeLocationTool extends ViewTool {
     return true;
   }
 
+  /** @internal */
   public onPostInstall() {
     super.onPostInstall();
     (async () => {
@@ -3344,7 +3358,7 @@ export class ViewGlobeLocationTool extends ViewTool {
 }
 
 /** A tool that views the current iModel on the background map so that the extent of the project is visible. Operates on the selected view.
- * @beta
+ * @public
  */
 export class ViewGlobeIModelTool extends ViewTool {
   public static toolId = "View.GlobeIModel";
@@ -3358,6 +3372,7 @@ export class ViewGlobeIModelTool extends ViewTool {
     this.doAnimate = doAnimate;
   }
 
+  /** @internal */
   public async onDataButtonDown(ev: BeButtonEvent): Promise<EventHandled> {
     if (ev.viewport)
       return this._doIModelView() ? EventHandled.Yes : EventHandled.No;
@@ -3365,6 +3380,7 @@ export class ViewGlobeIModelTool extends ViewTool {
     return EventHandled.No;
   }
 
+  /** @internal */
   public onPostInstall() {
     super.onPostInstall();
     this._doIModelView();
@@ -3680,6 +3696,7 @@ export class DefaultViewTouchTool extends ViewManip implements Animator {
   private _hasZoom = false;
   private _rotate2dDisabled = false;
   private _rotate2dThreshold?: Angle;
+  private _only2dManipulations = false;
 
   /** Move this handle during the inertia duration */
   public animate(): boolean {
@@ -3706,8 +3723,9 @@ export class DefaultViewTouchTool extends ViewManip implements Animator {
 
   public interrupt() { }
 
-  constructor(startEv: BeTouchEvent, ev: BeTouchEvent) {
+  constructor(startEv: BeTouchEvent, ev: BeTouchEvent, only2dManipulations = false) {
     super(startEv.viewport, 0, true, false);
+    this._only2dManipulations = only2dManipulations;
     this.onStart(ev);
   }
 
@@ -3897,7 +3915,7 @@ export class DefaultViewTouchTool extends ViewManip implements Animator {
     vp.setupViewFromFrustum(this._frustum);
 
     const singleTouch = this._singleTouch;
-    return vp.view.allow3dManipulations() ?
+    return (!this._only2dManipulations && vp.view.allow3dManipulations()) ?
       singleTouch ? this.handle3dRotate() : this.handle3dPanZoom(ev) :
       singleTouch ? this.handle2dPan() : this.handle2dRotateZoom(ev);
   }
@@ -3976,7 +3994,7 @@ export class ViewToggleCameraTool extends ViewTool {
 /** A tool that sets the view camera by two points. This is a PrimitiveTool and not a ViewTool to allow the view to be panned, zoomed, and rotated while defining the points.
  * To show tool settings for specifying camera and target heights above the snap point, make sure formatting and parsing data are cached before the tool starts
  * by calling QuantityFormatter.onInitialized at app startup.
- * @alpha
+ * @public
  */
 export class SetupCameraTool extends PrimitiveTool {
   public static toolId = "View.SetupCamera";
@@ -4162,125 +4180,110 @@ export class SetupCameraTool extends PrimitiveTool {
     vp.synchWithView({ animateFrustumChange: true });
   }
 
-  private _useCameraHeightValue: DialogItemValue = { value: false };
-  public get useCameraHeight(): boolean { return this._useCameraHeightValue.value as boolean; }
-  public set useCameraHeight(option: boolean) { this._useCameraHeightValue.value = option; }
-  private static _useCameraHeightName = "useCameraHeight";
+  private _useCameraHeightProperty: DialogProperty<boolean> | undefined;
+  public get useCameraHeightProperty() {
+    if (!this._useCameraHeightProperty)
+      this._useCameraHeightProperty = new DialogProperty<boolean>(
+        PropertyDescriptionHelper.buildLockPropertyDescription("useCameraHeight"), false, undefined, false);
+    return this._useCameraHeightProperty;
+  }
+  public get useCameraHeight(): boolean { return this.useCameraHeightProperty.value; }
+  public set useCameraHeight(option: boolean) { this.useCameraHeightProperty.value = option; }
 
-  private static _getUseCameraHeightDescription = (): PropertyDescription => {
-    return {
-      name: SetupCameraTool._useCameraHeightName,
-      displayLabel: "",
-      typename: "boolean",
-      editor: {
-        params: [{
-          type: PropertyEditorParamTypes.SuppressEditorLabel,
-          suppressLabelPlaceholder: true,
-        } as SuppressLabelEditorParams,
-        ],
-      },
-    };
-  };
+  private _cameraHeightProperty: DialogProperty<number> | undefined;
+  public get cameraHeightProperty() {
+    if (!this._cameraHeightProperty)
+      this._cameraHeightProperty = new DialogProperty<number>(new LengthDescription("cameraHeight", ViewTool.translate("SetupCamera.Labels.CameraHeight")),
+        0.0, undefined, !this.useCameraHeight);
+    return this._cameraHeightProperty;
+  }
+  public get cameraHeight(): number { return this.cameraHeightProperty.value; }
+  public set cameraHeight(value: number) { this.cameraHeightProperty.value = value; }
 
-  private _useTargetHeightValue: DialogItemValue = { value: false };
-  public get useTargetHeight(): boolean { return this._useTargetHeightValue.value as boolean; }
-  public set useTargetHeight(option: boolean) { this._useTargetHeightValue.value = option; }
-  private static _useTargetHeightName = "useTargetHeight";
-  private static _getUseTargetHeightDescription = (): PropertyDescription => {
-    return {
-      name: SetupCameraTool._useTargetHeightName,
-      displayLabel: "",
-      typename: "boolean",
-      editor: {
-        params: [{
-          type: PropertyEditorParamTypes.SuppressEditorLabel,
-          suppressLabelPlaceholder: true,
-        } as SuppressLabelEditorParams,
-        ],
-      },
-    };
-  };
+  private _useTargetHeightProperty: DialogProperty<boolean> | undefined;
+  public get useTargetHeightProperty() {
+    if (!this._useTargetHeightProperty)
+      this._useTargetHeightProperty = new DialogProperty<boolean>(
+        PropertyDescriptionHelper.buildLockPropertyDescription("useTargetHeight"), false, undefined, false);
+    return this._useTargetHeightProperty;
+  }
+  public get useTargetHeight(): boolean { return this.useTargetHeightProperty.value; }
+  public set useTargetHeight(value: boolean) { this.useTargetHeightProperty.value = value; }
 
-  private _cameraHeightValue: DialogItemValue = { value: 0.0 };
-  public get cameraHeight(): number { return this._cameraHeightValue.value as number; }
-  public set cameraHeight(option: number) { this._cameraHeightValue.value = option; }
-  private static _cameraHeightName = "cameraHeight";
-  private static _cameraHeightDescription?: LengthDescription;
-  private _getCameraHeightDescription = (): PropertyDescription => {
-    if (!SetupCameraTool._cameraHeightDescription)
-      SetupCameraTool._cameraHeightDescription = new LengthDescription(SetupCameraTool._cameraHeightName, ViewTool.translate("SetupCamera.Labels.CameraHeight"));
-    return SetupCameraTool._cameraHeightDescription;
-  };
-
-  private _targetHeightValue: DialogItemValue = { value: 0.0 };
-  public get targetHeight(): number { return this._targetHeightValue.value as number; }
-  public set targetHeight(option: number) { this._targetHeightValue.value = option; }
-  private static _targetHeightName = "targetHeight";
-  private static _targetHeightDescription?: LengthDescription;
-  private _getTargetHeightDescription = (): PropertyDescription => {
-    if (!SetupCameraTool._targetHeightDescription)
-      SetupCameraTool._targetHeightDescription = new LengthDescription(SetupCameraTool._targetHeightName, ViewTool.translate("SetupCamera.Labels.TargetHeight"));
-    return SetupCameraTool._targetHeightDescription;
-  };
+  private _targetHeightProperty: DialogProperty<number> | undefined;
+  public get targetHeightProperty() {
+    if (!this._targetHeightProperty)
+      this._targetHeightProperty = new DialogProperty<number>(new LengthDescription("targetHeight", ViewTool.translate("SetupCamera.Labels.TargetHeight")),
+        0.0, undefined, !this.useTargetHeight);
+    return this._targetHeightProperty;
+  }
+  public get targetHeight(): number { return this.targetHeightProperty.value; }
+  public set targetHeight(value: number) { this.targetHeightProperty.value = value; }
 
   private syncCameraHeightState(): void {
-    const cameraHeightValue = { value: this.cameraHeight, displayValue: SetupCameraTool._cameraHeightDescription!.format(this.cameraHeight) };
-    const syncItem: DialogPropertySyncItem = { value: cameraHeightValue, propertyName: SetupCameraTool._cameraHeightName, isDisabled: !this.useCameraHeight };
-    this.syncToolSettingsProperties([syncItem]);
+    this.cameraHeightProperty.displayValue = (this.cameraHeightProperty.description as LengthDescription).format(this.cameraHeight);
+    this.cameraHeightProperty.isDisabled = !this.useCameraHeight;
+    this.syncToolSettingsProperties([this.cameraHeightProperty.syncItem]);
   }
 
   private syncTargetHeightState(): void {
-    const targetHeightValue = { value: this.targetHeight, displayValue: SetupCameraTool._cameraHeightDescription!.format(this.targetHeight) };
-    const syncItem: DialogPropertySyncItem = { value: targetHeightValue, propertyName: SetupCameraTool._targetHeightName, isDisabled: !this.useTargetHeight };
-    this.syncToolSettingsProperties([syncItem]);
+    this.targetHeightProperty.displayValue = (this.targetHeightProperty.description as LengthDescription).format(this.targetHeight);
+    this.targetHeightProperty.isDisabled = !this.useTargetHeight;
+    this.syncToolSettingsProperties([this.targetHeightProperty.syncItem]);
   }
 
   public applyToolSettingPropertyChange(updatedValue: DialogPropertySyncItem): boolean {
-    if (updatedValue.propertyName === SetupCameraTool._useCameraHeightName) {
+    if (updatedValue.propertyName === this.useCameraHeightProperty.name) {
       this.useCameraHeight = updatedValue.value.value as boolean;
-      IModelApp.toolAdmin.toolSettingsState.saveToolSettingProperty(this.toolId, { propertyName: SetupCameraTool._useCameraHeightName, value: this._useCameraHeightValue });
+      IModelApp.toolAdmin.toolSettingsState.saveToolSettingProperty(this.toolId, this.useCameraHeightProperty.item);
       this.syncCameraHeightState();
-    } else if (updatedValue.propertyName === SetupCameraTool._useTargetHeightName) {
+    } else if (updatedValue.propertyName === this.useTargetHeightProperty.name) {
       this.useTargetHeight = updatedValue.value.value as boolean;
-      IModelApp.toolAdmin.toolSettingsState.saveToolSettingProperty(this.toolId, { propertyName: SetupCameraTool._useTargetHeightName, value: this._useTargetHeightValue });
+      IModelApp.toolAdmin.toolSettingsState.saveToolSettingProperty(this.toolId, this.useTargetHeightProperty.item);
       this.syncTargetHeightState();
-    } else if (updatedValue.propertyName === SetupCameraTool._cameraHeightName) {
+    } else if (updatedValue.propertyName === this.cameraHeightProperty.name) {
       this.cameraHeight = updatedValue.value.value as number;
-      IModelApp.toolAdmin.toolSettingsState.saveToolSettingProperty(this.toolId, { propertyName: SetupCameraTool._cameraHeightName, value: this._cameraHeightValue });
-    } else if (updatedValue.propertyName === SetupCameraTool._targetHeightName) {
+      IModelApp.toolAdmin.toolSettingsState.saveToolSettingProperty(this.toolId, this.cameraHeightProperty.item);
+    } else if (updatedValue.propertyName === this.targetHeightProperty.name) {
       this.targetHeight = updatedValue.value.value as number;
-      IModelApp.toolAdmin.toolSettingsState.saveToolSettingProperty(this.toolId, { propertyName: SetupCameraTool._targetHeightName, value: this._targetHeightValue });
+      IModelApp.toolAdmin.toolSettingsState.saveToolSettingProperty(this.toolId, this.targetHeightProperty.item);
     }
     return true;
   }
 
   public supplyToolSettingsProperties(): DialogItem[] | undefined {
-
     // load latest values from session
-    IModelApp.toolAdmin.toolSettingsState.getInitialToolSettingValues(this.toolId, [SetupCameraTool._useCameraHeightName, SetupCameraTool._cameraHeightName, SetupCameraTool._useTargetHeightName, SetupCameraTool._targetHeightName])
+    IModelApp.toolAdmin.toolSettingsState.getInitialToolSettingValues(this.toolId,
+      [
+        this.useCameraHeightProperty.name, this.useTargetHeightProperty.name, this.cameraHeightProperty.name, this.targetHeightProperty.name,
+      ])
       ?.forEach((value) => {
-        if (value.propertyName === SetupCameraTool._useCameraHeightName)
-          this._useCameraHeightValue = value.value;
-        else if (value.propertyName === SetupCameraTool._cameraHeightName)
-          this._cameraHeightValue = value.value;
-        else if (value.propertyName === SetupCameraTool._useTargetHeightName)
-          this._useTargetHeightValue = value.value;
-        else if (value.propertyName === SetupCameraTool._targetHeightName)
-          this._targetHeightValue = value.value;
+        if (value.propertyName === this.useCameraHeightProperty.name)
+          this.useCameraHeightProperty.dialogItemValue = value.value;
+        else if (value.propertyName === this.cameraHeightProperty.name)
+          this.cameraHeightProperty.dialogItemValue = value.value;
+        else if (value.propertyName === this.useTargetHeightProperty.name)
+          this.useTargetHeightProperty.dialogItemValue = value.value;
+        else if (value.propertyName === this.targetHeightProperty.name)
+          this.targetHeightProperty.dialogItemValue = value.value;
       });
 
-    const useCameraHeight = { value: this._useCameraHeightValue, property: SetupCameraTool._getUseCameraHeightDescription() };
-    const useTargetHeight = { value: this._useTargetHeightValue, property: SetupCameraTool._getUseTargetHeightDescription() };
+    // ensure controls are enabled/disabled base on current lock property state
+    this.targetHeightProperty.isDisabled = !this.useTargetHeight;
+    this.cameraHeightProperty.isDisabled = !this.useCameraHeight;
+
+    const cameraHeightLock = this.useCameraHeightProperty.toDialogItem({ rowPriority: 1, columnIndex: 0 });
+    const targetHeightLock = this.useTargetHeightProperty.toDialogItem({ rowPriority: 2, columnIndex: 0 });
 
     const toolSettings = new Array<DialogItem>();
-    toolSettings.push({ value: this._cameraHeightValue, property: this._getCameraHeightDescription(), editorPosition: { rowPriority: 1, columnIndex: 2 }, lockProperty: useCameraHeight });
-    toolSettings.push({ value: this._targetHeightValue, property: this._getTargetHeightDescription(), editorPosition: { rowPriority: 2, columnIndex: 2 }, lockProperty: useTargetHeight });
+    toolSettings.push(this.cameraHeightProperty.toDialogItem({ rowPriority: 1, columnIndex: 1 }, cameraHeightLock));
+    toolSettings.push(this.targetHeightProperty.toDialogItem({ rowPriority: 2, columnIndex: 1 }, targetHeightLock));
     return toolSettings;
   }
 }
 
 /** A tool that sets a walk tool starting position by a floor point and look direction. This is a PrimitiveTool and not a ViewTool to allow the view to be panned, zoomed, and rotated while defining the points.
- * @beta
+ * @public
  */
 export class SetupWalkCameraTool extends PrimitiveTool {
   public static toolId = "View.SetupWalkCamera";
@@ -4402,7 +4405,7 @@ export class SetupWalkCameraTool extends PrimitiveTool {
   }
 
   private static getFigureTransform(vp: Viewport, base: Point3d, direction: Vector3d, scale: number): Transform | undefined {
-    const boresite = EditManipulator.HandleUtils.getBoresite(base, vp);
+    const boresite = AccuDrawHintBuilder.getBoresite(base, vp);
     if (Math.abs(direction.dotProduct(boresite.direction)) >= 0.9999)
       return undefined;
 

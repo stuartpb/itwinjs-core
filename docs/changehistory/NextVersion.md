@@ -3,111 +3,70 @@ publish: false
 ---
 # NextVersion
 
-## New Settings UI Features
+## Scientific visualization
 
-The @bentley/ui-core package has added the [SettingsManager]($ui-core) class that allows any number of [SettingsProvider]($ui-core) classes to be registered. These providers provide [SettingsTabEntry]($ui-core) definitions used to populate the [SettingsContainer]($ui-core) UI component with setting pages used to manage application settings. These new classes are marked as beta in this release and are subject to minor modifications in future releases.
+The [AnalysisStyle]($common) APIs have been cleaned up and promoted to `@public`. An AnalysisStyle is used to animate a mesh that has been supplemented with [PolyfaceAuxData]($geometry-core), by recoloring and/or deforming its vertices over time. This enables visualization of the effects of computed, changing variables like stress and temperature.
 
-## Breaking Api Changes
+## UI changes
 
 ### @bentley/ui-abstract package
 
-Property `onClick` in [LinkElementsInfo]($ui-abstract) was changed to be mandatory. Also, the first [PropertyRecord]($ui-abstract) argument was removed from the method. Suggested ways to resolve:
+Added ability for [UiItemsProvider]($ui-abstract) to provide widgets to [AbstractZoneLocation]($ui-abstract) locations when running is AppUi version 1. Prior to this a widget could only be targeted to a [StagePanelLocation]($ui-abstract) location.
 
-- If you have a function `myFunction(record: PropertyRecord, text: string)` and use the first argument, the issue can be resolved with a lambda:
+#### Example UiItemsProvider
 
-  ```ts
-  record.links = {
-    onClick: (text) => myFunction(record, text),
-  };
-  ```
+The example below, shows how to add a widget to a [StagePanelLocation]($ui-abstract) if UiFramework.uiVersion === "2" and to the "BottomRight" [AbstractZoneLocation]($ui-abstract) if UiFramework.uiVersion === "1".  See [UiItemsProvider.provideWidgets]($ui-abstract) for new `zoneLocation` argument.
 
-- If you were omitting the `onClick` method to get the default behavior, it can still be achieved by not setting `PropertyRecord.links` at all. It's only valid to expect default click behavior when default matcher is used, but if a custom matcher is used, then the click handled can be as simple as this:
+```tsx
+export class ExtensionUiItemsProvider implements UiItemsProvider {
+  public readonly id = "ExtensionUiItemsProvider";
+  public static i18n: I18N;
+  private _backstageItems?: BackstageItem[];
 
-  ```ts
-  record.links = {
-    onClick: (text) => { window.open(text, "_blank"); },
-  };
-  ```
-
-### @bentley/imodeljs-frontend package
-
-#### Initializing TileAdmin
-
-The previously-`alpha` [IModelAppOptions.tileAdmin]($frontend) property has been promoted to `beta` and its type has changed from [TileAdmin]($frontend) to [TileAdmin.Props]($frontend). [TileAdmin.create]($frontend) has become `async`. Replace code like the following:
-
-```ts
-  IModelApp.startup({ tileAdmin: TileAdmin.create(props) });
-```
-
-with:
-
-```ts
-  IModelApp.startup({ tileAdmin: props });
-```
-
-#### Tile request channels
-
-[Tile]($frontend)s are now required to report the [TileRequestChannel]($frontend) via which requests for their content should be executed, by implementing the new abstract [Tile.channel]($frontend) property. The channel needs to specify a name and a concurrency. The name must be unique among all registered channels, so choose something unlikely to conflict. The concurrency specifies the maximum number of requests that can be simultaneously active on the channel. For example, when using HTTP 1.1 modern browsers allow no more than 6 simultaneous connections to a given hostname, so 6 is a good concurrency for HTTP 1.1-based channels and the hostname is a decent choice for the channel's name.
-
-Typically all tiles in the same [TileTree]($frontend) use the same channel. Your implementation of `Tile.channel` will depend on the mechanism by which the content is obtained. If it uses HTTP, it's easy:
-
-```ts
-  public get channel() { return IModelApp.tileAdmin.getForHttp("my-unique-channel-name"); }
-```
-
-If your tile never requests content, you can implement like so:
-
-```ts
-  public get channel() { throw new Error("This tile never has content so this property should never be invoked"); }
-```
-
-If your tile uses the `alpha` `TileAdmin.requestElementGraphics` API, use the dedicated channel for such requests:
-
-```ts
-  public get channel() { return IModelApp.tileAdmin.channels.elementGraphicsRpc; }
-```
-
-Otherwise, you must register a channel ahead of time. Choose an appropriate concurrency:
-
-- If the tile requests content from some custom [RpcInterface]($common), use `IModelApp.tileAdmin.channels.rpcConcurrency`.
-- Otherwise, choose a reasonably small limit to prevent too much work from being done at one time. Remember that tile requests are frequently canceled shortly after they are enqueued as the user navigates the view. A concurrency somewhere around 6-10 is probably reasonable.
-
-To register a channel at startup:
-
-```ts
-  await IModelApp.startup();
-  const channel = new TileRequestChannel("my-unique-channel-name", IModelApp.tileAdmin.rpcConcurrency);
-  IModelApp.tileAdmin.channels.add(channel);
-```
-
-If you store `channel` from the above snippet in a global variable, you can implement your `channel` property to return it directly; otherwise you must look it up:
-
-```ts
-  public get channel() {
-    const channel = IModelApp.tileAdmin.channels.get("my-unique-channel-name");
-    assert(undefined !== channel);
-    return channel;
+  public constructor(i18n: I18N) {
+    ExtensionUiItemsProvider.i18n = i18n;
   }
-```
 
-### Authentication changes for Electron and Mobile apps
-
-For desktop and mobile applications, all authentication happens on the backend. The frontend process merely initiates the login process and waits for notification that it succeeds. Previously the steps required to set up the process were somewhat complicated.
-
-Now, to configure your electron or mobile application for authorization, pass the `authConfig` option to `ElectronApp.startup` or `IOSApp.startup` to specify your authorization configuration.
-
-Then, if you want a method that can be awaited for the user to sign in, use something like:
-
-```ts
-// returns `true` after successful login.
-async function signIn(): Promise<boolean> {
-  const auth = IModelApp.authorizationClient!;
-  if (auth.isAuthorized)
-    return true; // make sure not already signed in
-
-  return new Promise<boolean>((resolve, reject) => {
-    auth.onUserStateChanged.addOnce((token?: AccessToken) => resolve(token !== undefined)); // resolve Promise with `onUserStateChanged` event
-    auth.signIn().catch((err) => reject(err)); // initiate the sign in process (forwarded to the backend)
-  });
+  /** provideWidgets() is called for each registered UI provider to allow the provider to add widgets to a specific section of a stage panel.
+   *  items to the StatusBar.
+   */
+  public provideWidgets(_stageId: string, stageUsage: string, location: StagePanelLocation, section: StagePanelSection | undefined, zoneLocation?: AbstractZoneLocation): ReadonlyArray<AbstractWidgetProps> {
+    const widgets: AbstractWidgetProps[] = [];
+    // section will be undefined if uiVersion === "1" and in that case we can add widgets to the specified zoneLocation
+    if ((undefined === section && stageUsage === StageUsage.General && zoneLocation === AbstractZoneLocation.BottomRight) ||
+      (stageUsage === StageUsage.General && location === StagePanelLocation.Right && section === StagePanelSection.End && "1" !== UiFramework.uiVersion)) {
+      {
+        widgets.push({
+          id: PresentationPropertyGridWidgetControl.id,
+          icon: PresentationPropertyGridWidgetControl.iconSpec,  // icon required if uiVersion === "1"
+          label: PresentationPropertyGridWidgetControl.label,
+          defaultState: WidgetState.Open,
+          getWidgetContent: () => <PresentationPropertyGridWidget />, // eslint-disable-line react/display-name
+          canPopout: true,  // canPopout ignore if uiVersion === "1"
+        });
+      }
+    }
+    return widgets;
+  }
 }
 ```
+
+### @bentley/ui-framework package
+
+- The need for an IModelApp to explicitly call [ConfigurableUiManager.initialize]($ui-framework) has been removed. This call is now made when processing [UiFramework.initialize]($ui-framework). This will not break any existing applications as subsequent calls to `ConfigurableUiManager.initialize()` are ignored.
+
+- If an application calls [UiFramework.setIModelConnection]($ui-framework) it will no longer need to explicitly call [SyncUiEventDispatcher.initializeConnectionEvents]($ui-framework) as `UiFramework.setIModelConnection` will call that method as it update the redux store.
+
+- The `version` prop passed to [FrameworkVersion]($ui-framework) component will update the [UiFramework.uiVersion] if necessary keeping the redux state matching the value defined by the prop.
+
+- The [ScheduleAnimationTimelineDataProvider]($ui-framework) is published for use by AppUi apps. Specifying this data provider to a [TimelineComponent]($ui-components) allows animation of the [RenderSchedule.Script]($common) if one exists for the view. A component that automatically detects a schedule script and attaches the data provider to its TimelineComponent can be found in the [DefaultViewOverlay]($ui-framework).
+
+- The [AnalysisAnimationTimelineDataProvider]($ui-framework) is published for use by AppUi apps. Specifying this data provider to a TimelineComponent allows animation of the information in the AnalysisDisplayProperties if the view's [DisplayStyleState]($frontend) contains one. A component that automatically detects analysis data and attaches the data provider to its TimelineComponent can be found in the [DefaultViewOverlay]($ui-framework).
+
+### @bentley/ui-componentsframework package
+
+- Added component [QuantityNumberInput]($ui-components) which accepts input for quantity values. The quantity value is shown as a single numeric value and the quantity "display" unit is shown next to the input control. The "display" unit is determined by the active unit system as defined by the [QuantityFormatter]($frontend). The control also provides buttons to increment and decrement the "displayed" value. The value reported by via the onChange function is in "persistence" units that can be stored in the iModel.
+
+### Quantity package
+
+The Format class now provides the method [Format.clone]($quantity) to clone an existing Format. [CloneOptions]($quantity) may be optionally passed into the clone method to adjust the format.
