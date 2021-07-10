@@ -10,10 +10,9 @@ import "./PropertyGrid.scss";
 import classnames from "classnames";
 import { produce } from "immer";
 import * as React from "react";
-import ReactResizeDetector from "react-resize-detector";
 import { DisposeFunc } from "@bentley/bentleyjs-core";
 import { PropertyRecord } from "@bentley/ui-abstract";
-import { Orientation, SpinnerSize } from "@bentley/ui-core";
+import { Orientation, ResizableContainerObserver, SpinnerSize } from "@bentley/ui-core";
 import { DelayedSpinner } from "../../common/DelayedSpinner";
 import { IPropertyDataProvider, PropertyCategory, PropertyData } from "../PropertyDataProvider";
 import { ColumnResizeRelatedPropertyListProps, ColumnResizingPropertyListPropsSupplier } from "./ColumnResizingPropertyListPropsSupplier";
@@ -80,7 +79,7 @@ export class PropertyGrid extends React.Component<PropertyGridProps, PropertyGri
   }
 
   /** @internal */
-  public componentDidMount() {
+  public override componentDidMount() {
     this._isMounted = true;
     this._dataChangesListenerDisposeFunc = this.props.dataProvider.onDataChanged.addListener(this._onPropertyDataChanged);
 
@@ -89,7 +88,7 @@ export class PropertyGrid extends React.Component<PropertyGridProps, PropertyGri
   }
 
   /** @internal */
-  public componentWillUnmount() {
+  public override componentWillUnmount() {
     // istanbul ignore else
     if (this._dataChangesListenerDisposeFunc) {
       this._dataChangesListenerDisposeFunc();
@@ -98,7 +97,7 @@ export class PropertyGrid extends React.Component<PropertyGridProps, PropertyGri
     this._isMounted = false;
   }
 
-  public componentDidUpdate(prevProps: PropertyGridProps) {
+  public override componentDidUpdate(prevProps: PropertyGridProps) {
     if (this.props.dataProvider !== prevProps.dataProvider) {
       // istanbul ignore else
       if (this._dataChangesListenerDisposeFunc)
@@ -176,7 +175,7 @@ export class PropertyGrid extends React.Component<PropertyGridProps, PropertyGri
     return (this.props.orientation !== undefined) ? this.props.orientation : Orientation.Horizontal;
   }
 
-  private _onResize = (width: number, _height: number) => {
+  private _onResize = (width: number) => {
     this.updateOrientation(width);
   };
 
@@ -202,7 +201,7 @@ export class PropertyGrid extends React.Component<PropertyGridProps, PropertyGri
   }
 
   /** @internal */
-  public render() {
+  public override render() {
     if (this.state.loadStart) {
       return (
         <div className="components-property-grid-loader">
@@ -212,10 +211,11 @@ export class PropertyGrid extends React.Component<PropertyGridProps, PropertyGri
     }
 
     return (
-      <PropertyGridEventsRelatedPropsSupplier isPropertySelectionEnabled={this.props.isPropertySelectionEnabled}
+      <PropertyGridEventsRelatedPropsSupplier
+        isPropertySelectionEnabled={this.props.isPropertySelectionEnabled ?? false}
         isPropertySelectionOnRightClickEnabled={this.props.isPropertySelectionOnRightClickEnabled}
         isPropertyEditingEnabled={this.props.isPropertyEditingEnabled}
-        isPropertyHoverEnabled={this.props.isPropertyHoverEnabled}
+        isPropertyHoverEnabled={this.props.isPropertyHoverEnabled ?? false}
         onPropertyContextMenu={this.props.onPropertyContextMenu}
         onPropertyUpdated={this.props.onPropertyUpdated}
         onPropertySelectionChanged={this.props.onPropertySelectionChanged}
@@ -239,7 +239,7 @@ export class PropertyGrid extends React.Component<PropertyGridProps, PropertyGri
                 }
               </div>
             </div>
-            <ReactResizeDetector handleWidth handleHeight onResize={this._onResize} />
+            <ResizableContainerObserver onResize={this._onResize} />
           </div>
         )}
       </PropertyGridEventsRelatedPropsSupplier>

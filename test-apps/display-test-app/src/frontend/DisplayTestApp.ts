@@ -61,7 +61,7 @@ async function openIModel(filename: string, writable: boolean): Promise<IModelCo
 // @return Promise that resolves to true after signIn is complete
 async function signIn(): Promise<boolean> {
   if (!NativeApp.isValid) // for browser, frontend handles redirect. For native apps, backend handles it
-    await BrowserAuthorizationCallbackHandler.handleSigninCallback(DisplayTestApp.getAuthConfig().redirectUri);
+    await BrowserAuthorizationCallbackHandler.handleSigninCallback("http://localhost:3000/signin-callback");
 
   const auth = IModelApp.authorizationClient!;
   if (auth.isAuthorized)
@@ -77,7 +77,7 @@ async function signIn(): Promise<boolean> {
 class FakeTileCache extends CloudStorageTileCache {
   public constructor() { super(); }
 
-  protected async requestResource(container: CloudStorageContainerUrl, id: TileContentIdentifier): Promise<Response> {
+  protected override async requestResource(container: CloudStorageContainerUrl, id: TileContentIdentifier): Promise<Response> {
     const init: RequestInit = {
       headers: container.headers,
       method: "GET",
@@ -107,7 +107,6 @@ const dtaFrontendMain = async () => {
     dpiAwareViewports: false !== configuration.dpiAwareViewports,
     devicePixelRatioOverride: configuration.devicePixelRatioOverride,
     dpiAwareLOD: true === configuration.dpiAwareLOD,
-    doIdleWork: false !== configuration.doIdleWork,
     useWebGL2: false !== configuration.useWebGL2,
     planProjections: true,
     debugShaders: true === configuration.debugShaders,

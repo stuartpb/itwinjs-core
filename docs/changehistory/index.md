@@ -1,219 +1,146 @@
+# 2.17.0 Change Notes
 
-# 2.13.0 Change Notes
+## UI Changes
 
-## The iModel.js Project Is Renamed iTwin.js
+### Cube Navigation Aid
 
-The version begins the process of renaming our project from **iModel.js** to **iTwin.js** to better reflect its purpose as the *platform for infrastructure digital twins*.
+The enums HitBoxX, HitBoxY, and HitBoxZ used by the CubeNavigationAid have been renamed to CubeNavigationHitBoxX, CubeNavigationHitBoxY, and CubeNavigationHitBoxZ, respectively. The old enums are deprecated.
 
-iModels are of course a big part of iTwins, so much of the api remains iModel-centric, and many packages within this repository are appropriately named with the `imodeljs` prefix. But, many parts that don't have a direct relationship to iModels will use the term iTwin going forward to avoid confusion.
+### TimelineComponent and TimelineComponentDataProvider
 
-The full conversion will be made gradually and incrementally, and will likely take several major release cycles to complete. We will not rename packages, classes, methods, etc. unless they are substantially replaced. That may leave some permanent historical vestiges of this transition, but as they say, c'est la vie.
+The incomplete milestones feature was removed from the TimelineComponent and TimelineComponentDataProvider in preparation to move the APIs to @public.
 
-This version begins the process by redirecting `www.imodeljs.org` to `www.itwinjs.org`, and updating references to the project name in markdown files.
+## New IModel events
 
-## Breaking API Changes
+[IModel]($common)s now emit events when their properties change.
 
-### Quantity package
+* [IModel.onProjectExtentsChanged]($common)
+* [IModel.onGlobalOriginChanged]($common)
+* [IModel.onEcefLocationChanged]($common)
+* [IModel.onGeographicCoordinateSystemChanged]($common)
+* [IModel.onRootSubjectChanged]($common)
+* [IModel.onNameChanged]($common)
 
-The alpha interface `ParseResult` has changed to `QuantityParserResult` which can either be a `ParseQuantityError` or a `ParsedQuantity`.
-New static type guards `Parser.isParsedQuantity` and `Parser.isParseError` can be used to coerce the result into the appropriate type.
+Within [IpcApp]($frontend)-based applications, [BriefcaseConnection]($frontend)s now automatically synchronize their properties in response to such events produced by changes on the backend. For example, if [BriefcaseDb.projectExtents]($backend) is modified, [BriefcaseConnection.projectExtents]($frontend) will be updated to match and both the BriefcaseDb and BriefcaseConnection will emit an `onProjectExtentsChanged` event.
 
-The alpha `UnitConversionSpec` interface now requires a "system" property that can be used during parsing to help determine the unit to parse the value.
+## Reality model APIs
 
-### Frontend package
+Several APIs relating to reality models have been introduced, in some cases replacing previous `beta` APIs. A reality model can be displayed in a [Viewport]($frontend) in one of two ways:
+* Adding to the [ViewState]($frontend)'s [ModelSelector]($backend) the Id of a persistent [SpatialModelState]($frontend) containing a URL pointing to a 3d tileset; or
+* Attaching to the [DisplayStyleState]($frontend) a [ContextRealityModel]($common) with a URL pointing to a 3d tileset.
 
-The alpha class `QuantityFormatter` now registers its own standard `QuantityTypeDefinitions` during initialization. `CustomQuantityTypeDefinitions` must now be registered to support additional `QuantityTypes`. This replaces the use of `FormatterParserSpecsProvider` to provide custom quantity types. Removed koq methods that were never implemented.
+The set of [ContextRealityModels]($common) attached to a display style can be accessed and modified via [DisplayStyleSettings.contextRealityModels]($common).
 
-### IModelHostConfiguration.applicationType
+Spatial classification can be applied to a reality model using [ContextRealityModel.classifiers]($common) or [SpatialModelState.classifiers]($frontend). The [SpatialClassifier]($common) APIs replace the previous `beta` APIs in the `SpatialClassificationProps` namespace.
 
-The type of the internal member `IModelHostConfiguration.applicationType` had a redundant declaration in `IModelHost.ts`. It is now correctly declared to be of type `IModelJsNative.ApplicationType`. The names of the members were the same, so this will not likely cause problems.
+Portions of a reality model can be masked by other models using [ContextRealityModel.planarClipMaskSettings]($common) or, for persistent models, [DisplayStyleSettings.planarClipMasks]($common).
 
-### IModelTransformer and IModelExporter APIs are now async
+The color, transparency, locatability, and "emphasized" state of a reality model can be overridden using [ContextRealityModel.appearanceOverrides]($common) or, for persistent models, [DisplayStyleSettings.modelAppearanceOverrides]($common).
 
-The *export* methods of [IModelExporter]($backend) and the *process* methods of [IModelTransformer]($backend) are now `async`. This is a breaking API change.
-While exporting and transforming should generally be considered *batch* operations, changing these methods to `async` makes progress reporting and process health monitoring much easier. This is particularly important when processing large iModels.
+A reality model displaying simple building meshes for locations all over the world obtained from [OpenStreetMap Buildings](https://cesium.com/platform/cesium-ion/content/cesium-osm-buildings/) can be enabled via [DisplayStyleState.setOSMBuildingDisplay]($frontend).
 
-To react to the changes, add an `await` before each `IModelExporter.export*` and `IModelTransformer.process*` method call and make sure they are called from within an `async` method. No internal logic was changed, so that should be the only changes required.
+## Popout Widgets
 
-## GPU memory limits
+IModelApps, that use AppUi version "2", can now specify if a Widget can support being "popped-out" to a child popup window. The child window runs in the same javascript context as the parent application window. See [Child Window Manager]($docs/learning/ui/framework/ChildWindows.md) for more details.
 
-The [RenderGraphic]($frontend)s used to represent a [Tile]($frontend)'s contents consume WebGL resources - chiefly, GPU memory. If the amount of GPU memory consumed exceeds that available, the WebGL context will be lost, causing an error dialog to be displayed and all rendering to cease. The [TileAdmin]($frontend) can now be configured with a strategy for managing the amount of GPU memory consumed and avoiding context loss. Each strategy defines a maximum amount of GPU memory permitted to be allocated to tile graphics; when that limit is exceeded, graphics for tiles that are not currently being displayed by any [Viewport]($frontend) are discarded one by one until the limit is satisfied or no more tiles remain to be discarded. Graphics are discarded in order from least-recently- to most-recently-displayed, and graphics currently being displayed will not be discarded. The available strategies are:
+## External textures
 
-- "default" - a "reasonable" amount of GPU memory can be consumed.
-- "aggressive" - a conservative amount of GPU memory can be consumed.
-- "relaxed" - a generous amount of GPU memory can be consumed.
-- "none" - an unbounded amount of GPU memory can be consumed - no maximum is imposed.
+The external textures feature is now enabled by default.
 
-The precise amount of memory permitted by each strategy varies based on whether or not the client is running on a mobile device; see [TileAdmin.mobileGpuMemoryLimits]($frontend) and [TileAdmin.nonMobileGpuMemoryLimits]($frontend) for precise values. The application can also specify an exact amount in number of bytes instead.
+Previously, by default the images for textured materials would be embedded in the tile contents. This increased the size of the tile, consumed bandwidth, and imposed other penalties. The external textures feature, however, requires only the Id of the texture element to be included in the tile; the image can then be requested separately. Texture images are cached, so the image need only be requested once no matter how many tiles reference it.
 
-The limit defaults to "default" for mobile devices and "none" for non-mobile devices. To configure the limit when calling [IModelApp.startup]($frontend), specify [TileAdmin.Props.gpuMemoryLimits]($frontend). For example:
+Additionally, if a dimension of the external texture exceeds the client's maximum supported texture size, the image will be downsampled to adhere to that limit before being transmitted to the client.
 
-```ts
-  IModelApp.startup({ tileAdmin: TileAdmin.create({ gpuMemoryLimits: "aggressive" }) });
-```
-
-Separate limits for mobile and non-mobile devices can be specified at startup if desired; the appropriate limit will be selected based on the type of device the client is running on:
-
-```ts
-  IModelApp.startup({ tileAdmin: TileAdmin.create({
-    gpuMemoryLimits: {
-      mobile: "default",
-      nonMobile: "relaxed",
-    }),
-  });
-```
-
-To adjust the limit after startup, assign to [TileAdmin.gpuMemoryLimit]($frontend).
-
-This feature replaces the `@alpha` `TileAdmin.Props.mobileExpirationMemoryThreshold` option.
-
-## IModelHost and IModelApp Initialization Changes
-
-Initialization processing of iTwin.js applications, and in particular the order of individual steps for frontend and backend classes has been complicated and vague, involving several steps that vary depending on application type and platform. This release attempts to clarify and simplify that process, while maintaining backwards compatibility. In general, if your code uses [IModelHost.startup]($backend) and [IModelApp.startup]($frontend) for web visualization, it will continue to work without changes. However, for native (desktop and mobile) apps, some refactoring may be necessary. See [IModelHost documentation](../learning/backend/IModelHost.md) for appropriate backend initialization, and [IModelApp documentation](../learning/frontend/IModelApp.md) for frontend initialization.
-
-The `@beta` API's for desktop applications to use Electron via the `@bentley/electron-manager` package have been simplified substantially. Existing code will need to be adjusted to work with this version. The class `ElectronManager` has been removed, and it is now replaced with the classes `ElectronHost` and `ElectronApp`.
-
-To create an Electron application, you should initialize your frontend via:
+To disable external textures, pass a `TileAdmin` to [IModelApp.startup]($frontend) with the feature disabled as follows:
 
 ```ts
-  import { ElectronApp } from "@bentley/electron-manager/lib/ElectronFrontend";
-  ...
-  await ElectronApp.startup();
+  const tileAdminProps: TileAdmin.Props = { enableExternalTextures: false };
+  const tileAdmin = TileAdmin.create(tileAdminProps);
+  IModelApp.startup({ tileAdmin });
 ```
 
-And your backend via:
+Disabling this feature is not recommended and will incur a performance penalty. The option to disable the feature will likely be removed in the future.
 
-```ts
-  import { ElectronHost } from "@bentley/electron-manager/lib/ElectronBackend";
-  ...
-  await ElectronHost.startup();
-```
+## ECClass Ids in changed events
 
-Likewise, to create an iOS application, you should initialize your frontend via:
-
-```ts
-  import { IOSApp } from "@bentley/mobile-manager/lib/MobileFrontend";
-  ...
-  await IOSApp.startup();
-```
-
-And your backend via:
-
-```ts
-  import { IOSHost } from "@bentley/mobile-manager/lib/MobileBackend";
-  ...
-  await IOSHost.startup();
-```
-
-Both frontend and backend `startup` methods take optional arguments to customize the App/Host environments.
-
-## ProcessDetector API
-
-It is frequently necessary to detect the type of JavaScript process currently executing. Previously, there were several ways (sometimes redundant, sometimes conflicting) to do that, depending on the subsystem being used. This release attempts to centralize process classification into the class [ProcessDetector]($bentley) in the `@bentleyjs-core` package. All previous methods for detecting process type have been deprecated in favor of `ProcessDetector`. The deprecated methods will likely be removed in version 3.0.
-
-## Common table expression support in ECSQL
-
-CTE are now supported in ECSQL. For more information read [Common Table Expression](../learning/CommonTableExp.md)
-
-## Planar clip masks
-
-Planar clip masks provide a two and a half dimensional method for masking the regions where the background map, reality models and BIM geometry overlap. A planar clip mask is described by [PlanarClipMaskProps]($common).A planar clip mask may be applied to a contexual reality model as a [ContextRealityModelProps.planarClipMask]($common) to the background map as [BackgroundMapProps.planarClipMask]($common) or as an override to attached reality models with the [DisplayStyleSettingsProps.planarClipOvr]($common) array of [DisplayStyleRealityModelPlanarClipMaskProps]($common).   The planar clip mask geometry is not required to be planar as the masks will be generated from their projection to the X-Y plane, therefore any 3D model or reality model can be used to generate a planar clip mask.
-
-The [PlanarClipMaskProps.mode]($common) specifies how the mask geometry is collected.  [PlanarClipMaskMode]$(common) includes collection of masks by models, subcategories, elements (included or excluded) or by a priority scheme that clips against other models with a higher priority.
-
-### By masking a reality model with a BIM model we can display the BIM model without the overlapping reality model
-
-![Building and reality model without mask](./assets/PlanarMask_BuildingNoMask.jpg)
-![Reality model masked by building](./assets/PlanarMask_BuildingMasked.jpg)
-
-### By masking the background map terrain with the reality model we can display the current state of the quarry without intrusive terrain
-
-![Quarry and Background Map Terrain without mask](./assets/PlanarMask_QuarryNoMask.jpg)
-![Background Map Terrain masked by quarry reality model](./assets/PlanarMask_QuarryMasked.jpg)
-
-### Planar Clip Mask Transparency
-
-Planar clip masks support transparency.  If a mask is not transparent then the masked geometry is omitted completely, if transparency is included then increasing the transparency will decrease the masking and increase a translucent blending of the masked geometry.  A transparency value of 1 would indicate no masking.  If no transparency is included then the transparency value from the mask elements is used.  In the image below a transparent mask is applied to the reality model to show the underground tunnel.
-
-![Planar clip mask with transparency](./assets/PlanarMask_TunnelTransparent.jpg)
+The events [TxnManager.onElementsChanged]($backend) and [TxnManager.onModelsChanged]($backend) now include the Id of each changed entity's [ECClass]($docs/bis/intro/glossary/#ecclass). The [OrderedId64Array]($bentleyjs-core) properties of [TxnChangedEntities]($backend) are deprecated in favor of the new [EntityIdAndClassIdIterable]($common) properties.
 
 ## Presentation
 
-### Highlighting members of GroupInformationElement
+### Associating content items with given input
 
-Presentation rules used by [HiliteSetProvider]($presentation-frontend) have been modified to return geometric elements grouped by *BisCore.GroupInformationElement* instances.
+Sometimes there's a need to associate content items with given input. For example, when requesting child elements' content based on given parent keys, we may want to know which child element content item is related to which
+given parent key. That information has been made available through [Item.inputKeys]($presentation-common) attribute. Because getting this information may be somewhat expensive and is needed only occasionally, it's only set
+when content is requested with [ContentFlags.IncludeInputKeys]($presentation-common) flag.
 
-### Setting up default formats
+### Custom category nesting
 
-A new feature was introduced, which allows supplying default unit formats to use for formatting properties that don't have a presentation unit for requested unit system. The formats are set when initializing [Presentation]($presentation-backend) and passing `PresentationManagerProps.defaultFormats`.
-Example:
+A new `requiredSchemas` attribute was added to [Ruleset]($presentation-common), [Rule]($presentation-common) and [SubCondition]($presentation-common) definitions. The attribute allows specifying ECSchema requirements for rules and avoid using them when requirements are not met. See the [schema requirements page](../learning/presentation/SchemaRequirements.md) for more details.
 
-```ts
-Presentation.initialize({
-  defaultFormats: {
-    length: {
-      unitSystems: [PresentationUnitSystem.BritishImperial],
-      format: MY_DEFAULT_FORMAT_FOR_LENGTHS_IN_BRITISH_IMPERIAL_UNITS,
-    },
-    area: {
-      unitSystems: [PresentationUnitSystem.UsCustomary, PresentationUnitSystem.UsSurvey],
-      format: MY_DEFAULT_FORMAT_FOR_AREAS_IN_US_UNITS,
-    },
-  },
-});
-```
+## Promoted APIs
 
-### Accessing selection in instance filter of content specifications
+The following APIs have been promoted to `public`. Public APIs are guaranteed to remain stable for the duration of the current major version of a package.
 
-Added a way to create and filter content that's related to given input through some ID type of property that is not part of a relationship. That can be done by
-using [ContentInstancesOfSpecificClasses specification](../learning/presentation/content/ContentInstancesOfSpecificClasses.md) with an instance filter that makes use
-of the newly added [SelectedInstanceKeys](../learning/presentation/content/ECExpressions.md#instance=filter) ECExpression symbol. Example:
+### [@bentley/bentleyjs-core](https://www.itwinjs.org/reference/bentleyjs-core)
 
-```json
-{
-  "ruleType": "Content",
-  "condition": "SelectedNode.IsOfClass(\"ECClassDef\", \"ECDbMeta\")",
-  "specifications": [
-    {
-      "specType": "ContentInstancesOfSpecificClasses",
-      "classes": {
-        "schemaName": "BisCore",
-        "classNames": ["Element"]
-      },
-      "arePolymorphic": true,
-      "instanceFilter": "SelectedInstanceKeys.AnyMatches(x => this.IsOfClass(x.ECInstanceId))"
-    }
-  ]
-}
-```
+* [ReadonlySortedArray.findEquivalent]($bentleyjs-core) and [ReadonlySortedArray.indexOfEquivalent]($bentleyjs-core) for locating an element based on a custom criterion.
+* [CompressedId64Set.sortAndCompress]($bentleyjs-core) for conveniently producing a compact representation of a set of [Id64String]($bentleyjs-core)s.
 
-The above example creates content for `ECDbMeta.ECClassDef` instances by selecting all `BisCore.Element` instances
-that are of given `ECDbMeta.ECClassDef` instances.
+### [@bentley/imodeljs-common](https://www.itwinjs.org/reference/imodeljs-common/)
 
-Previously this was not possible, because there is no ECRelationship between `ECDbMeta.ECClassDef` and `BisCore.Element`.
+* [RenderSchedule]($common) for defining scripts to visualize changes in an iModel over time.
 
-### ECInstance ECExpression context method enhancements
+### [@bentley/imodeljs-frontend](https://www.itwinjs.org/reference/imodeljs-frontend/)
 
-Added lambda versions for [ECInstance ECExpression context](../learning/presentation/ECExpressions.md#ecinstance) methods: `GetRelatedInstancesCount`,
-`HasRelatedInstance`, `GetRelatedValue`. This allows using those methods without the need of an ECRelationship between "current" ECInstance
-and related ECInstance. Example:
+* [LookAndMoveTool]($frontend) for using videogame-like mouse and keyboard controls to navigate a 3d view.
+* [Viewport.antialiasSamples]($frontend) and [ViewManager.setAntialiasingAllViews]($frontend) for applying [antialiasing](https://en.wikipedia.org/wiki/Multisample_anti-aliasing) to make viewport images appear smoother.
 
-```json
-{
-  "ruleType": "RootNodes",
-  "specifications": [
-    {
-      "specType": "InstanceNodesOfSpecificClasses",
-      "classes": {
-        "schemaName": "ECDbMeta",
-        "classNames": ["ECClassDef"]
-      },
-      "instanceFilter": "this.HasRelatedInstance(\"BisCore:Element\", el => el.IsOfClass(this.ECInstanceId))",
-      "groupByClass": false,
-      "groupByLabel": false
-    }
-  ]
-}
-```
+### [@bentley/imodeljs-backend package](https://www.itwinjs.org/reference/imodeljs-backend)
 
-The above example returns `ECDbMeta:ECClassDef` instances only if there are `BisCore:Elements` of those classes.
+* [TxnManager]($backend) for managing local changes to a [BriefcaseDb]($backend).
+The arguments for the @beta protected static methods called during modifications have been changed to be more consistent and extensible:
+* [IModelDb.generateElementGraphics]($backend) for generating [RenderGraphic]($frontend)s from [GeometricElement]($backend)s or arbitrary geometry streams.
+* [IModelDb.getGeometryContainment]($backend) for computing the containment of a set of [GeometricElement]($backend)s within a [ClipVector]($geometry-core).
+* [Element]($backend) `[onInsert, onInserted, onUpdate, onUpdated, onDelete, onDeleted]`
+* [Model]($backend) `[onInsert, onInserted, onUpdate, onUpdated, onDelete, onDeleted]`
+* [ElementAspect]($backend) `[onInsert, onInserted, onUpdate, onUpdated, onDelete, onDeleted]`
+
+In addition, new protected static methods were added:
+* [Element]($backend) `[onChildInsert, onChildInserted, onChildUpdate, onChildUpdated, onChildDelete, onChildDeleted, onChildAdd, onChildAdded, onChildDrop, onChildDropped]`
+
+### [@bentley/webgl-compatibility](https://www.itwinjs.org/reference/webgl-compatibility/)
+
+* [queryRenderCompatibility]($webgl-compatibility) for querying the client system's compatibility with the iTwin.js rendering system.
+
+## Breaking API changes
+
+During the course of routine improvement and stabilization of formerly `alpha` and `beta` APIs, some such APIs have changed. No breaking changes have been made to `public` APIs.
+
+### [@bentley/imodeljs-common](https://www.itwinjs.org/reference/imodeljs-common/)
+
+The following APIs have been replaced:
+
+* [DisplayStyleSettings]($common):
+  * `getModelPlanarClipMask`, `overrideModelPlanarClipMask`, and `dropModelPlanarClipMaskOverride`: use the `get`, `set`, and `delete` methods, respectively, of [DisplayStyleSettings.planarClipMasks]($common).
+  * `onRealityModelPlanarClipMaskChanged`: use [DisplayStyleSettings.onPlanarClipMaskChanged]($common) for changes to [DisplayStyleSettings.planarClipMasks]($common) and [DisplayStyleSettings.contextRealityModels]($common)'s `onPlanarClipMaskChanged` event for [ContextRealityModel]($common)s.
+* `SpatialClassificationProps` namespace: use [SpatialClassifier]($common) instead.
+
+### [@bentley/imodeljs-frontend](https://www.itwinjs.org/reference/imodeljs-frontend/)
+
+* Most properties and methods of [ContextRealityModelState]($frontend) have moved to its new base class, [ContextRealityModel]($common).
+* The [SpatialClassifiers]($common) class has moved to imodeljs-common.
+* `Viewport.setOSMBuildingDisplay` has been replaced by [DisplayStyleState.setOSMBuildingDisplay]($frontend).
+* The following [DisplayStyleState]($frontend) APIs have been replaced:
+  * Methods identifying [ContextRealityModel]($common)s by array index have been replaced with APIs that take a [ContextRealityModel]($common) object. If your existing code has an array index, you can use it to index into the arrays exposed by [DisplayStyleState.contextRealityModelStates]($frontend) and the `models` property of [DisplayStyleSettings.contextRealityModels]($common).
+  * `getModelAppearanceOverride`, `overrideModelAppearance`, `dropModelAppearanceOverride`: use the `get`, `set`, and `delete` methods of [DisplayStyleSettings.modelAppearanceOverrides]($common).
+  * `getRealityModelAppearanceOverride`, `overrideRealityModelAppearance`, `dropRealityModelAppearanceOverride`: use [ContextRealityModel.appearanceOverrides]($common).
+  * `modelAppearanceOverrides`: use [DisplayStyleSettings.modelAppearanceOverrides]($common).
+  * `getRealityModelPlanarClipMask`, `overrideRealityModelPlanarClipMask`, `dropRealityModelPlanarClipMask`: use [ContextRealityModel.planarClipMaskSettings]($common).
+
+### [@bentley/imodeljs-backend](https://www.itwinjs.org/reference/imodeljs-backend/)
+
+To make it easier to use async APIs while exporting a schema, [IModelExportHandler.onExportSchema]($backend) has been made async and must return a promise.  For example, serialization APIs can be async, and previously to have custom async schema serialization, one would have to manually synchronize around their call to [IModelExporter.exportSchemas]($backend).
+
+[IModelTransformer.shouldExportSchema]($backend) now gets a [SchemaKey]($ecschema-metadata) schema key as argument, instead of a full [Schema]($ecschema-metadata). If you
+need to check the full schema, return `true` in shouldExportSchema and in [IModelExportHandler.onExportSchema]($backend), you can use the schema object to check and then
+return early.

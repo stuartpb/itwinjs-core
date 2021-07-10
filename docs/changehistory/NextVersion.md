@@ -3,111 +3,38 @@ publish: false
 ---
 # NextVersion
 
-## New Settings UI Features
+## Decoration graphics enhancements
 
-The @bentley/ui-core package has added the [SettingsManager]($ui-core) class that allows any number of [SettingsProvider]($ui-core) classes to be registered. These providers provide [SettingsTabEntry]($ui-core) definitions used to populate the [SettingsContainer]($ui-core) UI component with setting pages used to manage application settings. These new classes are marked as beta in this release and are subject to minor modifications in future releases.
+### Visible edges
 
-## Breaking Api Changes
+Graphics produced by a [GraphicBuilder]($frontend) can now produce edges for surfaces. By default, edges are only produced for graphics of type [GraphicType.Scene]($frontend), and only if the [Viewport]($frontend)'s [ViewFlags]($common) specify that edges should be displayed. To generate edges for other types of graphics, or to prevent them from being generated, override [GraphicBuilderOptions.generateEdges]($frontend) or [GraphicBuilder.wantEdges]($frontend) when creating the graphic. Note that surfaces will z-fight with their edges to a degree unless the graphic is also pickable - see [GraphicBuilderOptions.pickable]($frontend).
 
-### @bentley/ui-abstract package
+### Solid primitives in decorations
 
-Property `onClick` in [LinkElementsInfo]($ui-abstract) was changed to be mandatory. Also, the first [PropertyRecord]($ui-abstract) argument was removed from the method. Suggested ways to resolve:
+Decoration graphics can now be produced from [SolidPrimitive]($geometry-core)s - e.g., spheres, cones, slabs, swept surfaces, and so on - using [GraphicBuilder.addSolidPrimitive]($frontend).
 
-- If you have a function `myFunction(record: PropertyRecord, text: string)` and use the first argument, the issue can be resolved with a lambda:
+## Presentation changes
 
-  ```ts
-  record.links = {
-    onClick: (text) => myFunction(record, text),
-  };
-  ```
+Added [RelatedPropertiesSpecificationNew.skipIfDuplicate]($presentation-common) attribute to allow specification to be overriden by specifications from higher priority content modifiers. Set this attribute to all related properties' specifications in the default BisCore ruleset.
 
-- If you were omitting the `onClick` method to get the default behavior, it can still be achieved by not setting `PropertyRecord.links` at all. It's only valid to expect default click behavior when default matcher is used, but if a custom matcher is used, then the click handled can be as simple as this:
+## Dictionary enhancements
 
-  ```ts
-  record.links = {
-    onClick: (text) => { window.open(text, "_blank"); },
-  };
-  ```
+[Dictionary.keys]($bentleyjs-core) and [Dictionary.values]($bentleyjs-core) enable iteration of the dictionary's keys and values in the same manner as a standard Map.
 
-### @bentley/imodeljs-frontend package
-
-#### Initializing TileAdmin
-
-The previously-`alpha` [IModelAppOptions.tileAdmin]($frontend) property has been promoted to `beta` and its type has changed from [TileAdmin]($frontend) to [TileAdmin.Props]($frontend). [TileAdmin.create]($frontend) has become `async`. Replace code like the following:
+[Dictionary.findOrInsert]($bentleyjs-core) returns the existing value associated with a key, or - if none yet exists - inserts a new value with that key. It also returns a flag indicating whether or not a new value was inserted. This allows the following code that requires two lookups of the key:
 
 ```ts
-  IModelApp.startup({ tileAdmin: TileAdmin.create(props) });
+let value = dictionary.get(key);
+let inserted = undefined !== value;
+if (undefined === value)
+  inserted = dictionary.insert(key, value = newValue);
+
+alert(`${value} was ${inserted ? "inserted" : "already present"}`);
 ```
 
-with:
+To be replaced with a more efficient version that requires only one lookup:
 
 ```ts
-  IModelApp.startup({ tileAdmin: props });
-```
-
-#### Tile request channels
-
-[Tile]($frontend)s are now required to report the [TileRequestChannel]($frontend) via which requests for their content should be executed, by implementing the new abstract [Tile.channel]($frontend) property. The channel needs to specify a name and a concurrency. The name must be unique among all registered channels, so choose something unlikely to conflict. The concurrency specifies the maximum number of requests that can be simultaneously active on the channel. For example, when using HTTP 1.1 modern browsers allow no more than 6 simultaneous connections to a given hostname, so 6 is a good concurrency for HTTP 1.1-based channels and the hostname is a decent choice for the channel's name.
-
-Typically all tiles in the same [TileTree]($frontend) use the same channel. Your implementation of `Tile.channel` will depend on the mechanism by which the content is obtained. If it uses HTTP, it's easy:
-
-```ts
-  public get channel() { return IModelApp.tileAdmin.getForHttp("my-unique-channel-name"); }
-```
-
-If your tile never requests content, you can implement like so:
-
-```ts
-  public get channel() { throw new Error("This tile never has content so this property should never be invoked"); }
-```
-
-If your tile uses the `alpha` `TileAdmin.requestElementGraphics` API, use the dedicated channel for such requests:
-
-```ts
-  public get channel() { return IModelApp.tileAdmin.channels.elementGraphicsRpc; }
-```
-
-Otherwise, you must register a channel ahead of time. Choose an appropriate concurrency:
-
-- If the tile requests content from some custom [RpcInterface]($common), use `IModelApp.tileAdmin.channels.rpcConcurrency`.
-- Otherwise, choose a reasonably small limit to prevent too much work from being done at one time. Remember that tile requests are frequently canceled shortly after they are enqueued as the user navigates the view. A concurrency somewhere around 6-10 is probably reasonable.
-
-To register a channel at startup:
-
-```ts
-  await IModelApp.startup();
-  const channel = new TileRequestChannel("my-unique-channel-name", IModelApp.tileAdmin.rpcConcurrency);
-  IModelApp.tileAdmin.channels.add(channel);
-```
-
-If you store `channel` from the above snippet in a global variable, you can implement your `channel` property to return it directly; otherwise you must look it up:
-
-```ts
-  public get channel() {
-    const channel = IModelApp.tileAdmin.channels.get("my-unique-channel-name");
-    assert(undefined !== channel);
-    return channel;
-  }
-```
-
-### Authentication changes for Electron and Mobile apps
-
-For desktop and mobile applications, all authentication happens on the backend. The frontend process merely initiates the login process and waits for notification that it succeeds. Previously the steps required to set up the process were somewhat complicated.
-
-Now, to configure your electron or mobile application for authorization, pass the `authConfig` option to `ElectronApp.startup` or `IOSApp.startup` to specify your authorization configuration.
-
-Then, if you want a method that can be awaited for the user to sign in, use something like:
-
-```ts
-// returns `true` after successful login.
-async function signIn(): Promise<boolean> {
-  const auth = IModelApp.authorizationClient!;
-  if (auth.isAuthorized)
-    return true; // make sure not already signed in
-
-  return new Promise<boolean>((resolve, reject) => {
-    auth.onUserStateChanged.addOnce((token?: AccessToken) => resolve(token !== undefined)); // resolve Promise with `onUserStateChanged` event
-    auth.signIn().catch((err) => reject(err)); // initiate the sign in process (forwarded to the backend)
-  });
-}
+const result = dictionary.findOrInsert(key, value);
+alert(`${result.value} was ${result.inserted ? "inserted" : "already present"}`);
 ```

@@ -9,7 +9,7 @@
 import { FormatterSpec, Parser, ParserSpec } from "@bentley/imodeljs-quantity";
 import { BaseQuantityDescription, ParseResults } from "@bentley/ui-abstract";
 import { IModelApp } from "../IModelApp";
-import { QuantityType } from "../QuantityFormatter";
+import { QuantityType } from "../quantity-formatting/QuantityFormatter";
 
 /**
  * Base Quantity Property Description
@@ -70,5 +70,5 @@ export abstract class FormattedQuantityDescription extends BaseQuantityDescripti
 
   public abstract get formatterQuantityType(): QuantityType;
 
-  public abstract get parseError(): string;
+  public abstract override get parseError(): string;
 }

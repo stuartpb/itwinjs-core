@@ -13,7 +13,7 @@ import { ElectronHost } from "@bentley/electron-manager/lib/ElectronBackend";
 import { IModelJsExpressServer } from "@bentley/express-server";
 import { FileNameResolver, IModelHost, IModelHostConfiguration } from "@bentley/imodeljs-backend";
 import { BentleyCloudRpcManager, RpcConfiguration } from "@bentley/imodeljs-common";
-import { EditCommandAdmin } from "@bentley/imodeljs-editor-backend";
+import { BasicManipulationCommand, EditCommandAdmin } from "@bentley/imodeljs-editor-backend";
 import { rpcInterfaces } from "../common/RpcInterfaces";
 import { CloudEnv } from "./cloudEnv";
 import * as testCommands from "./TestEditCommands";
@@ -36,6 +36,7 @@ async function init() {
   if (ProcessDetector.isElectronAppBackend) {
     await ElectronHost.startup({ electronHost: { rpcInterfaces }, iModelHost });
     EditCommandAdmin.registerModule(testCommands);
+    EditCommandAdmin.register(BasicManipulationCommand);
   } else {
     const rpcConfig = BentleyCloudRpcManager.initializeImpl({ info: { title: "full-stack-test", version: "v1.0" } }, rpcInterfaces);
 
@@ -70,14 +71,14 @@ async function init() {
 /** A FileNameResolver for resolving test iModel files from core/backend */
 class BackendTestAssetResolver extends FileNameResolver {
   /** Resolve a base file name to a full path file name in the core/backend/lib/test/assets/ directory. */
-  public tryResolveFileName(inFileName: string): string {
+  public override tryResolveFileName(inFileName: string): string {
     if (path.isAbsolute(inFileName)) {
       return inFileName;
     }
     return path.join(__dirname, "../../../../core/backend/lib/test/assets/", inFileName);
   }
   /** Resolve a key (for testing FileNameResolver) */
-  public tryResolveKey(fileKey: string): string | undefined {
+  public override tryResolveKey(fileKey: string): string | undefined {
     switch (fileKey) {
       case "test-key": return this.tryResolveFileName("test.bim");
       case "test2-key": return this.tryResolveFileName("test2.bim");

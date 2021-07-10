@@ -18,7 +18,7 @@ class MockTile extends Tile {
 
   public get channel() {
     // This is never called.
-    return { } as unknown as TileRequestChannel;
+    return {} as unknown as TileRequestChannel;
   }
 
   public async requestContent(_canceled: () => boolean): Promise<TileRequest.Response> {
@@ -57,7 +57,7 @@ class MockTree extends TileTree {
   public get is3d() { return true; }
   public get maxDepth() { return 1; }
   public get viewFlagOverrides() { return new ViewFlagOverrides(); }
-  public get isContentUnbounded() { return false; }
+  public override get isContentUnbounded() { return false; }
 
   protected _selectTiles(_args: TileDrawArgs): Tile[] {
     return [];
@@ -220,7 +220,7 @@ describe("requestTileTreeProps", () => {
 
       const expectedNumPending = numRemaining - expectedNumActive;
 
-      // ###TODO The following occassionally fails with 'expected 1 to equal 0'.
+      // ###TODO The following occasionally fails with 'expected 1 to equal 0'.
       expect(stats.numPendingTileTreePropsRequests).to.equal(expectedNumPending);
     };
 

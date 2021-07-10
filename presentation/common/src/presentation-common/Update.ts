@@ -84,10 +84,76 @@ export namespace UpdateInfo {
 }
 
 /** @alpha */
-export type HierarchyUpdateInfoJSON = typeof UPDATE_FULL | PartialHierarchyModificationJSON[];
+export interface ExpandedNodeUpdateRecordJSON {
+  node: NodeJSON;
+  position: number;
+}
 
 /** @alpha */
-export type HierarchyUpdateInfo = typeof UPDATE_FULL | PartialHierarchyModification[];
+export interface HierarchyUpdateRecordJSON {
+  parent?: NodeKeyJSON;
+  nodesCount: number;
+  expandedNodes?: ExpandedNodeUpdateRecordJSON[];
+}
+
+/** @alpha */
+export interface ExpandedNodeUpdateRecord {
+  node: Node;
+  position: number;
+}
+
+/** @alpha */
+export interface HierarchyUpdateRecord {
+  parent?: NodeKey;
+  nodesCount: number;
+  expandedNodes?: ExpandedNodeUpdateRecord[];
+}
+
+/** @alpha */
+export namespace ExpandedNodeUpdateRecord { // eslint-disable-line @typescript-eslint/no-redeclare
+  /** Serialize given object to JSON. */
+  export function toJSON(obj: ExpandedNodeUpdateRecord): ExpandedNodeUpdateRecordJSON {
+    return {
+      ...obj,
+      node: Node.toJSON(obj.node),
+    };
+  }
+
+  /** Deserialize given object from JSON */
+  export function fromJSON(json: ExpandedNodeUpdateRecordJSON): ExpandedNodeUpdateRecord {
+    return {
+      ...json,
+      node: Node.fromJSON(json.node),
+    };
+  }
+}
+
+/** @alpha */
+export namespace HierarchyUpdateRecord { // eslint-disable-line @typescript-eslint/no-redeclare
+  /** Serialize given object to JSON. */
+  export function toJSON(obj: HierarchyUpdateRecord): HierarchyUpdateRecordJSON {
+    return {
+      ...obj,
+      parent: obj.parent ? NodeKey.toJSON(obj.parent) : undefined,
+      expandedNodes: obj.expandedNodes ? obj.expandedNodes.map(ExpandedNodeUpdateRecord.toJSON) : undefined,
+    };
+  }
+
+  /** Deserialize given object from JSON */
+  export function fromJSON(json: HierarchyUpdateRecordJSON): HierarchyUpdateRecord {
+    return {
+      ...json,
+      parent: json.parent ? NodeKey.fromJSON(json.parent) : undefined,
+      expandedNodes: json.expandedNodes ? json.expandedNodes.map(ExpandedNodeUpdateRecord.fromJSON) : undefined,
+    };
+  }
+}
+
+/** @alpha */
+export type HierarchyUpdateInfoJSON = typeof UPDATE_FULL | HierarchyUpdateRecordJSON[];
+
+/** @alpha */
+export type HierarchyUpdateInfo = typeof UPDATE_FULL | HierarchyUpdateRecord[];
 
 /** @alpha */
 export namespace HierarchyUpdateInfo { // eslint-disable-line @typescript-eslint/no-redeclare
@@ -95,27 +161,33 @@ export namespace HierarchyUpdateInfo { // eslint-disable-line @typescript-eslint
   export function toJSON(obj: HierarchyUpdateInfo): HierarchyUpdateInfoJSON {
     if (typeof obj === "string")
       return obj;
-    return obj.map(PartialHierarchyModification.toJSON);
+    return obj.map(HierarchyUpdateRecord.toJSON);
   }
 
   /** Deserialize given object from JSON */
   export function fromJSON(json: HierarchyUpdateInfoJSON): HierarchyUpdateInfo {
     if (typeof json === "string")
       return json;
-    return json.map(PartialHierarchyModification.fromJSON);
+    return json.map(HierarchyUpdateRecord.fromJSON);
   }
 }
 
 /** @alpha */
 export type ContentUpdateInfo = typeof UPDATE_FULL;
 
-/** @alpha */
+/**
+ * JSON representation of [[PartialHierarchyModification]].
+ * @public
+ */
 export type PartialHierarchyModificationJSON = NodeInsertionInfoJSON | NodeDeletionInfoJSON | NodeUpdateInfoJSON;
 
-/** @alpha */
+/**
+ * Information about a hierarchy change: insertion, deletion or node update.
+ * @public
+ */
 export type PartialHierarchyModification = NodeInsertionInfo | NodeDeletionInfo | NodeUpdateInfo;
 
-/** @alpha */
+/** @public */
 export namespace PartialHierarchyModification { // eslint-disable-line @typescript-eslint/no-redeclare
   /** Serialize given object to JSON. */
   export function toJSON(obj: PartialHierarchyModification): PartialHierarchyModificationJSON {
@@ -138,7 +210,10 @@ export namespace PartialHierarchyModification { // eslint-disable-line @typescri
       case "Delete":
         return {
           type: "Delete",
+          // eslint-disable-next-line deprecation/deprecation
           target: NodeKey.toJSON(obj.target),
+          parent: obj.parent === undefined ? undefined : NodeKey.toJSON(obj.parent),
+          position: obj.position,
         };
     }
   }
@@ -164,21 +239,33 @@ export namespace PartialHierarchyModification { // eslint-disable-line @typescri
       case "Delete":
         return {
           type: "Delete",
+          // eslint-disable-next-line deprecation/deprecation
           target: NodeKey.fromJSON(json.target),
+          parent: json.parent === undefined ? undefined : NodeKey.fromJSON(json.parent),
+          position: json.position,
         };
     }
   }
 }
 
-/** @alpha */
+/**
+ * Information about node insertion.
+ * @public
+ */
 export interface NodeInsertionInfo {
   type: "Insert";
+  /** Parent node key */
   parent?: NodeKey;
+  /** Index of the new node under its parent */
   position: number;
+  /** Inserted node */
   node: Node;
 }
 
-/** @alpha */
+/**
+ * JSON representation of [[NodeInsertionInfo]].
+ * @public
+ */
 export interface NodeInsertionInfoJSON {
   type: "Insert";
   parent?: NodeKeyJSON;
@@ -186,33 +273,68 @@ export interface NodeInsertionInfoJSON {
   node: NodeJSON;
 }
 
-/** @alpha */
+/**
+ * Information about node deletion.
+ * @public
+ */
 export interface NodeDeletionInfo {
   type: "Delete";
+  /** Parent of the deleted node */
+  parent?: NodeKey;
+  /** Position of the deleted node among its siblings in the initial, not updated tree */
+  position: number;
+
+  /**
+   * Key of the deleted node
+   * @deprecated Use `parent` with `position`
+   */
   target: NodeKey;
 }
 
-/** @alpha */
+/**
+ * JSON representation of [[NodeDeletionInfo]].
+ * @public
+ */
 export interface NodeDeletionInfoJSON {
   type: "Delete";
+  /** Parent of the deleted node */
+  parent?: NodeKeyJSON;
+  /** Position of the deleted node among its siblings in the initial, not updated tree */
+  position: number;
+
+  /**
+   * Key of the deleted node
+   * @deprecated
+   */
   target: NodeKeyJSON;
 }
 
-/** @alpha */
+/**
+ * Information about node update.
+ * @public
+ */
 export interface NodeUpdateInfo {
   type: "Update";
+  /** Key of the updated node */
   target: NodeKey;
+  /** Updated node attributes */
   changes: PartialNode;
 }
 
-/** @alpha */
+/**
+ * JSON representation of [[NodeUpdateInfo]].
+ * @public
+ */
 export interface NodeUpdateInfoJSON {
   type: "Update";
   target: NodeKeyJSON;
   changes: PartialNodeJSON;
 }
 
-/** @alpha */
+/**
+ * JSON representation of [[HierarchyCompareInfo]].
+ * @public
+ */
 export interface HierarchyCompareInfoJSON {
   changes: PartialHierarchyModificationJSON[];
   continuationToken?: {
@@ -221,16 +343,21 @@ export interface HierarchyCompareInfoJSON {
   };
 }
 
-/** @alpha */
+/**
+ * Information about hierarchy modification / differences.
+ * @public
+ */
 export interface HierarchyCompareInfo {
+  /** A list of hierarchy changes */
   changes: PartialHierarchyModification[];
+  /** Continuation token for requesting more changes. */
   continuationToken?: {
     prevHierarchyNode: string;
     currHierarchyNode: string;
   };
 }
 
-/** @alpha */
+/** @public */
 export namespace HierarchyCompareInfo {
   /** Serialize given object to JSON. */
   export function toJSON(obj: HierarchyCompareInfo): HierarchyCompareInfoJSON {

@@ -48,8 +48,9 @@ import { ViewportWidget } from "../widgets/ViewportWidget";
 import { VisibilityTreeWidgetControl } from "../widgets/VisibilityTreeWidget";
 import { VisibilityWidgetControl } from "../widgets/VisibilityWidget";
 import { NestedAnimationStage } from "./NestedAnimationStage";
+import { OpenComponentExamplesPopoutTool, OpenCustomPopoutTool, OpenViewPopoutTool } from "../../tools/UiProviderTool";
 
-/* eslint-disable react/jsx-key */
+/* eslint-disable react/jsx-key, deprecation/deprecation */
 
 export class ViewsFrontstage extends FrontstageProvider {
   public static stageId = "ViewsFrontstage";
@@ -812,5 +813,6 @@ class AdditionalTools {
       ],
       badgeType: BadgeType.TechnicalPreview,
     }),
-  ], 100, { groupPriority: 20 }), this.getMiscGroupItem()];
+  ], 100, { groupPriority: 20 }), this.getMiscGroupItem(), OpenComponentExamplesPopoutTool.getActionButtonDef(400, 40),
+  OpenCustomPopoutTool.getActionButtonDef(410, 40), OpenViewPopoutTool.getActionButtonDef(420, 40)];
 }

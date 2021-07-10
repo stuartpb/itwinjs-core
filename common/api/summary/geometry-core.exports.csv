@@ -12,6 +12,7 @@ public;AnnounceDrapePanel = (linestring: GrowableXYZArray, segmentIndex: number,
 public;AnnounceNumberNumber = (a0: number, a1: number) => void
 public;AnnounceNumberNumberCurvePrimitive = (a0: number, a1: number, cp: CurvePrimitive) => void
 public;AnyCurve = CurvePrimitive | CurveCollection
+public;AnyCurvePrimitive = Arc3d | LineSegment3d | LineString3d | BSplineCurve3d | BezierCurve3d | DirectSpiral3d | IntegratedSpiral3d | CurveChainWithDistanceIndex
 public;AnyGeometryQuery = Polyface | CurvePrimitive | CurveCollection | SolidPrimitive | CoordinateXYZ | PointString3d | BSpline2dNd
 public;AnyRegion = Loop | ParityRegion | UnionRegion
 public;AnySolidPrimitive = Box | Cone | Sphere | LinearSweep | RotationalSweep | RuledSweep | TorusPipe
@@ -66,6 +67,7 @@ public;ClipStatus
 public;ClipUtilities
 public;ClipVector
 public;ClipVectorProps = ClipPrimitiveProps[]
+public;Cloneable
 internal;ClusterableArray 
 internal;compareRange1dLexicalLowHigh(a: Range1d, b: Range1d): number
 internal;Complex 
@@ -104,7 +106,7 @@ internal;Degree2PowerPolynomial
 internal;Degree3PowerPolynomial
 internal;Degree4PowerPolynomial
 public;DirectSpiral3d 
-public;DirectSpiralTypeName = "Arema" | "JapaneseCubic" | "Arema" | "ChineseCubic" | "HalfCosine" | "AustralianRailCorp" | "WesterAustralian" | "Czech"
+public;DirectSpiralTypeName = "JapaneseCubic" | "Arema" | "ChineseCubic" | "HalfCosine" | "AustralianRailCorp" | "WesternAustralian" | "Czech" | "MXCubicAlongArc" | "Polish" | "Italian"
 public;DuplicateFacetClusterSelector
 public;Ellipsoid 
 public;EllipsoidPatch 
@@ -131,6 +133,7 @@ internal;HalfEdgeMask
 internal;HalfEdgeToBooleanFunction = (node: HalfEdge) => boolean
 public;HasZ = Readonly
 public;IModelJson
+internal;ImplicitLineXY
 public;IndexedCollectionInterval
 public;IndexedPolyface 
 public;IndexedPolyfaceSubsetVisitor 
@@ -249,6 +252,8 @@ alpha;StringifiedClipVector
 public;StrokeCountMap
 public;StrokeOptions
 public;SweepContour
+public;TaggedNumericConstants
+public;TaggedNumericData
 internal;TorusImplicit
 public;TorusPipe 
 public;Transform 
@@ -270,9 +275,6 @@ public;VariantCurveExtendParameter = boolean | CurveExtendMode | CurveExtendMode
 public;Vector2d 
 public;Vector3d 
 public;Vector3dArray
-internal;ViewGraphicsOps
-internal;ViewportGraphicsGridLineIdentifier
-internal;ViewportGraphicsGridSpacingOptions
 public;WeightStyle
 public;WritableLowAndHighXY
 public;WritableLowAndHighXYZ

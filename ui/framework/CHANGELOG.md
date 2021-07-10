@@ -1,6 +1,170 @@
 # Change Log - @bentley/ui-framework
 
-This log was last generated on Tue, 09 Mar 2021 20:28:13 GMT and should not be manually modified.
+This log was last generated on Tue, 06 Jul 2021 22:08:34 GMT and should not be manually modified.
+
+## 2.17.1
+Fri, 02 Jul 2021 15:38:31 GMT
+
+_Version update only_
+
+## 2.17.0
+Mon, 28 Jun 2021 16:20:11 GMT
+
+### Updates
+
+- Add ability to "pop-out" a widget to a child window.
+- Export EmphasizeElementProps from common, deprecate from frontend.
+- Add ability to maintain tab state even if UiItemsProvider that added the tab is not loaded. This allow preference size to be maintained.
+- Add 100ms wait during unit test for open window processing to be triggered.
+- Add getters to retrieve the list of category and model overrides & make update category/model overrides functions public
+- publish in-use APIs
+- Refactor SolarTimeline and ScheduleAnimationProvider to use new TimelineComponent iteration.
+
+## 2.16.9
+Tue, 06 Jul 2021 22:08:34 GMT
+
+_Version update only_
+
+## 2.16.8
+Fri, 02 Jul 2021 17:40:46 GMT
+
+_Version update only_
+
+## 2.16.7
+Mon, 28 Jun 2021 18:13:04 GMT
+
+_Version update only_
+
+## 2.16.6
+Mon, 28 Jun 2021 13:12:55 GMT
+
+_Version update only_
+
+## 2.16.5
+Fri, 25 Jun 2021 16:03:01 GMT
+
+_Version update only_
+
+## 2.16.4
+Wed, 23 Jun 2021 17:09:07 GMT
+
+_Version update only_
+
+## 2.16.3
+Wed, 16 Jun 2021 20:29:32 GMT
+
+_Version update only_
+
+## 2.16.2
+Thu, 03 Jun 2021 18:08:11 GMT
+
+_Version update only_
+
+## 2.16.1
+Thu, 27 May 2021 20:04:22 GMT
+
+_Version update only_
+
+## 2.16.0
+Mon, 24 May 2021 15:58:39 GMT
+
+### Updates
+
+- Clean up styling in StatusBar.css
+- Set overflow hidden on content Panes used when stage has multiple content views.
+- Adding ability to override isActive property for BackstageItem
+- Add support for child popup windows.
+- Replace deprecated ViewManager.forEachViewport() with iterator.
+- Update to latest classnames package
+
+## 2.15.6
+Wed, 26 May 2021 15:55:19 GMT
+
+_Version update only_
+
+## 2.15.5
+Thu, 20 May 2021 15:06:26 GMT
+
+### Updates
+
+- Remove framework version condition from floatWidget and dockWidget. This was causing problems in the sample showcase.
+
+## 2.15.4
+Tue, 18 May 2021 21:59:07 GMT
+
+_Version update only_
+
+## 2.15.3
+Mon, 17 May 2021 13:31:38 GMT
+
+### Updates
+
+- Clean up styling in StatusBar.css
+
+## 2.15.2
+Wed, 12 May 2021 18:08:13 GMT
+
+_Version update only_
+
+## 2.15.1
+Wed, 05 May 2021 13:18:31 GMT
+
+_Version update only_
+
+## 2.15.0
+Fri, 30 Apr 2021 12:36:58 GMT
+
+### Updates
+
+- Add UiSettingsPage, AppUiSettings, and ability to register UserSettingsProvider to provide default settings from UsSettingsStorage.
+- Properly declare changeSetId variables as string.
+- Adding ability to open Message Center on demand
+- Cache element ids when determining visbility in ModelsTree
+- Fix compatibility issue when multiple versions of `rxjs` are in use.
+- Publish APIs used bu iTwinViewer.
+
+## 2.14.4
+Thu, 22 Apr 2021 21:07:34 GMT
+
+### Updates
+
+- Update to get activeViewPort by monitoring ContentViewManager.onActiveContentChangedEvent this elimates issue where ViewManager active viewport changes occur before all UI components are mounted and listening.
+
+## 2.14.3
+Thu, 15 Apr 2021 15:13:16 GMT
+
+### Updates
+
+- Cleanup statusbar styling to ensure items are centered and do not overflow area.
+
+## 2.14.2
+Thu, 08 Apr 2021 14:30:09 GMT
+
+### Updates
+
+- Avoid getting into infinite render loop in CategoriesTree
+
+## 2.14.1
+Mon, 05 Apr 2021 16:28:00 GMT
+
+_Version update only_
+
+## 2.14.0
+Fri, 02 Apr 2021 13:18:42 GMT
+
+### Updates
+
+- Add Standard Modal Settings Stage for displaying App Settings.
+- Add api to float and dock widgets in UI2.0.
+- Filter out history key-in that are no longer available in key-in palette.
+- Move Quantity Formatting settings page from ui-test-app to ui-framework and add ability to set Presentation Unit System.
+- Adding sectionToolGroupWithPanel definition in CoreTools
+- Support for AccuDraw Ui Settings
+- Support for Bump Tool Settings
+- Better support for Escape key to Home position
+- Support for Focus into Tool Settings
+- Initialize tool settings React components from the record in UiLayoutDataProvider to prevent reinitializing the value when the items move into the overflow popup.
+- Fix ViewSelector so it reloads list of views when iModel prop is updated.
 
 ## 2.13.0
 Tue, 09 Mar 2021 20:28:13 GMT
