@@ -269,6 +269,7 @@ describe("MutableTreeModel", () => {
       expect(resultStatus).to.be.true;
       expect(treeModel.getNode("testId")).to.be.undefined;
       expect(treeModel.getNode("newId")!.item).to.be.deep.equal(nodeInput.item);
+      expect(treeModel.getNode("newId")!.id).to.be.equal("newId");
     });
 
     it("updates hierarchy", () => {
@@ -449,6 +450,14 @@ describe("MutableTreeModel", () => {
       treeModel.removeChild(rootNode.id, childNode.id);
       treeMock.verifyAll();
       expect(rootNode.numChildren).to.be.eq(childCountBefore - 1);
+    });
+
+    it("removes node by index", () => {
+      treeModel = new MutableTreeModel();
+      treeModel.setChildren(undefined, [createTreeModelNodeInput("root1"), createTreeModelNodeInput("root2")], 0);
+
+      treeModel.removeChild(undefined, 0);
+      expect([...treeModel.getChildren(undefined)!]).to.be.deep.equal(["root2"]);
     });
   });
 

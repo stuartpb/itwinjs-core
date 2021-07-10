@@ -17,23 +17,23 @@ import { testOnScreenViewport } from "../TestViewport";
 import { ProcessDetector } from "@bentley/bentleyjs-core";
 
 describe("HyperModeling (#integration)", () => {
-  const projectName = "iModelJsIntegrationTest";
   let imodel: IModelConnection; // An iModel containing no section drawing locations
   let hypermodel: IModelConnection; // An iModel containing 3 section drawing locations
 
   before(async () => {
     await IModelApp.startup({
-      authorizationClient: await TestUtility.initializeTestProject(projectName, TestUsers.regular),
+      authorizationClient: await TestUtility.initializeTestProject(TestUtility.testContextName, TestUsers.regular),
       imodelClient: TestUtility.imodelCloudEnv.imodelClient,
       applicationVersion: "1.2.1.1",
     });
 
     await HyperModeling.initialize();
-    imodel = await SnapshotConnection.openFile("mirukuru.ibim");
+    imodel = await SnapshotConnection.openFile(TestUtility.testSnapshotIModels.mirukuru);
 
-    const projectId = await TestUtility.getTestProjectId(projectName);
-    const iModelId = await TestUtility.getTestIModelId(projectId, "SectionDrawingLocations");
-    hypermodel = await CheckpointConnection.openRemote(projectId, iModelId);
+    const testContextId = await TestUtility.queryContextIdByName(TestUtility.testContextName);
+    const testIModelId = await TestUtility.queryIModelIdbyName(testContextId, TestUtility.testIModelNames.sectionDrawingLocations);
+
+    hypermodel = await CheckpointConnection.openRemote(testContextId, testIModelId);
   });
 
   after(async () => {
@@ -245,8 +245,8 @@ describe("HyperModeling (#integration)", () => {
 
       // Activating/deactivating markers is a no-op
       class Handler extends SectionMarkerHandler {
-        public async activateMarker(_marker: SectionMarker, _decorator: HyperModelingDecorator) { return true; }
-        public async deactivateMarker(_marker: SectionMarker, _decorator: HyperModelingDecorator) { }
+        public override async activateMarker(_marker: SectionMarker, _decorator: HyperModelingDecorator) { return true; }
+        public override async deactivateMarker(_marker: SectionMarker, _decorator: HyperModelingDecorator) { }
       }
 
       HyperModeling.updateConfiguration({ markerHandler: new Handler() });
@@ -360,9 +360,9 @@ describe("HyperModeling (#integration)", () => {
       class Handler extends SectionMarkerHandler {
         public static visible = true;
 
-        public async activateMarker(_marker: SectionMarker, _decorator: HyperModelingDecorator) { return true; }
-        public async deactivateMarker(_marker: SectionMarker, _decorator: HyperModelingDecorator) { }
-        public isMarkerVisible(_marker: SectionMarker, _dec: HyperModelingDecorator, _config: SectionMarkerConfig): boolean {
+        public override async activateMarker(_marker: SectionMarker, _decorator: HyperModelingDecorator) { return true; }
+        public override async deactivateMarker(_marker: SectionMarker, _decorator: HyperModelingDecorator) { }
+        public override isMarkerVisible(_marker: SectionMarker, _dec: HyperModelingDecorator, _config: SectionMarkerConfig): boolean {
           return super.isMarkerVisible(_marker, _dec, _config) && Handler.visible;
         }
       }
@@ -433,13 +433,13 @@ describe("HyperModeling (#integration)", () => {
       private _activateCalled = false;
       private _deactivateCalled = false;
 
-      public async activateMarker(_marker: SectionMarker, _dec: HyperModelingDecorator): Promise<boolean> {
+      public override async activateMarker(_marker: SectionMarker, _dec: HyperModelingDecorator): Promise<boolean> {
         expect(this._activateCalled).to.be.false;
         this._activateCalled = true;
         return this.allowActivate;
       }
 
-      public async deactivateMarker(_marker: SectionMarker, _dec: HyperModelingDecorator): Promise<void> {
+      public override async deactivateMarker(_marker: SectionMarker, _dec: HyperModelingDecorator): Promise<void> {
         expect(this._deactivateCalled).to.be.false;
         this._deactivateCalled = true;
       }

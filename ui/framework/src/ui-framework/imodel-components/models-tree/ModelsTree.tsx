@@ -8,9 +8,13 @@
 
 import "./ModelsTree.scss";
 import * as React from "react";
+import { Id64Array } from "@bentley/bentleyjs-core";
 import { IModelConnection, Viewport } from "@bentley/imodeljs-frontend";
 import { NodeKey, Ruleset } from "@bentley/presentation-common";
-import { IFilteredPresentationTreeDataProvider, IPresentationTreeDataProvider, usePresentationTreeNodeLoader } from "@bentley/presentation-components";
+import {
+  IFilteredPresentationTreeDataProvider, IPresentationTreeDataProvider, usePresentationTreeNodeLoader,
+} from "@bentley/presentation-components";
+import { Presentation } from "@bentley/presentation-frontend";
 import { ControlledTree, SelectionMode, TreeNodeItem, useVisibleTreeNodes } from "@bentley/ui-components";
 import { useDisposable, useOptionalDisposable } from "@bentley/ui-core";
 import { connectIModelConnection } from "../../../ui-framework/redux/connectIModel";
@@ -65,6 +69,11 @@ export interface ModelsTreeProps {
    */
   filterInfo?: VisibilityTreeFilterInfo;
   /**
+   * Filter the hierarchy by given element IDs.
+   * @alpha
+   */
+  filteredElementIds?: Id64Array;
+  /**
    * Callback invoked when tree is filtered.
    */
   onFilterApplied?: (filteredDataProvider: IPresentationTreeDataProvider, matchesCount: number) => void;
@@ -97,25 +106,9 @@ export interface ModelsTreeProps {
  * @public
  */
 export function ModelsTree(props: ModelsTreeProps) {
-  const nodeLoader = usePresentationTreeNodeLoader({
-    imodel: props.iModel,
-    dataProvider: props.dataProvider,
-    ruleset: (!props.enableElementsClassGrouping) ? RULESET_MODELS : /* istanbul ignore next */ RULESET_MODELS_GROUPED_BY_CLASS,
-    appendChildrenCountForGroupingNodes: (props.enableElementsClassGrouping === ClassGroupingOption.YesWithCounts),
-    pagingSize: PAGING_SIZE,
-    enableHierarchyAutoUpdate: props.enableHierarchyAutoUpdate,
-  });
-  const searchNodeLoader = usePresentationTreeNodeLoader({
-    imodel: props.iModel,
-    dataProvider: props.dataProvider,
-    ruleset: RULESET_MODELS_SEARCH,
-    pagingSize: PAGING_SIZE,
-    enableHierarchyAutoUpdate: props.enableHierarchyAutoUpdate,
-  });
-
-  const nodeLoaderInUse = props.filterInfo?.filter ? searchNodeLoader : nodeLoader;
-  const { filteredNodeLoader, isFiltering, nodeHighlightingProps } = useVisibilityTreeFiltering(nodeLoaderInUse, props.filterInfo, props.onFilterApplied);
-  const filterApplied = filteredNodeLoader !== nodeLoaderInUse;
+  const { nodeLoader, onItemsRendered } = useModelsTreeNodeLoader(props);
+  const { filteredNodeLoader, isFiltering, nodeHighlightingProps } = useVisibilityTreeFiltering(nodeLoader, props.filterInfo, props.onFilterApplied);
+  const filterApplied = filteredNodeLoader !== nodeLoader;
 
   const { activeView, modelsVisibilityHandler, selectionPredicate } = props;
   const nodeSelectionPredicate = React.useCallback((key: NodeKey, node: TreeNodeItem) => {
@@ -123,7 +116,7 @@ export function ModelsTree(props: ModelsTreeProps) {
   }, [selectionPredicate, nodeLoader.dataProvider]);
 
   const visibilityHandler = useVisibilityHandler(
-    nodeLoaderInUse.dataProvider.rulesetId,
+    nodeLoader.dataProvider.rulesetId,
     activeView,
     modelsVisibilityHandler,
     getFilteredDataProvider(filteredNodeLoader.dataProvider),
@@ -158,6 +151,7 @@ export function ModelsTree(props: ModelsTreeProps) {
         treeRenderer={treeRenderer}
         nodeHighlightingProps={nodeHighlightingProps}
         noDataRenderer={filterApplied ? noFilteredDataRenderer : undefined}
+        onItemsRendered={onItemsRendered}
       />
       {overlay}
     </div>
@@ -170,6 +164,54 @@ export function ModelsTree(props: ModelsTreeProps) {
  * @alpha
  */
 export const IModelConnectedModelsTree = connectIModelConnection(null, null)(ModelsTree); // eslint-disable-line @typescript-eslint/naming-convention
+
+function useModelsTreeNodeLoader(props: ModelsTreeProps) {
+  // note: this is a temporary workaround for auto-update not working on ruleset variable changes - instead
+  // of auto-updating we just re-create the node loader by re-creating the ruleset
+  const rulesets = React.useMemo(() => {
+    return {
+      general: (!props.enableElementsClassGrouping) ? { ...RULESET_MODELS } : /* istanbul ignore next */ { ...RULESET_MODELS_GROUPED_BY_CLASS },
+      search: { ...RULESET_MODELS_SEARCH },
+    };
+  }, [props.filteredElementIds]); // eslint-disable-line react-hooks/exhaustive-deps
+  // const rulesets = {
+  //   general: (!props.enableElementsClassGrouping) ? RULESET_MODELS : /* istanbul ignore next */ RULESET_MODELS_GROUPED_BY_CLASS,
+  //   search: RULESET_MODELS_SEARCH,
+  // };
+
+  const { nodeLoader, onItemsRendered } = usePresentationTreeNodeLoader({
+    imodel: props.iModel,
+    dataProvider: props.dataProvider,
+    ruleset: rulesets.general,
+    appendChildrenCountForGroupingNodes: (props.enableElementsClassGrouping === ClassGroupingOption.YesWithCounts),
+    pagingSize: PAGING_SIZE,
+    enableHierarchyAutoUpdate: props.enableHierarchyAutoUpdate,
+  });
+  const { nodeLoader: searchNodeLoader, onItemsRendered: onSearchItemsRendered } = usePresentationTreeNodeLoader({
+    imodel: props.iModel,
+    dataProvider: props.dataProvider,
+    ruleset: rulesets.search,
+    pagingSize: PAGING_SIZE,
+    enableHierarchyAutoUpdate: props.enableHierarchyAutoUpdate,
+  });
+
+  const activeNodeLoader = props.filterInfo?.filter ? searchNodeLoader : nodeLoader;
+  const activeItemsRenderedCallback = props.filterInfo?.filter ? onSearchItemsRendered : onItemsRendered;
+
+  const vars = Presentation.presentation.vars(activeNodeLoader.dataProvider.rulesetId);
+  if (props.filteredElementIds) {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    vars.setId64s("filtered-element-ids", props.filteredElementIds);
+  } else {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    vars.unset("filtered-element-ids");
+  }
+
+  return {
+    nodeLoader: activeNodeLoader,
+    onItemsRendered: activeItemsRenderedCallback,
+  };
+}
 
 function useVisibilityHandler(
   rulesetId: string,

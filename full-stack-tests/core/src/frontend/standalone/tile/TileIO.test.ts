@@ -45,7 +45,7 @@ for (let i = 0; i < numBaseTestCases; i++) {
 
 export class FakeGMState extends GeometricModelState {
   public get is3d(): boolean { return true; }
-  public get is2d(): boolean { return !this.is3d; }
+  public override get is2d(): boolean { return !this.is3d; }
   public constructor(props: ModelProps, iModel: IModelConnection) { super(props, iModel); }
 }
 
@@ -58,6 +58,21 @@ export class FakeModelProps implements ModelProps {
 export class FakeREProps implements RelatedElementProps {
   public id: Id64String;
   public constructor() { this.id = Id64.invalid; }
+}
+
+export function fakeViewState(iModel: IModelConnection, options?: { visibleEdges?: boolean, renderMode?: RenderMode, is2d?: boolean, animationId?: Id64String }): ViewState {
+  const scheduleState = options?.animationId ? { getModelAnimationId: () => options.animationId } : undefined;
+  return {
+    iModel,
+    is3d: () => true !== options?.is2d,
+    viewFlags: {
+      renderMode: options?.renderMode ?? RenderMode.SmoothShade,
+      visibleEdges: options?.visibleEdges ?? false,
+    },
+    displayStyle: {
+      scheduleState,
+    },
+  } as ViewState;
 }
 
 function delta(a: number, b: number): number { return Math.abs(a - b); }
@@ -528,23 +543,10 @@ async function getTileTree(imodel: IModelConnection, modelId: Id64String, edgesR
 }
 
 async function getPrimaryTileTree(model: GeometricModelState, edgesRequired = true, animationId?: Id64String): Promise<IModelTileTree> {
-  // tile tree reference wants a ViewState so it can check viewFlags.edgesRequired() and scheduleScript.getModelAnimationId(modelId) and for access to its IModelConnection.
+  // tile tree reference wants a ViewState so it can check viewFlags.edgesRequired() and scheduleState.getModelAnimationId(modelId) and for access to its IModelConnection.
   // ###TODO Make that an interface instead of requiring a ViewState.
-  let scheduleScript;
-  if (undefined !== animationId)
-    scheduleScript = { getModelAnimationId: () => animationId };
-
-  const fakeViewState = {
-    iModel: model.iModel,
-    scheduleScript,
-    viewFlags: {
-      renderMode: RenderMode.SmoothShade,
-      visibleEdges: edgesRequired,
-    },
-    is3d: () => true,
-  };
-
-  const ref = model.createTileTreeReference(fakeViewState as ViewState);
+  const view = fakeViewState(model.iModel, { animationId, visibleEdges: edgesRequired });
+  const ref = model.createTileTreeReference(view);
   const owner = ref.treeOwner;
   owner.load();
   await waitUntil(() => {
@@ -560,13 +562,13 @@ describe("mirukuru TileTree", () => {
   let imodel: IModelConnection;
 
   class TestTarget extends MockRender.OnScreenTarget {
-    public setRenderToScreen(toScreen: boolean): HTMLCanvasElement | undefined {
+    public override setRenderToScreen(toScreen: boolean): HTMLCanvasElement | undefined {
       return toScreen ? document.createElement("canvas") : undefined;
     }
   }
 
   class TestSystem extends MockRender.System {
-    public createTarget(canvas: HTMLCanvasElement): TestTarget { return new TestTarget(this, canvas); }
+    public override createTarget(canvas: HTMLCanvasElement): TestTarget { return new TestTarget(this, canvas); }
   }
 
   before(async () => {
@@ -608,7 +610,7 @@ describe("mirukuru TileTree", () => {
 
     const options = { is3d: true, batchType: BatchType.Primary, edgesRequired: true, allowInstancing: true };
     const params = iModelTileTreeParamsFromJSON(treeProps, imodel, "0x1c", options);
-    const tree = new IModelTileTree(params);
+    const tree = new IModelTileTree(params, { edgesRequired: true, type: BatchType.Primary });
 
     const response: TileRequest.Response = await tree.staticBranch.requestContent();
     expect(response).not.to.be.undefined;
@@ -658,7 +660,7 @@ describe("mirukuru TileTree", () => {
 
     // Test current version of tile tree by asking model to load it
     const modelTree = await getTileTree(imodel, "0x1c");
-    await test(modelTree, CurrentImdlVersion.Combined, "-3-0-0-0-0-1");
+    await test(modelTree, CurrentImdlVersion.Combined, "-b-0-0-0-0-1");
 
     // Test directly loading a tile tree of version 3.0
     const v3Props = await IModelApp.tileAdmin.requestTileTreeProps(imodel, "0x1c");
@@ -667,7 +669,7 @@ describe("mirukuru TileTree", () => {
     const options = { is3d: true, batchType: BatchType.Primary, edgesRequired: false, allowInstancing: false };
     const params = iModelTileTreeParamsFromJSON(v3Props, imodel, "0x1c", options);
 
-    const v3Tree = new IModelTileTree(params);
+    const v3Tree = new IModelTileTree(params, { edgesRequired: false, type: BatchType.Primary });
     await test(v3Tree, 0x00030000, "_3_0_0_0_0_0_1");
   });
 
@@ -676,16 +678,8 @@ describe("mirukuru TileTree", () => {
     await imodel.models.load(modelId);
     const model = imodel.models.getLoaded(modelId) as GeometricModelState;
 
-    const viewState = {
-      iModel: imodel,
-      viewFlags: {
-        renderMode: RenderMode.SmoothShade,
-        visibleEdges: false,
-      },
-      is3d: () => true,
-    };
-
-    const treeRef = model.createTileTreeReference(viewState as ViewState);
+    const viewState = fakeViewState(imodel);
+    const treeRef = model.createTileTreeReference(viewState);
     const noEdges = treeRef.treeOwner;
 
     viewState.viewFlags.visibleEdges = true;
@@ -884,7 +878,7 @@ describe.skip("TileAdmin", () => {
 
         const options = { is3d: true, batchType: BatchType.Primary, edgesRequired: true, allowInstancing: true };
         const params = iModelTileTreeParamsFromJSON(treeProps, imodel, "0x1c", options);
-        const tree = new IModelTileTree(params);
+        const tree = new IModelTileTree(params, { edgesRequired: true, type: BatchType.Primary });
 
         const intfc = IModelTileRpcInterface.getClient();
         const generateTileContent = intfc.generateTileContent;

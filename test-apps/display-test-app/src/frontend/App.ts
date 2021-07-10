@@ -12,6 +12,7 @@ import {
 } from "@bentley/imodeljs-common";
 import { EditTools } from "@bentley/imodeljs-editor-frontend";
 import {
+  AccuDrawHintBuilder,
   AccuDrawShortcuts, AccuSnap, AsyncMethodsOf, ExternalServerExtensionLoader, IModelApp, IpcApp, LocalhostIpcApp, PromiseReturnType, RenderSystem,
   SelectionTool, SnapMode, TileAdmin, Tool, ToolAdmin,
 } from "@bentley/imodeljs-frontend";
@@ -22,7 +23,7 @@ import { DtaRpcInterface } from "../common/DtaRpcInterface";
 import { ToggleAspectRatioSkewDecoratorTool } from "./AspectRatioSkewDecorator";
 import { ApplyModelTransformTool } from "./DisplayTransform";
 import { DrawingAidTestTool } from "./DrawingAidTestTool";
-import { EditingSessionTool, PlaceLineStringTool } from "./EditingTools";
+import { EditingScopeTool, PlaceLineStringTool } from "./EditingTools";
 import { FenceClassifySelectedTool } from "./Fence";
 import { RecordFpsTool } from "./FpsMonitor";
 import { ChangeGridSettingsTool } from "./Grid";
@@ -40,12 +41,14 @@ import { TimePointComparisonTool } from "./TimePointComparison";
 import { UiManager } from "./UiManager";
 import { MarkupTool, ModelClipTool, SaveImageTool, ZoomToSelectedElementsTool } from "./Viewer";
 import { ApplyModelDisplayScaleTool } from "./DisplayScale";
+import { SyncViewportsTool } from "./SyncViewportsTool";
+import { FrameStatsTool } from "./FrameStatsTool";
 
 class DisplayTestAppAccuSnap extends AccuSnap {
   private readonly _activeSnaps: SnapMode[] = [SnapMode.NearestKeypoint];
 
-  public get keypointDivisor() { return 2; }
-  public getActiveSnapModes(): SnapMode[] { return this._activeSnaps; }
+  public override get keypointDivisor() { return 2; }
+  public override getActiveSnapModes(): SnapMode[] { return this._activeSnaps; }
   public setActiveSnapModes(snaps: SnapMode[]): void {
     this._activeSnaps.length = snaps.length;
     for (let i = 0; i < snaps.length; i++)
@@ -55,16 +58,16 @@ class DisplayTestAppAccuSnap extends AccuSnap {
 
 class DisplayTestAppToolAdmin extends ToolAdmin {
   /** Process shortcut key events */
-  public processShortcutKey(keyEvent: KeyboardEvent, wentDown: boolean): boolean {
-    if (wentDown && IModelApp.accuDraw.isEnabled)
+  public override processShortcutKey(keyEvent: KeyboardEvent, wentDown: boolean): boolean {
+    if (wentDown && AccuDrawHintBuilder.isEnabled)
       return AccuDrawShortcuts.processShortcutKey(keyEvent);
     return false;
   }
 }
 
 class SVTSelectionTool extends SelectionTool {
-  public static toolId = "SVTSelect";
-  protected initSelectTool() {
+  public static override toolId = "SVTSelect";
+  protected override initSelectTool() {
     super.initSelectTool();
 
     // ###TODO Want to do this only if version comparison enabled, but meh.
@@ -79,10 +82,10 @@ export class DtaIpc {
 }
 
 class RefreshTilesTool extends Tool {
-  public static toolId = "RefreshTiles";
-  public static get maxArgs() { return undefined; }
+  public static override toolId = "RefreshTiles";
+  public static override get maxArgs() { return undefined; }
 
-  public run(changedModelIds?: string[]): boolean {
+  public override run(changedModelIds?: string[]): boolean {
     if (undefined !== changedModelIds && 0 === changedModelIds.length)
       changedModelIds = undefined;
 
@@ -90,17 +93,17 @@ class RefreshTilesTool extends Tool {
     return true;
   }
 
-  public parseAndRun(...args: string[]): boolean {
+  public override parseAndRun(...args: string[]): boolean {
     return this.run(args);
   }
 }
 
 class PurgeTileTreesTool extends Tool {
-  public static toolId = "PurgeTileTrees";
-  public static get minArgs() { return 0; }
-  public static get maxArgs() { return undefined; }
+  public static override toolId = "PurgeTileTrees";
+  public static override get minArgs() { return 0; }
+  public static override get maxArgs() { return undefined; }
 
-  public run(modelIds?: string[]): boolean {
+  public override run(modelIds?: string[]): boolean {
     const vp = IModelApp.viewManager.selectedView;
     if (undefined === vp)
       return true;
@@ -115,15 +118,15 @@ class PurgeTileTreesTool extends Tool {
     return true;
   }
 
-  public parseAndRun(...args: string[]): boolean {
+  public override parseAndRun(...args: string[]): boolean {
     return this.run(args);
   }
 }
 
 class ShutDownTool extends Tool {
-  public static toolId = "ShutDown";
+  public static override toolId = "ShutDown";
 
-  public run(_args: any[]): boolean {
+  public override run(_args: any[]): boolean {
     DisplayTestApp.surface.closeAllViewers();
     if (ElectronApp.isValid)
       ElectronApp.shutdown();// eslint-disable-line @typescript-eslint/no-floating-promises
@@ -143,26 +146,8 @@ export class DisplayTestApp {
   private static _surface?: Surface;
   public static get surface() { return this._surface!; }
   public static set surface(surface: Surface) { this._surface = surface; }
-  public static getAuthConfig() {
-    const redirectUri = ProcessDetector.isMobileAppFrontend ? "imodeljs://app/signin-callback" : "http://localhost:3000/signin-callback";
-    const baseOidcScope = "openid email profile organization imodelhub context-registry-service:read-only reality-data:read product-settings-service projectwise-share urlps-third-party imodel-extension-service-api";
-
-    return ProcessDetector.isNativeAppFrontend
-      ? {
-        clientId: "imodeljs-electron-test",
-        redirectUri,
-        scope: `${baseOidcScope} offline_access`,
-      }
-      : {
-        clientId: "imodeljs-spa-test",
-        redirectUri,
-        scope: `${baseOidcScope} imodeljs-router`,
-        responseType: "code",
-      };
-  }
 
   public static async startup(configuration: DtaConfiguration, renderSys: RenderSystem.Options): Promise<void> {
-    const authConfig = this.getAuthConfig();
     const opts = {
       iModelApp: {
         accuSnap: new DisplayTestAppAccuSnap(),
@@ -184,13 +169,15 @@ export class DisplayTestApp {
           uriPrefix: configuration.customOrchestratorUri || "http://localhost:3001",
           info: { title: "DisplayTestApp", version: "v1.0" },
         },
-        authConfig,
+        authConfig: {
+          clientId: "imodeljs-spa-test",
+          redirectUri: "http://localhost:3000/signin-callback",
+          scope: "openid email profile organization imodelhub context-registry-service:read-only reality-data:read product-settings-service projectwise-share urlps-third-party imodel-extension-service-api imodeljs-router",
+          responseType: "code",
+        },
       },
       localhostIpcApp: {
         socketPort: 3002,
-      },
-      nativeApp: {
-        authConfig,
       },
     };
 
@@ -221,9 +208,10 @@ export class DisplayTestApp {
       CreateWindowTool,
       DockWindowTool,
       DrawingAidTestTool,
-      EditingSessionTool,
+      EditingScopeTool,
       FenceClassifySelectedTool,
       FocusWindowTool,
+      FrameStatsTool,
       IncidentMarkerDemoTool,
       PathDecorationTestTool,
       MarkupSelectTestTool,
@@ -242,6 +230,7 @@ export class DisplayTestApp {
       SaveImageTool,
       ShutDownTool,
       SVTSelectionTool,
+      SyncViewportsTool,
       ToggleAspectRatioSkewDecoratorTool,
       TimePointComparisonTool,
       ToggleShadowMapTilesTool,
@@ -251,7 +240,7 @@ export class DisplayTestApp {
     IModelApp.toolAdmin.defaultToolId = SVTSelectionTool.toolId;
     await FrontendDevTools.initialize();
     await HyperModeling.initialize();
-    await EditTools.initialize({ registerUndoRedoTools: true, registerBasicManipulationTools: true });
+    await EditTools.initialize({ registerAllTools: true });
   }
 
   public static setActiveSnapModes(snaps: SnapMode[]): void {

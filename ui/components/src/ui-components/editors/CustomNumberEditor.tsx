@@ -11,7 +11,6 @@
 import "./CustomNumberEditor.scss";
 import classnames from "classnames";
 import * as React from "react";
-import * as ReactDOM from "react-dom";
 import { Logger } from "@bentley/bentleyjs-core";
 import { IModelApp, NotifyMessageDetails, OutputMessagePriority } from "@bentley/imodeljs-frontend";
 import {
@@ -40,7 +39,7 @@ export class CustomNumberEditor extends React.PureComponent<PropertyEditorProps,
   private _inputElement = React.createRef<HTMLInputElement>();
 
   /** @internal */
-  public readonly state: Readonly<CustomNumberEditorState> = {
+  public override readonly state: Readonly<CustomNumberEditorState> = {
     inputValue: "",
   };
 
@@ -73,7 +72,7 @@ export class CustomNumberEditor extends React.PureComponent<PropertyEditorProps,
         }
       } else {
         const msg = new NotifyMessageDetails(OutputMessagePriority.Error, parseResults.parseError ? parseResults.parseError : /* istanbul ignore next */ UiComponents.translate("errors.unable-to-parse-quantity"));
-        msg.setInputFieldTypeDetails(ReactDOM.findDOMNode(this) as HTMLElement); // eslint-disable-line react/no-find-dom-node
+        this.htmlElement && msg.setInputFieldTypeDetails(this.htmlElement);
         // istanbul ignore next
         if (IModelApp.notifications)
           IModelApp.notifications.outputMessage(msg);
@@ -127,18 +126,18 @@ export class CustomNumberEditor extends React.PureComponent<PropertyEditorProps,
   };
 
   /** @internal */
-  public componentDidMount() {
+  public override componentDidMount() {
     this._isMounted = true;
     this.setStateFromProps(); // eslint-disable-line @typescript-eslint/no-floating-promises
   }
 
   /** @internal */
-  public componentWillUnmount() {
+  public override componentWillUnmount() {
     this._isMounted = false;
   }
 
   /** @internal */
-  public componentDidUpdate(prevProps: PropertyEditorProps) {
+  public override componentDidUpdate(prevProps: PropertyEditorProps) {
     if (this.props.propertyRecord !== prevProps.propertyRecord) {
       this.setStateFromProps(); // eslint-disable-line @typescript-eslint/no-floating-promises
     }
@@ -250,7 +249,7 @@ export class CustomNumberEditor extends React.PureComponent<PropertyEditorProps,
   };
 
   /** @internal */
-  public render(): React.ReactNode {
+  public override render(): React.ReactNode {
     const minSize = this.state.size ? this.state.size : 8;
     const minWidthStyle: React.CSSProperties = {
       minWidth: `${minSize * 0.75}em`,
@@ -311,7 +310,7 @@ export class CustomNumberPropertyEditor extends PropertyEditorBase {
   public get reactNode(): React.ReactNode {
     return <CustomNumberEditor />;
   }
-  public get containerHandlesEscape(): boolean {
+  public override get containerHandlesEscape(): boolean {
     return false;
   }
 }

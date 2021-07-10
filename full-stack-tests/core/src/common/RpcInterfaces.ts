@@ -28,7 +28,7 @@ export abstract class TestRpcInterface extends RpcInterface {
   public async restartIModelHost(): Promise<void> {
     return this.forward(arguments);
   }
-  public async extractChangeSummaries(_iModelRpcProps: IModelRpcProps, _options: any): Promise<void> {
+  public async createChangeSummary(_iModelRpcProps: IModelRpcProps): Promise<void> {
     return this.forward(arguments);
   }
   public async deleteChangeCache(_iModelRpcProps: IModelRpcProps): Promise<void> {
@@ -44,9 +44,6 @@ export abstract class TestRpcInterface extends RpcInterface {
     return this.forward(arguments);
   }
   public async getCloudEnv(): Promise<CloudEnvProps> {
-    return this.forward(arguments);
-  }
-  public async createIModel(_name: string, _contextId: string, _deleteIfExists: boolean): Promise<string> {
     return this.forward(arguments);
   }
   public async purgeCheckpoints(_iModelId: string): Promise<void> {

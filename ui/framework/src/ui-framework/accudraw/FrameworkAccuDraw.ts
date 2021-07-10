@@ -8,10 +8,11 @@
 
 import { AccuDraw, BeButtonEvent, CompassMode, IModelApp, ItemField, NotifyMessageDetails, OutputMessagePriority, QuantityType, RotationMode } from "@bentley/imodeljs-frontend";
 import { AccuDrawField, AccuDrawMode, AccuDrawSetFieldValueFromUiEventArgs, AccuDrawUiAdmin, ConditionalBooleanValue } from "@bentley/ui-abstract";
-import { UiFramework } from "../UiFramework";
+import { UiFramework, UserSettingsProvider } from "../UiFramework";
 import { SyncUiEventDispatcher, SyncUiEventId } from "../syncui/SyncUiEventDispatcher";
 import { AccuDrawUiSettings } from "./AccuDrawUiSettings";
 import { BeUiEvent } from "@bentley/bentleyjs-core";
+import { UiSettings, UiSettingsStatus } from "@bentley/ui-core";
 
 // cspell:ignore dont
 
@@ -25,7 +26,7 @@ const itemToFieldMap = new Map<ItemField, AccuDrawField>([
 
 const fieldToItemMap = new Map<AccuDrawField, ItemField>([
   [AccuDrawField.X, ItemField.X_Item],
-  [AccuDrawField.Y,ItemField.Y_Item],
+  [AccuDrawField.Y, ItemField.Y_Item],
   [AccuDrawField.Z, ItemField.Z_Item],
   [AccuDrawField.Angle, ItemField.ANGLE_Item],
   [AccuDrawField.Distance, ItemField.DIST_Item],
@@ -49,9 +50,12 @@ const rotationModeToKeyMap = new Map<RotationMode, string>([
 export class AccuDrawUiSettingsChangedEvent extends BeUiEvent<{}> { }
 
 /** @internal */
-export class FrameworkAccuDraw extends AccuDraw {
+export class FrameworkAccuDraw extends AccuDraw implements UserSettingsProvider {
   private static _displayNotifications = false;
   private static _uiSettings: AccuDrawUiSettings | undefined;
+  private static _settingsNamespace = "AppUiSettings";
+  private static _notificationsKey = "AccuDrawNotifications";
+  public readonly providerId = "FrameworkAccuDraw";
 
   /** Determines if AccuDraw.rotationMode === RotationMode.Top */
   public static readonly isTopRotationConditional = new ConditionalBooleanValue(() => IModelApp.accuDraw.rotationMode === RotationMode.Top, [SyncUiEventId.AccuDrawRotationChanged]);
@@ -75,7 +79,16 @@ export class FrameworkAccuDraw extends AccuDraw {
 
   /** Determines if notifications should be displayed for AccuDraw changes */
   public static get displayNotifications(): boolean { return FrameworkAccuDraw._displayNotifications; }
-  public static set displayNotifications(v: boolean) { FrameworkAccuDraw._displayNotifications = v; }
+  public static set displayNotifications(v: boolean) {
+    FrameworkAccuDraw._displayNotifications = v;
+    void UiFramework.getUiSettingsStorage().saveSetting(this._settingsNamespace, this._notificationsKey, v);
+  }
+
+  public async loadUserSettings(storage: UiSettings): Promise<void> {
+    const result = await storage.getSetting(FrameworkAccuDraw._settingsNamespace, FrameworkAccuDraw._notificationsKey);
+    if (result.status === UiSettingsStatus.Success)
+      FrameworkAccuDraw._displayNotifications = result.setting;
+  }
 
   /** AccuDraw User Interface settings */
   public static get uiSettings(): AccuDrawUiSettings | undefined { return FrameworkAccuDraw._uiSettings; }
@@ -87,6 +100,7 @@ export class FrameworkAccuDraw extends AccuDraw {
   constructor() {
     super();
     AccuDrawUiAdmin.onAccuDrawSetFieldValueFromUiEvent.addListener(this.handleSetFieldValueFromUiEvent);
+    UiFramework.registerUserSettingsProvider(this);
   }
 
   private handleSetFieldValueFromUiEvent = async (args: AccuDrawSetFieldValueFromUiEventArgs) => {
@@ -113,7 +127,7 @@ export class FrameworkAccuDraw extends AccuDraw {
   }
 
   /** @internal */
-  public onCompassModeChange(): void {
+  public override onCompassModeChange(): void {
     const accuDrawMode = this.compassMode === CompassMode.Rectangular ? AccuDrawMode.Rectangular : AccuDrawMode.Polar;
     IModelApp.uiAdmin.accuDrawUi.setMode(accuDrawMode);
     SyncUiEventDispatcher.dispatchSyncUiEvent(SyncUiEventId.AccuDrawCompassModeChanged);
@@ -122,20 +136,20 @@ export class FrameworkAccuDraw extends AccuDraw {
   }
 
   /** @internal */
-  public onRotationModeChange(): void {
+  public override onRotationModeChange(): void {
     SyncUiEventDispatcher.dispatchSyncUiEvent(SyncUiEventId.AccuDrawRotationChanged);
 
     this.outputRotationMessage();
   }
 
   /** @internal */
-  public onFieldLockChange(index: ItemField): void {
+  public override onFieldLockChange(index: ItemField): void {
     const field = FrameworkAccuDraw.translateFromItemField(index);
     IModelApp.uiAdmin.accuDrawUi.setFieldLock(field, this.getFieldLock(index));
   }
 
   /** @internal */
-  public onFieldValueChange(index: ItemField): void {
+  public override onFieldValueChange(index: ItemField): void {
     const field = FrameworkAccuDraw.translateFromItemField(index);
     const value = this.getValueByIndex(index);
     const formattedValue = FrameworkAccuDraw.getFieldDisplayValue(index);
@@ -151,7 +165,7 @@ export class FrameworkAccuDraw extends AccuDraw {
   }
 
   /** @internal */
-  public setFocusItem(index: ItemField): void {
+  public override setFocusItem(index: ItemField): void {
     const field = FrameworkAccuDraw.translateFromItemField(index);
     IModelApp.uiAdmin.accuDrawUi.setFieldFocus(field);
   }
@@ -161,7 +175,7 @@ export class FrameworkAccuDraw extends AccuDraw {
    * axis isn't locked to support "smart lock".
    * @internal
    */
-  public onMotion(_ev: BeButtonEvent): void {
+  public override onMotion(_ev: BeButtonEvent): void {
     if (!this.isEnabled || this.isDeactivated || UiFramework.isContextMenuOpen)
       return;
 
@@ -174,7 +188,7 @@ export class FrameworkAccuDraw extends AccuDraw {
   /** Determine if the AccuDraw UI has focus
    * @internal
    */
-  public get hasInputFocus(): boolean {
+  public override get hasInputFocus(): boolean {
     let hasFocus = false;
     const el = document.querySelector("div.uifw-accudraw-field-container");
     if (el)
@@ -185,7 +199,7 @@ export class FrameworkAccuDraw extends AccuDraw {
   /** Implement this method to set focus to the AccuDraw UI.
    * @internal
    */
-  public grabInputFocus(): void {
+  public override grabInputFocus(): void {
     IModelApp.uiAdmin.accuDrawUi.grabInputFocus();
   }
 
@@ -214,7 +228,7 @@ export class FrameworkAccuDraw extends AccuDraw {
       if (modeKey === undefined)
         modeKey = "polar";
       const modeString = UiFramework.translate(`accuDraw.compassMode.${modeKey}`);
-      const modeMessage = UiFramework.i18n.translateWithNamespace(UiFramework.i18nNamespace, "accuDraw.compassModeSet", {modeString});
+      const modeMessage = UiFramework.i18n.translateWithNamespace(UiFramework.i18nNamespace, "accuDraw.compassModeSet", { modeString });
       this.outputInfoMessage(modeMessage);
     }
   }
@@ -226,7 +240,7 @@ export class FrameworkAccuDraw extends AccuDraw {
       if (rotationKey === undefined)
         rotationKey = "top";
       const rotationString = UiFramework.translate(`accuDraw.rotation.${rotationKey}`);
-      const rotationMessage = UiFramework.i18n.translateWithNamespace(UiFramework.i18nNamespace, "accuDraw.rotationSet", {rotationString});
+      const rotationMessage = UiFramework.i18n.translateWithNamespace(UiFramework.i18nNamespace, "accuDraw.rotationSet", { rotationString });
       this.outputInfoMessage(rotationMessage);
     }
   }

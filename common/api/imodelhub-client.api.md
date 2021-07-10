@@ -22,7 +22,6 @@ import { IModelHubStatus } from '@bentley/bentleyjs-core';
 import { LogFunction } from '@bentley/bentleyjs-core';
 import { ProgressCallback } from '@bentley/itwin-client';
 import { Project } from '@bentley/context-registry-client';
-import { RbacClient } from '@bentley/rbac-client';
 import { RequestOptions } from '@bentley/itwin-client';
 import { RequestQueryOptions } from '@bentley/itwin-client';
 import { Response } from '@bentley/itwin-client';
@@ -295,6 +294,14 @@ export class CheckpointV2 extends WsgInstance {
 }
 
 // @internal
+export class CheckpointV2CreatedEvent extends IModelHubEvent {
+    changeSetId: string;
+    changeSetIndex: string;
+    fromJson(obj: any): void;
+    versionId?: GuidString;
+}
+
+// @internal
 export enum CheckpointV2ErrorId {
     // (undocumented)
     ApplyChangeSetError = 4,
@@ -503,7 +510,7 @@ export class EventSubscriptionHandler {
 }
 
 // @internal @deprecated (undocumented)
-export type EventType = "LockEvent" | "AllLocksDeletedEvent" | "ChangeSetPostPushEvent" | "ChangeSetPrePushEvent" | "CodeEvent" | "AllCodesDeletedEvent" | "BriefcaseDeletedEvent" | "iModelDeletedEvent" | "VersionEvent" | "CheckpointCreatedEvent";
+export type EventType = "LockEvent" | "AllLocksDeletedEvent" | "ChangeSetPostPushEvent" | "ChangeSetPrePushEvent" | "CodeEvent" | "AllCodesDeletedEvent" | "BriefcaseDeletedEvent" | "iModelDeletedEvent" | "VersionEvent" | "CheckpointCreatedEvent" | "CheckpointV2CreatedEvent";
 
 // @internal
 export enum GetEventOperationType {
@@ -513,6 +520,17 @@ export enum GetEventOperationType {
 
 // @internal
 export class GlobalCheckpointCreatedEvent extends IModelHubGlobalEvent {
+    // (undocumented)
+    changeSetId?: string;
+    // (undocumented)
+    changeSetIndex?: string;
+    fromJson(obj: any): void;
+    // (undocumented)
+    versionId?: GuidString;
+}
+
+// @internal
+export class GlobalCheckpointV2CreatedEvent extends IModelHubGlobalEvent {
     // (undocumented)
     changeSetId?: string;
     // (undocumented)
@@ -570,7 +588,9 @@ export type GlobalEventType =
 /** Sent when a named [[Version]] is created. See [[NamedVersionCreatedEvent]]. */
 "NamedVersionCreatedEvent" |
 /** Sent when a new [[Checkpoint]] is generated. See [[GlobalCheckpointCreatedEvent]]. */
-"CheckpointCreatedEvent";
+"CheckpointCreatedEvent" |
+/** Sent when a new [[CheckpointV2]] is generated. See [[GlobalCheckpointV2CreatedEvent]]. */
+"CheckpointV2CreatedEvent";
 
 // @internal
 export class HardiModelDeleteEvent extends IModelHubGlobalEvent {
@@ -851,6 +871,8 @@ export enum IModelHubEventType {
     // @internal
     CheckpointCreatedEvent = "CheckpointCreatedEvent",
     // @internal
+    CheckpointV2CreatedEvent = "CheckpointV2CreatedEvent",
+    // @internal
     CodeEvent = "CodeEvent",
     iModelDeletedEvent = "iModelDeletedEvent",
     // @internal
@@ -868,25 +890,11 @@ export abstract class IModelHubGlobalEvent extends IModelHubBaseEvent {
 }
 
 // @internal
-export enum IModelHubPermission {
-    // (undocumented)
-    ConfigureIModelAccess = 128,
-    // (undocumented)
-    Create = 1,
-    // (undocumented)
-    Delete = 8,
-    // (undocumented)
-    ManageResources = 16,
-    // (undocumented)
-    ManageVersions = 32,
-    // (undocumented)
-    Modify = 4,
-    // (undocumented)
-    None = 0,
-    // (undocumented)
-    Read = 2,
-    // (undocumented)
-    View = 64
+export class IModelPermissions extends WsgInstance {
+    manage?: string;
+    read?: string;
+    webView?: string;
+    write?: string;
 }
 
 // @public
@@ -1044,9 +1052,8 @@ export function ParseGlobalEvent(response: Response, handler?: IModelBaseHandler
 
 // @internal
 export class PermissionHandler {
-    constructor(imodelsHandler: IModelsHandler, rbacClient: RbacClient);
-    getContextPermissions(requestContext: AuthorizedClientRequestContext, contextId: GuidString): Promise<IModelHubPermission>;
-    getiModelPermissions(requestContext: AuthorizedClientRequestContext, contextId: GuidString, iModelId: GuidString): Promise<IModelHubPermission>;
+    constructor(handler: IModelBaseHandler);
+    getiModelPermissions(requestContext: AuthorizedClientRequestContext, imodelId: GuidString): Promise<IModelPermissions>;
     }
 
 // @internal
@@ -1183,7 +1190,7 @@ export class UserStatisticsQuery extends WsgQuery {
 
 // @public
 export class Version extends WsgInstance {
-    changeSetId?: GuidString;
+    changeSetId?: string;
     createdDate?: string;
     description?: string;
     hidden?: boolean;

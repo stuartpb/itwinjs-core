@@ -48,7 +48,13 @@ export class RealityTile extends Tile {
     if (undefined === this.transformToRoot)
       return;
 
+    // Can transform be non-rigid?? -- if so would have to handle (readonly) radius.
+    this.boundingSphere.transformBy(this.transformToRoot, this.boundingSphere);
     this.transformToRoot.multiplyRange(this.range, this.range);
+
+    if (this.rangeCorners)
+      this.transformToRoot.multiplyPoint3dArrayInPlace(this.rangeCorners);
+
     if (undefined !== this._contentRange)
       this.transformToRoot.multiplyRange(this._contentRange, this._contentRange);
   }
@@ -60,7 +66,7 @@ export class RealityTile extends Tile {
   public get maxDepth(): number { return this.realityRoot.loader.maxDepth; }
   public get isPointCloud() { return this.realityRoot.loader.containsPointClouds; }
   public get isLoaded() { return this.loadStatus === TileLoadStatus.Ready; }      // Reality tiles may depend on secondary tiles (maps) so can ge loaded but not ready.
-  public get isDisplayable(): boolean {
+  public override get isDisplayable(): boolean {
     if (this.noContentButTerminateOnSelection)
       return false;
     else
@@ -99,7 +105,7 @@ export class RealityTile extends Tile {
     return this.realityRoot.loader.loadTileContent(this, data, system, isCanceled);
   }
 
-  public computeLoadPriority(viewports: Iterable<Viewport>): number {
+  public override computeLoadPriority(viewports: Iterable<Viewport>): number {
     return this.realityRoot.loader.computeTilePriority(this, viewports);
   }
 
@@ -262,7 +268,7 @@ export class RealityTile extends Tile {
 
     return this._childrenLoadStatus === TileTreeLoadStatus.NotFound;
   }
-  public getSizeProjectionCorners(): Point3d[] | undefined {
+  public override getSizeProjectionCorners(): Point3d[] | undefined {
     if (!this.tree.isContentUnbounded)
       return undefined;           // For a non-global tree use the standard size algorithm.
 

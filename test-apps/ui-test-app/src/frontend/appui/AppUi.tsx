@@ -21,7 +21,7 @@ import "./tooluiproviders/Tool2UiProvider";
 import "./statusbars/AppStatusBar";
 import "./navigationaids/CubeExampleNavigationAid";
 import * as React from "react";
-import { BadgeType, FunctionKey, StagePanelLocation, StageUsage } from "@bentley/ui-abstract";
+import { BadgeType, FunctionKey, StagePanelLocation, StageUsage, WidgetState } from "@bentley/ui-abstract";
 import { FillCentered } from "@bentley/ui-core";
 import {
   AccuDrawCommandItems,
@@ -40,7 +40,6 @@ import {
   UiFramework,
   WidgetDef,
   WidgetProvider,
-  WidgetState,
   WorkflowProps,
   WorkflowPropsList,
   ZoneLocation,
@@ -67,14 +66,13 @@ import { ColorByName, ColorDef } from "@bentley/imodeljs-common";
 export class AppUi {
 
   public static initialize() {
-    ConfigurableUiManager.initialize();
-
     AppUi.defineFrontstages();
     AppUi.defineContentGroups();
     AppUi.defineContentLayouts();
     AppUi.defineTasksAndWorkflows();
     AppUi.defineKeyboardShortcuts();
 
+    // use to test WidgetProvider API - Note: this is different from UiItemsProvider
     AppUi.defineDynamicWidgets();
 
     // AppUi.setAccuDrawUiSettings();
@@ -488,6 +486,6 @@ export class AppUi {
       yLabel: "-Y-",
     };
 
-    FrameworkAccuDraw.uiSettings = {...appSettings, ...userSettings};
+    FrameworkAccuDraw.uiSettings = { ...appSettings, ...userSettings };
   }
 }

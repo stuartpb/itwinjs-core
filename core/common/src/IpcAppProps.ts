@@ -6,11 +6,16 @@
  * @module NativeApp
  */
 
-import { CompressedId64Set, GuidString, Id64String, IModelStatus, LogLevel, OpenMode } from "@bentley/bentleyjs-core";
+import { GuidString, Id64String, IModelStatus, LogLevel, OpenMode } from "@bentley/bentleyjs-core";
+import { Range3dProps, XYZProps } from "@bentley/geometry-core";
+import { ChangedEntities } from "./ChangedEntities";
 import { OpenBriefcaseProps } from "./BriefcaseTypes";
-import { IModelConnectionProps, IModelRpcProps, StandaloneOpenOptions } from "./IModel";
+import {
+  EcefLocationProps, IModelConnectionProps, IModelRpcProps, RootSubjectProps, StandaloneOpenOptions,
+} from "./IModel";
 import { IModelVersionProps } from "./IModelVersion";
 import { ModelGeometryChangesProps } from "./ModelGeometryChanges";
+import { GeographicCRSProps } from "./geometry/CoordinateReferenceSystem";
 
 /** Identifies a list of tile content Ids belonging to a single tile tree.
  * @internal
@@ -22,7 +27,7 @@ export interface TileTreeContentIds {
 
 /** Specifies a [GeometricModel]($backend)'s Id and a Guid identifying the current state of the geometry contained within the model.
  * @see [TxnManager.onModelGeometryChanged]($backend) and [BriefcaseTxns.onModelGeometryChanged]($frontend).
- * @beta
+ * @public
  */
 export interface ModelIdAndGeometryGuid {
   /** The model's Id. */
@@ -33,29 +38,12 @@ export interface ModelIdAndGeometryGuid {
   guid: GuidString;
 }
 
-/** The set of elements or models that were changed by a [Txn]($docs/learning/InteractiveEditing.md)
- * @note this object holds lists of ids of elements or models that were modified somehow during the Txn. Any modifications to an [[ElementAspect]]($backend) will
- * cause its element to appear in these lists.
- * @see [TxnManager.onElementsChanged]($backend) and [TxnManager.onModelsChanged]($backend).
- * @see [BriefcaseTxns.onElementsChanged]($frontend) and [BriefcaseTxns.onModelsChanged]($frontend).
- * @beta
- */
-export interface ChangedEntities {
-  /** The ids of entities that were inserted during this Txn */
-  inserted?: CompressedId64Set;
-  /** The ids of entities that were deleted during this Txn */
-  deleted?: CompressedId64Set;
-  /** The ids of entities that were modified during this Txn */
-  updated?: CompressedId64Set;
-}
-
 /** @internal */
 export enum IpcAppChannel {
   Functions = "ipc-app",
   AppNotify = "ipcApp-notify",
   Txns = "txns",
-  EditingSession = "editing-session",
-  PushPull = "push-pull",
+  EditingScope = "editing-scope",
 }
 
 /**
@@ -76,25 +64,27 @@ export interface TxnNotifications {
   notifyModelsChanged: (changes: ChangedEntities) => void;
   notifyGeometryGuidsChanged: (changes: ModelIdAndGeometryGuid[]) => void;
   notifyCommit: () => void;
-  notifyCommitted: () => void;
+  notifyCommitted: (hasPendingTxns: boolean, time: number) => void;
   notifyChangesApplied: () => void;
   notifyBeforeUndoRedo: (isUndo: boolean) => void;
   notifyAfterUndoRedo: (isUndo: boolean) => void;
+  notifyPulledChanges: (parentChangeSetId: string) => void;
+  notifyPushedChanges: (parentChangeSetId: string) => void;
+
+  notifyIModelNameChanged: (name: string) => void;
+  notifyRootSubjectChanged: (subject: RootSubjectProps) => void;
+  notifyProjectExtentsChanged: (extents: Range3dProps) => void;
+  notifyGlobalOriginChanged: (origin: XYZProps) => void;
+  notifyEcefLocationChanged: (ecef: EcefLocationProps | undefined) => void;
+  notifyGeographicCoordinateSystemChanged: (gcs: GeographicCRSProps | undefined) => void;
 }
 
 /**
- * Interface registered by the frontend [NotificationHandler]($common) to be notified of changes to an iModel during an [InteractiveEditingSession]($frontend).
+ * Interface registered by the frontend [NotificationHandler]($common) to be notified of changes to an iModel during an [GraphicalEditingScope]($frontend).
  * @internal
  */
-export interface EditingSessionNotifications {
+export interface EditingScopeNotifications {
   notifyGeometryChanged: (modelProps: ModelGeometryChangesProps[]) => void;
-}
-
-/** @internal */
-export interface BriefcasePushAndPullNotifications {
-  notifyPulledChanges: (arg: { parentChangeSetId: string }) => void;
-  notifyPushedChanges: (arg: { parentChangeSetId: string }) => void;
-  notifySavedChanges: (arg: { hasPendingTxns: boolean, time: number }) => void;
 }
 
 /**
@@ -102,7 +92,6 @@ export interface BriefcasePushAndPullNotifications {
  * @internal
  */
 export interface IpcAppFunctions {
-
   /** Send frontend log to backend.
    * @param _level Specify log level.
    * @param _category Specify log category.
@@ -126,12 +115,12 @@ export interface IpcAppFunctions {
   /** see BriefcaseTxns.isRedoPossible */
   isRedoPossible: (key: string) => Promise<boolean>;
   /** see BriefcaseTxns.getUndoString */
-  getUndoString: (key: string, allowCrossSessions?: boolean) => Promise<string>;
+  getUndoString: (key: string) => Promise<string>;
   /** see BriefcaseTxns.getRedoString */
   getRedoString: (key: string) => Promise<string>;
 
   /** see BriefcaseConnection.pullAndMergeChanges */
-  pullAndMergeChanges: (key: string, version?: IModelVersionProps) => Promise<void>;
+  pullAndMergeChanges: (key: string, version?: IModelVersionProps) => Promise<string>;
   /** see BriefcaseConnection.pushChanges */
   pushChanges: (key: string, description: string) => Promise<string>;
   /** Cancels currently pending or active generation of tile content.  */
@@ -142,12 +131,13 @@ export interface IpcAppFunctions {
    */
   cancelElementGraphicsRequests: (key: string, _requestIds: string[]) => Promise<void>;
 
-  toggleInteractiveEditingSession: (key: string, _startSession: boolean) => Promise<boolean>;
-  isInteractiveEditingSupported: (key: string) => Promise<boolean>;
+  toggleGraphicalEditingScope: (key: string, _startSession: boolean) => Promise<boolean>;
+  isGraphicalEditingSupported: (key: string) => Promise<boolean>;
 
-  reverseTxns: (key: string, numOperations: number, allowCrossSessions?: boolean) => Promise<IModelStatus>;
+  reverseTxns: (key: string, numOperations: number) => Promise<IModelStatus>;
   reverseAllTxn: (key: string) => Promise<IModelStatus>;
   reinstateTxn: (key: string) => Promise<IModelStatus>;
+  restartTxnSession: (key: string) => Promise<void>;
 
   /** Query the number of concurrent threads supported by the host's IO or CPU thread pool. */
   queryConcurrency: (pool: "io" | "cpu") => Promise<number>;

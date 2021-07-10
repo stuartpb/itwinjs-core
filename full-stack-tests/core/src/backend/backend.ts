@@ -19,8 +19,6 @@ import { CloudEnv } from "./cloudEnv";
 import * as testCommands from "./TestEditCommands";
 
 import serveHandler = require("serve-handler");
-import { IModelHubClient } from "@bentley/imodelhub-client";
-import { AzureFileHandler } from "@bentley/backend-itwin-client";
 /* eslint-disable no-console */
 
 async function init() {
@@ -34,7 +32,7 @@ async function init() {
   iModelHost.imodelClient = CloudEnv.cloudEnv.imodelClient;
   iModelHost.concurrentQuery.concurrent = 2;
   iModelHost.concurrentQuery.pollInterval = 5;
-  iModelHost.imodelClient = new IModelHubClient(new AzureFileHandler());
+
   if (ProcessDetector.isElectronAppBackend) {
     await ElectronHost.startup({ electronHost: { rpcInterfaces }, iModelHost });
     EditCommandAdmin.registerModule(testCommands);
@@ -73,14 +71,14 @@ async function init() {
 /** A FileNameResolver for resolving test iModel files from core/backend */
 class BackendTestAssetResolver extends FileNameResolver {
   /** Resolve a base file name to a full path file name in the core/backend/lib/test/assets/ directory. */
-  public tryResolveFileName(inFileName: string): string {
+  public override tryResolveFileName(inFileName: string): string {
     if (path.isAbsolute(inFileName)) {
       return inFileName;
     }
     return path.join(__dirname, "../../../../core/backend/lib/test/assets/", inFileName);
   }
   /** Resolve a key (for testing FileNameResolver) */
-  public tryResolveKey(fileKey: string): string | undefined {
+  public override tryResolveKey(fileKey: string): string | undefined {
     switch (fileKey) {
       case "test-key": return this.tryResolveFileName("test.bim");
       case "test2-key": return this.tryResolveFileName("test2.bim");

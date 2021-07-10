@@ -8,7 +8,7 @@
 
 import { ClientRequestContext, IModelStatus, Logger, LogLevel, OpenMode } from "@bentley/bentleyjs-core";
 import {
-  BriefcasePushAndPullNotifications, EditingSessionNotifications, IModelConnectionProps, IModelError, IModelRpcProps, IModelVersion, IModelVersionProps,
+  EditingScopeNotifications, IModelConnectionProps, IModelError, IModelRpcProps, IModelVersion, IModelVersionProps,
   IpcAppChannel, IpcAppFunctions, IpcAppNotifications, IpcInvokeReturn, IpcListener, IpcSocketBackend, iTwinChannel, OpenBriefcaseProps,
   RemoveFunction, StandaloneOpenOptions, TileTreeContentIds, TxnNotifications,
 } from "@bentley/imodeljs-common";
@@ -19,7 +19,7 @@ import { cancelTileContentRequests } from "./rpc-impl/IModelTileRpcImpl";
 
 /**
   * Options for [[IpcHost.startup]]
-  * @beta
+  * @public
   */
 export interface IpcHostOpts {
   iModelHost?: IModelHostConfiguration;
@@ -37,7 +37,7 @@ export interface IpcHostOpts {
 /**
  * Used by applications that have a dedicated backend. IpcHosts may send messages to their corresponding IpcApp.
  * @note if either end terminates, the other must too.
- * @beta
+ * @public
  */
 export class IpcHost {
   public static noStack = false;
@@ -99,13 +99,8 @@ export class IpcHost {
   }
 
   /** @internal */
-  public static notifyEditingSession<T extends keyof EditingSessionNotifications>(briefcase: BriefcaseDb | StandaloneDb, methodName: T, ...args: Parameters<EditingSessionNotifications[T]>) {
-    this.notify(IpcAppChannel.EditingSession, briefcase, methodName, ...args);
-  }
-
-  /** @internal */
-  public static notifyPushAndPull<T extends keyof BriefcasePushAndPullNotifications>(briefcase: BriefcaseDb | StandaloneDb, methodName: T, ...args: Parameters<BriefcasePushAndPullNotifications[T]>) {
-    this.notify(IpcAppChannel.PushPull, briefcase, methodName, ...args);
+  public static notifyEditingScope<T extends keyof EditingScopeNotifications>(briefcase: BriefcaseDb | StandaloneDb, methodName: T, ...args: Parameters<EditingScopeNotifications[T]>) {
+    this.notify(IpcAppChannel.EditingScope, briefcase, methodName, ...args);
   }
 
   /**
@@ -142,7 +137,7 @@ export class IpcHost {
  * to ensure all methods and signatures are correct.
  *
  * Then, call `MyClass.register` at startup to connect your class to your channel.
- * @beta
+ * @public
  */
 export abstract class IpcHandler {
   /** All subclasses must implement this method to specify their channel name. */
@@ -212,17 +207,17 @@ class IpcAppHandler extends IpcHandler implements IpcAppFunctions {
   public async isRedoPossible(key: string): Promise<boolean> {
     return IModelDb.findByKey(key).nativeDb.isRedoPossible();
   }
-  public async getUndoString(key: string, allowCrossSessions?: boolean): Promise<string> {
-    return IModelDb.findByKey(key).nativeDb.getUndoString(allowCrossSessions);
+  public async getUndoString(key: string): Promise<string> {
+    return IModelDb.findByKey(key).nativeDb.getUndoString();
   }
   public async getRedoString(key: string): Promise<string> {
     return IModelDb.findByKey(key).nativeDb.getUndoString();
   }
 
-  public async pullAndMergeChanges(key: string, version?: IModelVersionProps): Promise<void> {
+  public async pullAndMergeChanges(key: string, version?: IModelVersionProps): Promise<string> {
     const iModelDb = BriefcaseDb.findByKey(key);
     const requestContext = await IModelHost.getAuthorizedContext();
-    await iModelDb.pullAndMergeChanges(requestContext, version ? IModelVersion.fromJSON(version) : undefined);
+    return iModelDb.pullAndMergeChanges(requestContext, version ? IModelVersion.fromJSON(version) : undefined);
   }
   public async pushChanges(key: string, description: string): Promise<string> {
     const iModelDb = BriefcaseDb.findByKey(key);
@@ -231,25 +226,28 @@ class IpcAppHandler extends IpcHandler implements IpcAppFunctions {
     return iModelDb.changeSetId;
   }
 
-  public async toggleInteractiveEditingSession(key: string, startSession: boolean): Promise<boolean> {
+  public async toggleGraphicalEditingScope(key: string, startSession: boolean): Promise<boolean> {
     const val: IModelJsNative.ErrorStatusOrResult<any, boolean> = IModelDb.findByKey(key).nativeDb.setGeometricModelTrackingEnabled(startSession);
     if (val.error)
-      throw new IModelError(val.error.status, "Failed to toggle interactive editing session");
+      throw new IModelError(val.error.status, "Failed to toggle graphical editing scope");
 
     return val.result!;
   }
-  public async isInteractiveEditingSupported(key: string): Promise<boolean> {
+  public async isGraphicalEditingSupported(key: string): Promise<boolean> {
     return IModelDb.findByKey(key).nativeDb.isGeometricModelTrackingSupported();
   }
 
-  public async reverseTxns(key: string, numOperations: number, allowCrossSessions?: boolean): Promise<IModelStatus> {
-    return IModelDb.findByKey(key).nativeDb.reverseTxns(numOperations, allowCrossSessions);
+  public async reverseTxns(key: string, numOperations: number): Promise<IModelStatus> {
+    return IModelDb.findByKey(key).nativeDb.reverseTxns(numOperations);
   }
   public async reverseAllTxn(key: string): Promise<IModelStatus> {
     return IModelDb.findByKey(key).nativeDb.reverseAll();
   }
   public async reinstateTxn(key: string): Promise<IModelStatus> {
     return IModelDb.findByKey(key).nativeDb.reinstateTxn();
+  }
+  public async restartTxnSession(key: string): Promise<void> {
+    return IModelDb.findByKey(key).nativeDb.restartTxnSession();
   }
 
   public async queryConcurrency(pool: "io" | "cpu"): Promise<number> {

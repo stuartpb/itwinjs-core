@@ -225,8 +225,9 @@ These keysins control the planar masking of reality models.
 
 ### Other key-ins
 
-* `fdt save view` - Copies to the clipboard a JSON representation of the view currently displayed in the active viewport.
-* `fdt apply view` - Accepts an unquoted JSON representation of a view, e.g., as obtained from `fdt save view`, and applies that view to the active viewport.
+* `fdt save view` - Copies to the clipboard a JSON representation of the view currently displayed in the active viewport. Accepts a single optional argument:
+  * `quote=1`: format the result so it can be directly parsed by `fdt apply view` as a single quoted string argument.
+* `fdt apply view` - Given a saved view as a JSON string (see `fdt save view`), applies it to the active view. Takes a single required argument: the JSON string, in quotes, with interior quotation marks escaped as `""`. Use the `quote=1` argument to `fdt save view` to enquote and escape the JSON.
 * `fdt apply viewid` - Accepts the Id of a persistent ViewDefinition in hexadecimal format and applies that view to the active viewport.
 * `fdt save rendering style` - Outputs selected aspects of the active viewport's display style as JSON. See `DisplayStyleSettings.toOverrides`. Each argument is of the format "option=value" where `value` is 0 for false or 1 for true. All arguments default to false.
   * `all`: include all settings.
@@ -255,6 +256,10 @@ These keysins control the planar masking of reality models.
   * "color": Override color to white.
   * "emphasis": Apply silhouette for emphasis.
   * "both": Apply both color and silhouette.
+* `fdt emphasize visible` - Determines the set of elements considered currently visible in the selected viewport and emphasizes them, de-emphasizing everything else. It takes one required argument and one optional argument:
+  * "tiles" or "screen": The criterion by which elements are considered visible. "tiles" means the element is present in at least one tile selected for display in the view and is not hidden based on category, subcategory, symbology overrides, etc. "screen" means the element lit up at least one pixel; this does not include pixels behind other transparent pixels.
+  * "nonlocatable=0|1" where `1` indicates non-locatable geometry should be considered. By default it is ignored.
+* `fdt clear emphasized` - Undo the effects of `fdt emphasize selection` or `fdt emphasize visible`.
 * `fdt isolate selection` - Causes all elements except those currently in the selection set to stop drawing.
 * `fdt clear isolate` - Reverse the effects of `fdt isolate selection`.
 * `fdt toggle wiremesh` - Toggles "pseudo-wiremesh" display. This causes surfaces to be rendered using `GL_LINES` instead of `GL_TRIANGLES`. Useful for visualizing the triangles of a mesh - but not suitable for "real" wiremesh display.
@@ -272,6 +277,10 @@ These keysins control the planar masking of reality models.
   * "v", "h": The visible or hidden ratio in [0..1].
   * "s": The silhouette as an integer in [0..2] (see Hilite.Silhouette enum).
 * `fdt emphasis settings` - Modifies the hilite settings used for emphasized elements in the selected viewport. If no arguments are specified, it does nothing. See `fdt hilite settings` for supported arguments.
+* `fdt flash settings` - Modifies the FlashSettings used in the selected viewport. If no arguments are supplied, it does nothing. If "default" is supplied as the only argument, it resets to the default settings. Otherwise, it accepts any combination of the following arguments in the form "name=value", where `name` is case-insensitive and only the first character matters:
+  * "intensity" as a number in [0..1] to change FlashSettings.maxIntensity.
+  * "mode" as either "brighten" or "hilite" (case-insensitive, only first character matters) to change FlashMode.
+  * "duration" as the number of seconds for FlashSettings.duration.
 * `fdt gpu mem limit` - Changes the value of `TileAdmin.gpuMemoryLimit` controlling how much GPU memory can be allocated to tile graphics before graphics of least-recently-drawn tiles begin to be discarded. Accepts one integer greater than or equal to zero representing the amount of memory in bytes; or one of "default", "relaxed", "aggressive", or "none". Any other input is treated as "none".
 * `fdt tilesize default` - Changes the default tile size modifier used by viewports that don't explicitly override it. Accepts a floating point number greater than zero.
 * `fdt tilesize viewport` - Overrides the tile size modifier for the selected viewport (if a floating point number is supplied) or clears the override (if the string "reset" is supplied). The modifier must be greater than zero.

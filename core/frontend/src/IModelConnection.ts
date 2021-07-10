@@ -9,25 +9,25 @@
 import {
   assert, BeEvent, GeoServiceStatus, GuidString, Id64, Id64Arg, Id64Set, Id64String, Logger, OneAtATimeAction, OpenMode, TransientIdSequence,
 } from "@bentley/bentleyjs-core";
-import { Point3d, Range3d, Range3dProps, XYAndZ, XYZProps } from "@bentley/geometry-core";
+import { Point3d, Range3d, Range3dProps, Transform, XYAndZ, XYZProps } from "@bentley/geometry-core";
 import {
-  AxisAlignedBox3d, Cartographic, CodeSpec, DbResult, EcefLocation, EcefLocationProps, ElementProps, EntityQueryParams, FontMap, FontMapProps,
-  GeoCoordStatus, GeometryContainmentRequestProps, GeometryContainmentResponseProps, ImageSourceFormat, IModel, IModelConnectionProps, IModelError,
+  AxisAlignedBox3d, Cartographic, CodeProps, CodeSpec, DbResult, EcefLocation, EcefLocationProps, ElementLoadOptions, ElementProps, EntityQueryParams, FontMap, FontMapProps,
+  GeoCoordStatus, GeometryContainmentRequestProps, GeometryContainmentResponseProps, GeometrySummaryRequestProps, ImageSourceFormat, IModel, IModelConnectionProps, IModelError,
   IModelReadRpcInterface, IModelStatus, IModelWriteRpcInterface, mapToGeoServiceStatus, MassPropertiesRequestProps, MassPropertiesResponseProps,
   ModelProps, ModelQueryParams, QueryLimit, QueryPriority, QueryQuota, QueryResponse, QueryResponseStatus, RpcManager, SnapRequestProps,
   SnapResponseProps, SnapshotIModelRpcInterface, TextureLoadProps, ThumbnailProps, ViewDefinitionProps, ViewQueryParams, ViewStateLoadProps,
 } from "@bentley/imodeljs-common";
-import { BackgroundMapLocation } from "./BackgroundMapGeometry";
 import { BriefcaseConnection } from "./BriefcaseConnection";
+import { CheckpointConnection, RemoteBriefcaseConnection } from "./CheckpointConnection";
 import { EntityState } from "./EntityState";
 import { FrontendLoggerCategory } from "./FrontendLoggerCategory";
 import { GeoServices } from "./GeoServices";
 import { IModelApp } from "./IModelApp";
 import { IModelRoutingContext } from "./IModelRoutingContext";
 import { ModelState } from "./ModelState";
-import { CheckpointConnection, RemoteBriefcaseConnection } from "./CheckpointConnection";
 import { HiliteSet, SelectionSet } from "./SelectionSet";
 import { SubCategoriesCache } from "./SubCategoriesCache";
+import { BingElevationProvider } from "./tile/map/BingElevation";
 import { Tiles } from "./Tiles";
 import { ViewState } from "./ViewState";
 
@@ -61,15 +61,11 @@ export abstract class IModelConnection extends IModel {
   public readonly codeSpecs: IModelConnection.CodeSpecs;
   /** The [[ViewState]]s in this IModelConnection. */
   public readonly views: IModelConnection.Views;
-  /** The set of currently hilited elements for this IModelConnection.
-   * @beta
-   */
+  /** The set of currently hilited elements for this IModelConnection. */
   public readonly hilited: HiliteSet;
   /** The set of currently selected elements for this IModelConnection. */
   public readonly selectionSet: SelectionSet;
-  /** The set of Tiles for this IModelConnection.
-   * @beta
-   */
+  /** The set of Tiles for this IModelConnection. */
   public readonly tiles: Tiles;
   /** A cache of information about SubCategories chiefly used for rendering.
    * @internal
@@ -77,10 +73,6 @@ export abstract class IModelConnection extends IModel {
   public readonly subcategories: SubCategoriesCache;
   /** Generator for unique Ids of transient graphics for this IModelConnection. */
   public readonly transientIds = new TransientIdSequence();
-  /** The map location.
-   * @internal
-   */
-  public backgroundMapLocation = new BackgroundMapLocation();
   /** The Geographic location services available for this iModelConnection
    * @internal
    */
@@ -91,10 +83,12 @@ export abstract class IModelConnection extends IModel {
   public get noGcsDefined(): boolean { return this._gcsDisabled || undefined === this.geographicCoordinateSystem; }
   /** @internal */
   public disableGCS(disable: boolean): void { this._gcsDisabled = disable; }
-  /** @internal The displayed extents. Union of the the project extents and all displayed reality models.
-   * Don't modify this directly - use [[expandDisplayedExtents]].
+  /** The displayed extents of this iModel, initialized to [IModel.projectExtents]($common). The displayed extents can be made larger via
+   * [[expandDisplayedExtents]], but never smaller, to accomodate data sources like reality models that may exceed the project extents.
+   * @note Do not modify these extents directly - use [[expandDisplayedExtents]] only.
    */
   public readonly displayedExtents: AxisAlignedBox3d;
+  private readonly _extentsExpansion = Range3d.createNull();
   /** The maximum time (in milliseconds) to wait before timing out the request to open a connection to a new iModel */
   public static connectionTimeout: number = 10 * 60 * 1000;
 
@@ -230,12 +224,17 @@ export abstract class IModelConnection extends IModel {
     this.subcategories = new SubCategoriesCache(this);
     this.geoServices = new GeoServices(this);
     this.displayedExtents = Range3d.fromJSON(this.projectExtents);
+
+    this.onProjectExtentsChanged.addListener(() => {
+      // Compute new displayed extents as the union of the ranges we previously expanded by with the new project extents.
+      this.expandDisplayedExtents(this._extentsExpansion);
+    });
   }
 
   /** Called prior to connection closing. Raises close events and calls tiles.dispose.
    * @internal
    */
-  protected beforeClose() {
+  protected beforeClose(): void {
     this.onClose.raiseEvent(this); // event for this connection
     IModelConnection.onClose.raiseEvent(this); // event for all connections
     this.tiles.dispose();
@@ -416,6 +415,7 @@ export abstract class IModelConnection extends IModel {
   private _snapRpc = new OneAtATimeAction<SnapResponseProps>(async (props: SnapRequestProps) => IModelReadRpcInterface.getClientForRouting(this.routingContext.token).requestSnap(this.getRpcProps(), IModelApp.sessionId, props));
   /** Request a snap from the backend.
    * @note callers must gracefully handle Promise rejected with AbandonedError
+   * @internal
    */
   public async requestSnap(props: SnapRequestProps): Promise<SnapResponseProps> {
     return this.isOpen ? this._snapRpc.request(props) : { status: 2 };
@@ -429,15 +429,23 @@ export abstract class IModelConnection extends IModel {
     return this.isOpen ? this._toolTipRpc.request(id) : [];
   }
 
-  /** Request element clip containment status from the backend.
-   * @beta
-   */
+  /** Request element clip containment status from the backend. */
   public async getGeometryContainment(requestProps: GeometryContainmentRequestProps): Promise<GeometryContainmentResponseProps> { return IModelReadRpcInterface.getClientForRouting(this.routingContext.token).getGeometryContainment(this.getRpcProps(), requestProps); }
 
+  /** Obtain a summary of the geometry belonging to one or more [GeometricElement]($backend)s suitable for debugging and diagnostics.
+   * @param requestProps Specifies the elements to query and options for how to format the output.
+   * @returns A string containing the summary, typically consisting of multiple lines.
+   * @note Trying to parse the output to programatically inspect an element's geometry is not recommended.
+   * @see [GeometryStreamIterator]($common) to more directly inspect a geometry stream.
+   */
+  public async getGeometrySummary(requestProps: GeometrySummaryRequestProps): Promise<string> {
+    return IModelReadRpcInterface.getClientForRouting(this.routingContext.token).getGeometrySummary(this.getRpcProps(), requestProps);
+  }
+
   /** Request a named texture image from the backend.
-   * @param textureLoadProps The texture load properties which must contain a name property (a valid 64-bit integer identifier)
+   * @param textureLoadProps The texture load properties which must contain a name property (a valid 64-bit integer identifier). It optionally can contain the maximum texture size supported by the client.
    * @see [[Id64]]
-   * @alpha
+   * @public
    */
   public async getTextureImage(textureLoadProps: TextureLoadProps): Promise<Uint8Array | undefined> {
     if (this.isOpen) {
@@ -448,9 +456,7 @@ export abstract class IModelConnection extends IModel {
     return undefined;
   }
 
-  /** Request element mass properties from the backend.
-   * @beta
-   */
+  /** Request element mass properties from the backend. */
   public async getMassProperties(requestProps: MassPropertiesRequestProps): Promise<MassPropertiesResponseProps> { return IModelReadRpcInterface.getClientForRouting(this.routingContext.token).getMassProperties(this.getRpcProps(), requestProps); }
 
   /** Convert a point in this iModel's Spatial coordinates to a [[Cartographic]] using the Geographic location services for this IModelConnection.
@@ -529,27 +535,75 @@ export abstract class IModelConnection extends IModel {
     return (this.noGcsDefined ? this.cartographicToSpatialFromEcef(cartographic, result) : this.cartographicToSpatialFromGcs(cartographic, result));
   }
 
-  /** Expand this iModel's [[displayedExtents]] with the specified range.
-   * @internal
+  /** Expand this iModel's [[displayedExtents]] to include the specified range.
+   * This is done automatically when reality models are added to a spatial view. In some cases a [[TiledGraphicsProvider]] may wish to expand
+   * the extents explicitly to include its geometry.
    */
   public expandDisplayedExtents(range: Range3d): void {
-    this.displayedExtents.extendRange(range);
-    IModelApp.viewManager.forEachViewport((vp) => {
+    this._extentsExpansion.extendRange(range);
+    this.displayedExtents.setFrom(this.projectExtents);
+    this.displayedExtents.extendRange(this._extentsExpansion);
+
+    for (const vp of IModelApp.viewManager) {
       if (vp.view.isSpatialView() && vp.iModel === this)
         vp.invalidateController();
-    });
+    }
   }
 
   /** @internal */
-  public setEcefLocation(ecef: EcefLocationProps): void {
-    super.setEcefLocation(ecef);
+  public getMapEcefToDb(bimElevationBias: number): Transform {
+    if (!this.ecefLocation)
+      return Transform.createIdentity();
 
-    // setEcefLocation is invoked from IModel constructor...
-    if (this.tiles)
-      this.tiles.onEcefChanged();
+    const mapEcefToDb = this.ecefLocation.getTransform().inverse();
+    if (!mapEcefToDb) {
+      assert(false);
+      return Transform.createIdentity();
+    }
+    mapEcefToDb.origin.z += bimElevationBias;
 
-    if (this.backgroundMapLocation && this.ecefLocation)
-      this.backgroundMapLocation.onEcefChanged(this.ecefLocation);
+    return mapEcefToDb;
+  }
+  private _geodeticToSeaLevel?: number | Promise<number>;
+  private _projectCenterAltitude?: number | Promise<number>;
+
+  /** Event called immediately after map elevation request is completed.  This occurs only in the case where background map terrain is displayed
+   * with either geiod or ground offset.   These require a query to BingElevation and therefore synching the view may be required
+   * when the request is completed.
+   * @internal
+   */
+  public readonly onMapElevationLoaded = new BeEvent<(_imodel: IModelConnection) => void>();
+
+  /** The offset between sea level and the geodetic ellipsoid.  This will return undefined only if the request for the offset to Bing Elevation
+   * is required, and in this case the [[onMapElevationLoaded]] event is raised when the request is completed.
+   * @internal
+   */
+  public get geodeticToSeaLevel(): number | undefined {
+    if (undefined === this._geodeticToSeaLevel) {
+      const elevationProvider = new BingElevationProvider();
+      this._geodeticToSeaLevel = elevationProvider.getGeodeticToSeaLevelOffset(this.projectExtents.center, this);
+      this._geodeticToSeaLevel.then((geodeticToSeaLevel) => {
+        this._geodeticToSeaLevel = geodeticToSeaLevel;
+        this.onMapElevationLoaded.raiseEvent(this);
+      }).catch((_error) => this._geodeticToSeaLevel = 0.0);
+    }
+    return ("number" === typeof this._geodeticToSeaLevel) ? this._geodeticToSeaLevel : undefined;
+  }
+
+  /** The altitude (geodetic) at the project center.  This will return undefined only if the request for the offset to Bing Elevation
+   * is required, and in this case the [[onMapElevationLoaded]] event is raised when the request is completed.
+   * @internal
+   */
+  public get projectCenterAltitude(): number | undefined {
+    if (undefined === this._projectCenterAltitude) {
+      const elevationProvider = new BingElevationProvider();
+      this._projectCenterAltitude =  elevationProvider.getHeightValue(this.projectExtents.center, this);
+      this._projectCenterAltitude.then((projectCenterAltitude) => {
+        this._projectCenterAltitude = projectCenterAltitude;
+        this.onMapElevationLoaded.raiseEvent(this);
+      }).catch((_error) => this._projectCenterAltitude = 0.0);
+    }
+    return  ("number" === typeof this._projectCenterAltitude) ? this._projectCenterAltitude : undefined;
   }
 }
 
@@ -558,15 +612,15 @@ export abstract class IModelConnection extends IModel {
  * @public
  */
 export class BlankConnection extends IModelConnection {
-  public isBlankConnection(): this is BlankConnection { return true; }
+  public override isBlankConnection(): this is BlankConnection { return true; }
 
   /** The Guid that identifies the *context* for this BlankConnection.
    * @note This can also be set via the [[create]] method using [[BlankConnectionProps.contextId]].
    */
-  public get contextId(): GuidString | undefined { return this._contextId; }
-  public set contextId(contextId: GuidString | undefined) { this._contextId = contextId; }
+  public override get contextId(): GuidString | undefined { return this._contextId; }
+  public override set contextId(contextId: GuidString | undefined) { this._contextId = contextId; }
   /** A BlankConnection does not have an associated iModel, so its `iModelId` is alway `undefined`. */
-  public get iModelId(): undefined { return undefined; } // GuidString | undefined for the superclass, but always undefined for BlankConnection
+  public override get iModelId(): undefined { return undefined; } // GuidString | undefined for the superclass, but always undefined for BlankConnection
 
   /** A BlankConnection is always considered closed because it does not have a specific backend nor associated iModel.
    * @returns `true` is always returned since RPC operations and iModel queries are not valid.
@@ -595,6 +649,11 @@ export class BlankConnection extends IModelConnection {
   public async close(): Promise<void> {
     this.beforeClose();
   }
+
+  /** @internal */
+  public closeSync(): void {
+    this.beforeClose();
+  }
 }
 
 /** A connection to a [SnapshotDb]($backend) hosted on a backend.
@@ -602,10 +661,10 @@ export class BlankConnection extends IModelConnection {
  */
 export class SnapshotConnection extends IModelConnection {
   /** Type guard for instanceof [[SnapshotConnection]] */
-  public isSnapshotConnection(): this is SnapshotConnection { return true; }
+  public override isSnapshotConnection(): this is SnapshotConnection { return true; }
 
   /** The Guid that identifies this iModel. */
-  public get iModelId(): GuidString { return super.iModelId!; } // GuidString | undefined for the superclass, but required for SnapshotConnection
+  public override get iModelId(): GuidString { return super.iModelId!; } // GuidString | undefined for the superclass, but required for SnapshotConnection
 
   /** Returns `true` if [[close]] has already been called. */
   public get isClosed(): boolean { return this._isClosed ? true : false; }
@@ -682,9 +741,22 @@ export namespace IModelConnection { // eslint-disable-line no-redeclare
   }
 
   /** The collection of loaded ModelState objects for an [[IModelConnection]]. */
-  export class Models {
-    /** The set of loaded models for this IModelConnection, indexed by Id. */
-    public loaded = new Map<string, ModelState>();
+  export class Models implements Iterable<ModelState> {
+    private _loaded = new Map<string, ModelState>();
+
+    /** The set of loaded models for this IModelConnection, indexed by Id.
+     * @deprecated Use `for..of` to iterate and getLoaded() to look up by Id.
+     */
+    public get loaded(): Map<string, ModelState> { return this._loaded; }
+    public set loaded(loaded: Map<string, ModelState>) {
+      this._loaded = loaded;
+      assert(false, "there is no reason to replace the map of loaded models");
+    }
+
+    /** An iterator over all currently-loaded models. */
+    public [Symbol.iterator](): Iterator<ModelState> {
+      return this._loaded.values()[Symbol.iterator]();
+    }
 
     /** @internal */
     constructor(private _iModel: IModelConnection) { }
@@ -707,7 +779,9 @@ export namespace IModelConnection { // eslint-disable-line no-redeclare
     }
 
     /** Find a ModelState in the set of loaded Models by ModelId. */
-    public getLoaded(id: string): ModelState | undefined { return this.loaded.get(id); }
+    public getLoaded(id: string): ModelState | undefined {
+      return this._loaded.get(id);
+    }
 
     /** Given a set of modelIds, return the subset of corresponding models that are not currently loaded.
      * @param modelIds The set of model Ids
@@ -715,14 +789,14 @@ export namespace IModelConnection { // eslint-disable-line no-redeclare
      */
     public filterLoaded(modelIds: Id64Arg): Id64Set | undefined {
       let unloaded: Set<string> | undefined;
-      Id64.forEach(modelIds, (id) => {
+      for (const id of Id64.iterable(modelIds)) {
         if (undefined === this.getLoaded(id)) {
           if (undefined === unloaded)
             unloaded = new Set<string>();
 
           unloaded.add(id);
         }
-      });
+      }
 
       return unloaded;
     }
@@ -739,12 +813,19 @@ export namespace IModelConnection { // eslint-disable-line no-redeclare
           const ctor = await this._iModel.findClassFor(props.classFullName, ModelState);
           if (undefined === this.getLoaded(props.id!)) { // do not overwrite if someone else loads it while we await
             const modelState = new ctor!(props, this._iModel); // create a new instance of the appropriate ModelState subclass
-            this.loaded.set(modelState.id, modelState); // save it in loaded set
+            this._loaded.set(modelState.id, modelState); // save it in loaded set
           }
         }
       } catch (err) {
         // ignore error, we had nothing to do.
       }
+    }
+
+    /** Remove a model from the set of loaded models. Used internally by BriefcaseConnection in response to txn events.
+     * @internal
+     */
+    public unload(modelId: Id64String): void {
+      this._loaded.delete(modelId);
     }
 
     /** Query for a set of model ranges by ModelIds. */
@@ -800,6 +881,22 @@ export namespace IModelConnection { // eslint-disable-line no-redeclare
     public async getProps(arg: Id64Arg): Promise<ElementProps[]> {
       const iModel = this._iModel;
       return iModel.isOpen ? IModelReadRpcInterface.getClientForRouting(iModel.routingContext.token).getElementProps(this._iModel.getRpcProps(), [...Id64.toIdSet(arg)]) : [];
+    }
+
+    /** Obtain the properties of a single element, optionally specifying specific properties to include or exclude.
+     * For example, [[getProps]] and [[queryProps]] omit the [GeometryStreamProps]($common) property of [GeometricElementProps]($common) and [GeometryPartProps]($common)
+     * because it can be quite large and is generally not useful to frontend code. The following code requests that the geometry stream be included:
+     * ```ts
+     *  const props = await iModel.elements.loadProps(elementId, { wantGeometry: true });
+     * ```
+     * @param identifier Identifies the element by its Id, federation Guid, or [Code]($common).
+     * @param options Optionally includes or excludes specific properties.
+     * @returns The properties of the requested element; or `undefined` if no element exists with the specified identifier or the iModel is not open.
+     * @throws [IModelError]($common) if the element exists but could not be loaded.
+     */
+    public async loadProps(identifier: Id64String | GuidString | CodeProps, options?: ElementLoadOptions): Promise<ElementProps | undefined> {
+      const imodel = this._iModel;
+      return imodel.isOpen ? IModelReadRpcInterface.getClientForRouting(imodel.routingContext.token).loadElementProps(imodel.getRpcProps(), identifier, options) : undefined;
     }
 
     /** Get an array  of [[ElementProps]] that satisfy a query
@@ -918,6 +1015,9 @@ export namespace IModelConnection { // eslint-disable-line no-redeclare
 
     /** Load a [[ViewState]] object from the specified [[ViewDefinition]] id. */
     public async load(viewDefinitionId: Id64String): Promise<ViewState> {
+      if (!Id64.isValidId64(viewDefinitionId))
+        throw new IModelError(IModelStatus.InvalidId, "Invalid view definition Id for IModelConnection.Views.load", Logger.logError, loggerCategory, () => { return { viewDefinitionId }; });
+
       const options: ViewStateLoadProps = {
         displayStyle: {
           omitScheduleScriptElementIds: true,
@@ -931,8 +1031,6 @@ export namespace IModelConnection { // eslint-disable-line no-redeclare
 
       if (undefined === ctor)
         throw new IModelError(IModelStatus.WrongClass, "Invalid ViewState class", Logger.logError, loggerCategory, () => viewProps);
-
-      await this._iModel.backgroundMapLocation.initialize(this._iModel);
 
       const viewState = ctor.createFromProps(viewProps, this._iModel)!;
       await viewState.load(); // loads models for ModelSelector

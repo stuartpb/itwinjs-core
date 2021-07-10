@@ -3,64 +3,38 @@ publish: false
 ---
 # NextVersion
 
-## Txn monitoring
+## Decoration graphics enhancements
 
-[TxnManager]($backend) now has additional events for monitoring changes to the iModel resulting from [Txns]($docs/learning/InteractiveEditing.md), including:
-  * [TxnManager.onModelsChanged]($backend) for changes to the properties of [Model]($backend)s and
-  * [TxnManager.onModelGeometryChanged]($backend) for changes to the geometry contained within [GeometricModel]($backend)s.
+### Visible edges
 
-[BriefcaseConnection.txns]($frontend) now exposes the same events provided by `TxnManager`, but on the frontend, via [BriefcaseTxns]($frontend).
+Graphics produced by a [GraphicBuilder]($frontend) can now produce edges for surfaces. By default, edges are only produced for graphics of type [GraphicType.Scene]($frontend), and only if the [Viewport]($frontend)'s [ViewFlags]($common) specify that edges should be displayed. To generate edges for other types of graphics, or to prevent them from being generated, override [GraphicBuilderOptions.generateEdges]($frontend) or [GraphicBuilder.wantEdges]($frontend) when creating the graphic. Note that surfaces will z-fight with their edges to a degree unless the graphic is also pickable - see [GraphicBuilderOptions.pickable]($frontend).
 
-## New settings UI features
+### Solid primitives in decorations
 
-### Add Settings Page to set Quantity Formatting Overrides
+Decoration graphics can now be produced from [SolidPrimitive]($geometry-core)s - e.g., spheres, cones, slabs, swept surfaces, and so on - using [GraphicBuilder.addSolidPrimitive]($frontend).
 
-The [QuantityFormatSettingsPanel]($ui-framework) component has been added to the @bentley/ui-framework package to provide the UI to set both the [PresentationUnitSystem]($presentation-common) and formatting overrides in the [QuantityFormatter]($frontend). This panel can be used in the new [SettingsContainer]($ui-core) UI component. The function `getQuantityFormatsSettingsManagerEntry` will return a [SettingsTabEntry]($ui-core) for use by the [SettingsManager]($ui-core). Below is an example of registering the `QuantityFormatSettingsPanel` with the `SettingsManager`.
+## Presentation changes
+
+Added [RelatedPropertiesSpecificationNew.skipIfDuplicate]($presentation-common) attribute to allow specification to be overriden by specifications from higher priority content modifiers. Set this attribute to all related properties' specifications in the default BisCore ruleset.
+
+## Dictionary enhancements
+
+[Dictionary.keys]($bentleyjs-core) and [Dictionary.values]($bentleyjs-core) enable iteration of the dictionary's keys and values in the same manner as a standard Map.
+
+[Dictionary.findOrInsert]($bentleyjs-core) returns the existing value associated with a key, or - if none yet exists - inserts a new value with that key. It also returns a flag indicating whether or not a new value was inserted. This allows the following code that requires two lookups of the key:
 
 ```ts
-// Sample settings provider that dynamically adds settings into the setting stage
-export class AppSettingsProvider implements SettingsProvider {
-  public readonly id = "AppSettingsProvider";
+let value = dictionary.get(key);
+let inserted = undefined !== value;
+if (undefined === value)
+  inserted = dictionary.insert(key, value = newValue);
 
-  public getSettingEntries(_stageId: string, _stageUsage: string): ReadonlyArray<SettingsTabEntry> | undefined {
-    return [
-      getQuantityFormatsSettingsManagerEntry(10, {availableUnitSystems:new Set(["metric","imperial","usSurvey"])}),
-    ];
-  }
-
-  public static initializeAppSettingProvider() {
-    UiFramework.settingsManager.addSettingsProvider(new AppSettingsProvider());
-  }
-}
-
+alert(`${value} was ${inserted ? "inserted" : "already present"}`);
 ```
 
-The `QuantityFormatSettingsPanel` is marked as alpha in this release and is subject to minor modifications in future releases.
+To be replaced with a more efficient version that requires only one lookup:
 
-## @bentley/imodeljs-quantity package
-
-The alpha classes, interfaces, and definitions in the package `@bentley/imodeljs-quantity` have been updated to beta.
-
-## Incremental Precompilation of Shaders Enabled by Default
-
-To help prevent delays when a user interacts with a [Viewport]($frontend), the WebGL render system now by default precompiles shader programs used by the [RenderSystem]($frontend) before any Viewport is opened.
-
-Shader precompilation will cease once all shader programs have been compiled, or when a [Viewport]($frontend) is opened (registered with the [ViewManager]($frontend)).  As such, applications which do not open a [Viewport]($frontend) immediately upon startup stand to benefit - for example, if the user is first expected to select an iModel and/or a view through the user interface.
-
-To disable this functionality, set the `doIdleWork` property of the `RenderSystem.Options` object passed to `IModelApp.startup` to false.
-
-## Added NativeHost.settingsStore for storing user-level settings for native applications
-
-The @beta class `NativeHost` now has a member [NativeHost.settingsStore]($backend) that may be used by native applications to store user-level data in a file in the [[NativeHost.appSettingsCacheDir]($backend) directory. It uses the [NativeAppStorage]($backend) api to store and load key/value pairs. Note that these settings are stored in a local file that may be deleted by the user, so it should only be used for a local cache of values that may be restored elsewhere.
-
-## NativeApp is now @beta
-
-The class [NativeApp]($frontend) has been promoted from @alpha to @beta. `NativeApp` is relevant for both Electron and mobile applications. Please provide feedback if you have issues or concerns on its use.
-
-## Breaking Api Changes
-
-### @bentley/imodeljs-quantity package
-
-#### UnitProps property name change
-
-The interface [UnitProps]($quantity) property `unitFamily` has been renamed to `phenomenon` to be consistent with naming in `ecschema-metadata` package.
+```ts
+const result = dictionary.findOrInsert(key, value);
+alert(`${result.value} was ${result.inserted ? "inserted" : "already present"}`);
+```

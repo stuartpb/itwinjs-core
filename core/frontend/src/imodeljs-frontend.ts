@@ -19,12 +19,15 @@ export * from "./DrawingViewState";
 export * from "./EditingFunctions";
 export * from "./ElementLocateManager";
 export * from "./EmphasizeElements";
+export * from "./EmphasizeElementsProps";
 export * from "./EntityState";
 export * from "./FeatureLogBatchClient";
 export * from "./FeatureOverrideProvider";
 export * from "./FeatureTrackingManager";
+export * from "./FlashSettings";
 export * from "./FrontendLoggerCategory";
 export * from "./FrontendRequestContext";
+export * from "./FrontendHubAccess";
 export * from "./Frustum2d";
 export * from "./FrustumAnimator";
 export * from "./FuzzySearch";
@@ -35,7 +38,7 @@ export * from "./ImageUtil";
 export * from "./IModelApp";
 export * from "./IModelConnection";
 export * from "./IModelRoutingContext";
-export * from "./InteractiveEditingSession";
+export * from "./GraphicalEditingScope";
 export * from "./IpcApp";
 export * from "./LinePlaneIntersect";
 export * from "./MarginPercent";
@@ -55,7 +58,6 @@ export * from "./RenderScheduleState";
 export * from "./CheckpointConnection";
 export * from "./SelectionSet";
 export * from "./SheetViewState";
-export * from "./SpatialClassifiers";
 export * from "./SpatialViewState";
 export * from "./Sprites";
 export * from "./StandardView";
@@ -85,8 +87,10 @@ export * from "./properties/LengthDescription";
 export * from "./render/CanvasDecoration";
 export * from "./render/Decorations";
 export * from "./render/FeatureSymbology";
+export * from "./render/FrameStats";
 export * from "./render/GraphicBranch";
 export * from "./render/GraphicBuilder";
+export * from "./render/GraphicPrimitive";
 export * from "./render/InstancedGraphicParams";
 export * from "./render/MockRender";
 export * from "./render/ParticleCollectionBuilder";
@@ -100,6 +104,7 @@ export * from "./render/RenderTarget";
 export * from "./render/RenderSystem";
 export * from "./render/Scene";
 export * from "./render/ScreenSpaceEffectBuilder";
+export * from "./render/VisibleFeature";
 export * from "./render/webgl/PerformanceMetrics";
 export * from "./render/webgl/Target";
 export * from "./render/webgl/IModelFrameLifecycle";
@@ -149,6 +154,10 @@ export * from "./LocalhostIpcApp";
 /**
  * @docs-group-description Tools
  * Classes for [working with Tools]($docs/learning/frontend/Tools.md)
+ */
+/**
+ * @docs-group-description Measure
+ * Classes for reporting point to point distances and mass properties of elements.
  */
 /**
  * @docs-group-description Views
@@ -229,4 +238,8 @@ export * from "./LocalhostIpcApp";
 /**
  * @docs-group-description MapLayerFormatRegistry
  * Class for working with supported map layer formats.
+ */
+/**
+ * @docs-group-description HubAccess
+ * APIs for working with IModelHub
  */

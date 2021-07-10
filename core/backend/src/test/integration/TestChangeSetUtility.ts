@@ -2,6 +2,7 @@
 * Copyright (c) Bentley Systems, Incorporated. All rights reserved.
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
+
 import { GuidString } from "@bentley/bentleyjs-core";
 import { ColorDef, IModel, SubCategoryAppearance } from "@bentley/imodeljs-common";
 import { AuthorizedClientRequestContext } from "@bentley/itwin-client";
@@ -55,27 +56,18 @@ export class TestChangeSetUtility {
   }
 
   public async createTestIModel(): Promise<BriefcaseDb> {
-    this._requestContext.enter();
-
     this.projectId = await HubUtility.getTestContextId(this._requestContext);
-    this._requestContext.enter();
 
     // Re-create iModel on iModelHub
     this.iModelId = await HubUtility.recreateIModel(this._requestContext, this.projectId, this._iModelName);
-    this._requestContext.enter();
 
     // Populate sample data
     await this.addTestModel();
-    this._requestContext.enter();
     await this.addTestCategory();
-    this._requestContext.enter();
     await this.addTestElements();
-    this._requestContext.enter();
 
     // Push changes to the hub
     await this._iModel.pushChanges(this._requestContext, "Setup test model");
-    this._requestContext.enter();
-
     return this._iModel;
   }
 
@@ -90,6 +82,6 @@ export class TestChangeSetUtility {
     if (!this._iModel)
       throw new Error("Must first call createTestIModel");
     await IModelTestUtils.closeAndDeleteBriefcaseDb(this._requestContext, this._iModel);
-    await IModelHost.iModelClient.iModels.delete(this._requestContext, this.projectId, this.iModelId);
+    await IModelHost.hubAccess.deleteIModel({ requestContext: this._requestContext, contextId: this.projectId, iModelId: this.iModelId });
   }
 }

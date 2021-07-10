@@ -57,12 +57,17 @@ export enum IModelHubEventType {
    * @internal
    */
   CheckpointCreatedEvent = "CheckpointCreatedEvent",
+  /**
+   * Sent when a new [[CheckpointV2]] is generated. See [[CheckpointV2CreatedEvent]].
+   * @internal
+   */
+  CheckpointV2CreatedEvent = "CheckpointV2CreatedEvent",
 }
 
 /* eslint-enable @typescript-eslint/no-shadow */
 
 /** @internal @deprecated Use [[IModelHubEventType]] instead */
-export type EventType = "LockEvent" | "AllLocksDeletedEvent" | "ChangeSetPostPushEvent" | "ChangeSetPrePushEvent" | "CodeEvent" | "AllCodesDeletedEvent" | "BriefcaseDeletedEvent" | "iModelDeletedEvent" | "VersionEvent" | "CheckpointCreatedEvent";
+export type EventType = "LockEvent" | "AllLocksDeletedEvent" | "ChangeSetPostPushEvent" | "ChangeSetPrePushEvent" | "CodeEvent" | "AllCodesDeletedEvent" | "BriefcaseDeletedEvent" | "iModelDeletedEvent" | "VersionEvent" | "CheckpointCreatedEvent" | "CheckpointV2CreatedEvent";
 
 /** Base type for all iModelHub events.
  * @public
@@ -75,7 +80,7 @@ export abstract class IModelHubEvent extends IModelHubBaseEvent {
    * @param obj Object instance.
    * @internal
    */
-  public fromJson(obj: any) {
+  public override fromJson(obj: any) {
     super.fromJson(obj);
     this.iModelId = this.eventTopic;
   }
@@ -92,7 +97,7 @@ export abstract class BriefcaseEvent extends IModelHubEvent {
    * @param obj Object instance.
    * @internal
    */
-  public fromJson(obj: any) {
+  public override fromJson(obj: any) {
     super.fromJson(obj);
     this.briefcaseId = obj.BriefcaseId;
   }
@@ -115,7 +120,7 @@ export class LockEvent extends BriefcaseEvent {
    * @param obj Object instance.
    * @internal
    */
-  public fromJson(obj: any) {
+  public override fromJson(obj: any) {
     super.fromJson(obj);
     this.lockType = LockType[obj.LockType as keyof typeof LockType];
     this.lockLevel = LockLevel[obj.LockLevel as keyof typeof LockLevel];
@@ -143,7 +148,7 @@ export class ChangeSetPostPushEvent extends BriefcaseEvent {
    * @param obj Object instance.
    * @internal
    */
-  public fromJson(obj: any) {
+  public override fromJson(obj: any) {
     super.fromJson(obj);
     this.changeSetId = obj.ChangeSetId;
     this.changeSetIndex = obj.ChangeSetIndex;
@@ -173,7 +178,7 @@ export class CodeEvent extends BriefcaseEvent {
    * @param obj Object instance.
    * @internal
    */
-  public fromJson(obj: any) {
+  public override fromJson(obj: any) {
     super.fromJson(obj);
     this.codeSpecId = Id64.fromJSON(obj.CodeSpecId);
     this.codeScope = obj.CodeScope;
@@ -215,7 +220,7 @@ export class VersionEvent extends IModelHubEvent {
    * @param obj Object instance.
    * @internal
    */
-  public fromJson(obj: any) {
+  public override fromJson(obj: any) {
     super.fromJson(obj);
     this.versionId = obj.VersionId;
     this.versionName = obj.VersionName;
@@ -238,7 +243,30 @@ export class CheckpointCreatedEvent extends IModelHubEvent {
    * @param obj Object instance.
    * @internal
    */
-  public fromJson(obj: any) {
+  public override fromJson(obj: any) {
+    super.fromJson(obj);
+    this.changeSetIndex = obj.ChangeSetIndex;
+    this.changeSetId = obj.ChangeSetId;
+    this.versionId = obj.VersionId;
+  }
+}
+
+/** Sent when a new [[CheckpointV2]] is generated. [[CheckpointV2]] might be created for every [[ChangeSet]].
+ * @internal
+ */
+export class CheckpointV2CreatedEvent extends IModelHubEvent {
+  /** Index of the [[ChangeSet]] this [[CheckpointV2]] was created for.  */
+  public changeSetIndex: string;
+  /** Id of the [[ChangeSet]] this [[CheckpointV2]] was created for.  */
+  public changeSetId: string;
+  /** Id of the [[Version]] this [[CheckpointV2]] was created for. */
+  public versionId?: GuidString;
+
+  /** Construct this event from object instance.
+   * @param obj Object instance.
+   * @internal
+   */
+  public override fromJson(obj: any) {
     super.fromJson(obj);
     this.changeSetIndex = obj.ChangeSetIndex;
     this.changeSetId = obj.ChangeSetId;
@@ -276,6 +304,8 @@ export function constructorFromEventType(type: IModelHubEventType): EventConstru
       return VersionEvent;
     case IModelHubEventType.CheckpointCreatedEvent:
       return CheckpointCreatedEvent;
+    case IModelHubEventType.CheckpointV2CreatedEvent:
+      return CheckpointV2CreatedEvent;
   }
 }
 

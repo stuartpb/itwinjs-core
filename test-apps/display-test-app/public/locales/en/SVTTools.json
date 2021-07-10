@@ -73,6 +73,9 @@
     "ToggleShadowMapTiles": {
       "keyin": "dta shadow tiles"
     },
+    "FrameStats": {
+      "keyin": "dta framestats"
+    },
     "PurgeTileTrees": {
       "keyin": "dta purge tiletrees"
     },
@@ -117,6 +120,9 @@
     },
     "PlaceLineString": {
       "keyin": "dta place line string"
+    },
+    "SyncViewports": {
+      "keyin": "dta viewport sync"
     }
   }
 }

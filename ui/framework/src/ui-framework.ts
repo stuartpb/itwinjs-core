@@ -3,7 +3,7 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 
-// cSpell:ignore safearea cursormenu clientservices oidc Textbox Modeless configurableui stagepanels dragdrop uiadmin itemsarbiter
+// cSpell:ignore safearea cursormenu clientservices oidc Textbox Modeless configurableui stagepanels dragdrop uiadmin itemsarbiter Popout
 
 export * from "./ui-framework/UiFramework";  // Please ensure that this line comes before all other exports.
 
@@ -84,7 +84,10 @@ export * from "./ui-framework/frontstage/ModalSettingsStage";
 export * from "./ui-framework/hooks/useActiveIModelConnection";
 export * from "./ui-framework/hooks/useActiveViewport";
 export * from "./ui-framework/hooks/useAvailableUiItemsProviders";
+export * from "./ui-framework/hooks/useAnalysisAnimationDataProvider";
 export * from "./ui-framework/hooks/useFrameworkVersion";
+export * from "./ui-framework/hooks/useScheduleAnimationDataProvider";
+export * from "./ui-framework/hooks/useSolarDataProvider";
 
 export * from "./ui-framework/imodel-components/spatial-tree/SpatialContainmentTree";
 export * from "./ui-framework/imodel-components/category-tree/CategoriesTree";
@@ -124,6 +127,8 @@ export * from "./ui-framework/pickers/ListPicker";
 export * from "./ui-framework/pickers/ModelSelector/ModelSelector";
 export * from "./ui-framework/pickers/ViewSelector";
 
+export * from "./ui-framework/childwindow/ChildWindowManager";
+
 export * from "./ui-framework/popup/KeyinPalettePanel";
 export * from "./ui-framework/popup/KeyinPalettePopup";
 export * from "./ui-framework/popup/HTMLElementPopup";
@@ -145,6 +150,7 @@ export * from "./ui-framework/selection/SelectionContextItemDef";
 export * from "./ui-framework/selection/HideIsolateEmphasizeManager";
 export * from "./ui-framework/selection/ClearEmphasisStatusField";
 
+export * from "./ui-framework/settings/ui/UiSettingsPage";
 export * from "./ui-framework/settings/quantityformatting/QuantityFormat";
 
 export * from "./ui-framework/shared/ActionButtonItemDef";
@@ -224,7 +230,8 @@ export * from "./ui-framework/uiadmin/FrameworkUiAdmin";
 
 export * from "./ui-framework/uiprovider/DefaultDialogGridContainer";
 
-export * from "./ui-framework/uisettings/IModelAppUiSettings";
+export * from "./ui-framework/uisettings/AppUiSettings";
+export * from "./ui-framework/uisettings/UserSettingsStorage";
 export * from "./ui-framework/uisettings/useUiSettings";
 
 export * from "./ui-framework/utils/ViewUtilities";
@@ -340,6 +347,15 @@ export * from "./ui-framework/zones/ZoneDef";
  * @docs-group-description OIDC
  * Classes for working with the OpenID Connect (OIDC) protocol
  */
+
+/**
+ * @docs-group-description ChildWindow
+ * Classes for working with child windows.
+ */
+/**
+ * @docs-group-description ChildWindowManager
+ * Classes for working with child windows.
+ */
 /**
  * @docs-group-description Picker
  * Classes for working with various pickers
@@ -374,7 +390,7 @@ export * from "./ui-framework/zones/ZoneDef";
  */
 /**
  * @docs-group-description ToolSettings
- * Classes for working Tool Settings
+ * Classes for working Tool Settings.  See learning documentation [Tool Settings]($docs/learning/ui/framework/toolsettings.md).
  */
 /**
  * @docs-group-description UiProvider
@@ -396,3 +412,8 @@ export * from "./ui-framework/zones/ZoneDef";
  * @docs-group-description Zone
  * Classes for working with a Zone
  */
+/**
+ * @docs-group-description Timeline
+ * Classes for working with a TimelineComponent
+ */
+

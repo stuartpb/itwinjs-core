@@ -5,12 +5,12 @@
 import * as React from "react";
 import { IModelApp, IModelConnection, ViewState } from "@bentley/imodeljs-frontend";
 import { NodeKey } from "@bentley/presentation-common";
-import { CommonToolbarItem, ConditionalBooleanValue, StageUsage, ToolbarItemUtilities } from "@bentley/ui-abstract";
+import { CommonToolbarItem, ConditionalBooleanValue, IconSpecUtilities, StageUsage, ToolbarItemUtilities, WidgetState } from "@bentley/ui-abstract";
 import { SelectionMode } from "@bentley/ui-components";
 import {
   AccuDrawDialog, AccuDrawWidgetControl, BasicNavigationWidget, BasicToolWidget, CommandItemDef, ContentGroup, ContentLayoutDef, ContentLayoutProps, ContentProps,
   CoreTools, CustomItemDef, Frontstage, FrontstageProvider, IModelConnectedViewSelector, ModelessDialogManager, ModelsTreeNodeType,
-  StagePanel, ToolbarHelper, VisibilityComponentHierarchy, VisibilityWidget, Widget, WidgetState, Zone, ZoneLocation, ZoneState,
+  StagePanel, ToolbarHelper, VisibilityComponentHierarchy, VisibilityWidget, Widget, Zone, ZoneLocation, ZoneState,
 } from "@bentley/ui-framework";
 import { SampleAppIModelApp, SampleAppUiActionId } from "../../../../frontend/index";
 import { EditTools } from "../../../tools/editing/ToolSpecifications";
@@ -23,7 +23,9 @@ import { ModelCreationWidget } from "../../widgets/editing/ModelCreationWidget";
 import { VisibilityTreeWidgetControl } from "../../widgets/VisibilityTreeWidget";
 import { Orientation } from "@bentley/ui-core";
 
-/* eslint-disable react/jsx-key */
+/* eslint-disable react/jsx-key, deprecation/deprecation */
+
+import sketchIconSvg from "../../icons/draw.svg?sprite";
 
 export class EditFrontstage extends FrontstageProvider {
   public static stageId = "EditFrontstage";
@@ -185,11 +187,16 @@ export class EditFrontstage extends FrontstageProvider {
 /** Define a ToolWidget with Buttons to display in the TopLeft zone.
  */
 class AdditionalTools {
+  public sketchGroupItems = ToolbarHelper.constructChildToolbarItems([
+    EditTools.placeLineStringTool, EditTools.placeArcTool]);
 
-  public additionalHorizontalToolbarItems: CommonToolbarItem[] =
-  ToolbarHelper.createToolbarItemsFromItemDefs([CoreTools.keyinPaletteButtonItemDef, EditTools.deleteElementTool,
-    EditTools.moveElementTool, EditTools.rotateElementTool,
-    EditTools.placeLineStringTool, EditTools.placeBlockTool], 100);
+  public sketchGroupButtonItem = ToolbarItemUtilities.createGroupButton("SampleApp:buttons.sketch", 135, IconSpecUtilities.createSvgIconSpec(sketchIconSvg),
+    IModelApp.i18n.translate("SampleApp:buttons.sketch"), this.sketchGroupItems);
+
+  public additionalHorizontalToolbarItems: CommonToolbarItem[] = [...ToolbarHelper.createToolbarItemsFromItemDefs([
+    CoreTools.keyinPaletteButtonItemDef, EditTools.deleteElementTool,
+    EditTools.moveElementTool, EditTools.rotateElementTool, EditTools.placeBlockTool], 100),
+  this.sketchGroupButtonItem];
 
   private get _accudrawDialogItemVertical() {
     const dialogId = "accudraw-vertical";

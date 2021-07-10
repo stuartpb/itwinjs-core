@@ -128,6 +128,7 @@ export * from "./ui-components/properties/renderers/value/table/StructValueRende
 export * from "./ui-components/properties/renderers/value/table/NonPrimitiveValueRenderer";
 export * from "./ui-components/properties/ItemStyle";
 
+export * from "./ui-components/propertygrid/PropertyCategoryRendererManager";
 export * from "./ui-components/propertygrid/PropertyDataProvider";
 export * from "./ui-components/propertygrid/SimplePropertyDataProvider";
 export * from "./ui-components/propertygrid/component/PropertyGrid";
@@ -182,6 +183,7 @@ export * from "./ui-components/favorite/FavoritePropertyList";
 
 export * from "./ui-components/inputs/QuantityInput";
 export * from "./ui-components/inputs/ParsedInput";
+export * from "./ui-components/inputs/QuantityNumberInput";
 
 export * from "./ui-components/tree/TreeDataProvider";
 export * from "./ui-components/tree/SimpleTreeDataProvider";

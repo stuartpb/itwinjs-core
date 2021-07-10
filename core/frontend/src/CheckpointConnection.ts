@@ -12,8 +12,10 @@ import {
   RpcManager, RpcNotFoundResponse, RpcOperation, RpcRequest, RpcRequestEvent, WipRpcInterface,
 } from "@bentley/imodeljs-common";
 import { IModelApp } from "./IModelApp";
+import { FrontendLoggerCategory } from "./FrontendLoggerCategory";
+import { IModelRoutingContext } from "./IModelRoutingContext";
 import { IModelConnection } from "./IModelConnection";
-import { AuthorizedFrontendRequestContext, FrontendLoggerCategory, IModelRoutingContext } from "./imodeljs-frontend";
+import { AuthorizedFrontendRequestContext } from "./FrontendRequestContext";
 
 const loggerCategory: string = FrontendLoggerCategory.IModelConnection;
 
@@ -26,16 +28,16 @@ const loggerCategory: string = FrontendLoggerCategory.IModelConnection;
  */
 export class CheckpointConnection extends IModelConnection {
   /** The Guid that identifies the *context* that owns this iModel. */
-  public get contextId(): GuidString { return super.contextId!; } // GuidString | undefined for the superclass, but required for BriefcaseConnection
+  public override get contextId(): GuidString { return super.contextId!; } // GuidString | undefined for the superclass, but required for BriefcaseConnection
   /** The Guid that identifies this iModel. */
-  public get iModelId(): GuidString { return super.iModelId!; } // GuidString | undefined for the superclass, but required for BriefcaseConnection
+  public override get iModelId(): GuidString { return super.iModelId!; } // GuidString | undefined for the superclass, but required for BriefcaseConnection
 
   /** Returns `true` if [[close]] has already been called. */
   public get isClosed(): boolean { return this._isClosed ? true : false; }
   protected _isClosed?: boolean;
 
   /** Type guard for instanceof [[CheckpointConnection]] */
-  public isCheckpointConnection(): this is CheckpointConnection { return true; }
+  public override isCheckpointConnection(): this is CheckpointConnection { return true; }
 
   /**
    * Open a readonly IModelConnection to an iModel over RPC.
@@ -55,7 +57,7 @@ export class CheckpointConnection extends IModelConnection {
     const requestContext = await AuthorizedFrontendRequestContext.create();
     requestContext.enter();
 
-    const changeSetId: string = await version.evaluateChangeSet(requestContext, iModelId, IModelApp.iModelClient);
+    const changeSetId = await IModelApp.hubAccess.getChangesetIdFromVersion({ requestContext, iModelId, version });
     requestContext.enter();
 
     const iModelRpcProps: IModelRpcOpenProps = { contextId, iModelId, changeSetId, openMode };
@@ -199,7 +201,7 @@ export class CheckpointConnection extends IModelConnection {
  * @deprecated use BriefcaseConnection with an IpcApp
  */
 export class RemoteBriefcaseConnection extends CheckpointConnection {
-  public static async open(contextId: string, iModelId: string, openMode: OpenMode = OpenMode.Readonly, version: IModelVersion = IModelVersion.latest()): Promise<RemoteBriefcaseConnection> {
+  public static override async open(contextId: string, iModelId: string, openMode: OpenMode = OpenMode.Readonly, version: IModelVersion = IModelVersion.latest()): Promise<RemoteBriefcaseConnection> {
     return (await super.open(contextId, iModelId, openMode, version)) as RemoteBriefcaseConnection;
   }
 
