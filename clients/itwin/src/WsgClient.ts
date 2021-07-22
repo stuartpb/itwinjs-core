@@ -397,7 +397,7 @@ export abstract class WsgClient extends Client {
    * @param usePost translate the get into a post, useful if the query string ends up too long
    * @returns Array of strongly typed instances.
    */
-  protected async getInstances<T extends WsgInstance>(requestContext: AuthorizedClientRequestContext, typedConstructor: new () => T, relativeUrlPath: string, queryOptions?: RequestQueryOptions, httpRequestOptions?: HttpRequestOptions, usePost = false): Promise<T[]> {
+  protected async getInstances<T extends WsgInstance>(requestContext: AuthorizedClientRequestContext, typedConstructor: new () => T, relativeUrlPath: string, queryOptions?: RequestQueryOptions, httpRequestOptions?: HttpRequestOptions, usePost = true): Promise<T[]> {
     requestContext.enter();
     const url: string = await this.getUrl(requestContext) + relativeUrlPath;
     requestContext.enter();
