@@ -251,7 +251,7 @@ export class IModelBaseHandler extends WsgClient {
    * @param httpRequestOptions Additional options for the HTTP request.
    * @returns Array of strongly typed instances.
    */
-  public override async getInstances<T extends WsgInstance>(requestContext: AuthorizedClientRequestContext, typedConstructor: new () => T, relativeUrlPath: string, queryOptions?: RequestQueryOptions, httpRequestOptions?: HttpRequestOptions, usePost = false): Promise<T[]> {
+  public override async getInstances<T extends WsgInstance>(requestContext: AuthorizedClientRequestContext, typedConstructor: new () => T, relativeUrlPath: string, queryOptions?: RequestQueryOptions, httpRequestOptions?: HttpRequestOptions, usePost = true): Promise<T[]> {
     return super.getInstances(requestContext, typedConstructor, relativeUrlPath, queryOptions, this.setupHttpOptions(httpRequestOptions), usePost);
   }
 

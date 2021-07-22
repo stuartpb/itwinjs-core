@@ -426,26 +426,32 @@ export abstract class WsgClient extends Client {
    * @param usePost translate the get into a post, useful if the query string ends up too long
    * @returns Array of strongly typed instances.
    */
-  protected async getInstancesChunk<T extends WsgInstance>(requestContext: AuthorizedClientRequestContext, url: string, chunkedQueryContext: ChunkedQueryContext | undefined, typedConstructor: new () => T, queryOptions?: RequestQueryOptions, httpRequestOptions?: HttpRequestOptions, usePost = false): Promise<T[]> {
+  protected async getInstancesChunk<T extends WsgInstance>(requestContext: AuthorizedClientRequestContext, url: string, chunkedQueryContext: ChunkedQueryContext | undefined, typedConstructor: new () => T, queryOptions?: RequestQueryOptions, httpRequestOptions?: HttpRequestOptions, usePost = true): Promise<T[]> {
     requestContext.enter();
     const resultInstances: T[] = new Array<T>();
 
     if (chunkedQueryContext)
       chunkedQueryContext.handleIteration(queryOptions!);
 
+    if (usePost) {
+      url += "/$query";
+    }
+
     const options: RequestOptions = usePost ? {
       method: "POST",
-      qs: { $query: null },
       accept: "application/json",
-      body: stringify(queryOptions, { delimiter: "&", encode: false, strictNullHandling: true }),
-      get headers() {
+      ...(() => {
+        const body = stringify(queryOptions, { delimiter: "&", encode: false, strictNullHandling: true });
         return {
-          /* eslint-disable @typescript-eslint/naming-convention */
-          "Content-Type": "text/plain",
-          "Content-Length": this.body.length,
-          /* eslint-enable @typescript-eslint/naming-convention */
+          body,
+          headers: {
+            /* eslint-disable @typescript-eslint/naming-convention */
+            "Content-Type": "text/plain",
+            "Content-Length": body.length,
+            /* eslint-enable @typescript-eslint/naming-convention */
+          },
         };
-      },
+      })(),
     } : {
       method: "GET",
       qs: queryOptions,
