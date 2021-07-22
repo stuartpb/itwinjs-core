@@ -59,6 +59,11 @@ export interface RequestQueryOptions {
    *  is set to 100 then 10 requests will be performed to get result.
    */
   $pageSize?: number;
+
+  /**
+   * indicates that the query will be attached to the body
+   */
+  $query?: null;
 }
 
 /** @beta */
@@ -303,7 +308,7 @@ export async function request(requestContext: ClientRequestContext, url: string,
   let queryStr: string = "";
   let fullUrl: string = "";
   if (options.qs && Object.keys(options.qs).length > 0) {
-    const stringifyOptions: IStringifyOptions = { delimiter: "&", encode: false };
+    const stringifyOptions: IStringifyOptions = { delimiter: "&", encode: false, strictNullHandling: true };
     queryStr = stringify(options.qs, stringifyOptions);
     sareq = sareq.query(queryStr);
     fullUrl = `${url}?${queryStr}`;

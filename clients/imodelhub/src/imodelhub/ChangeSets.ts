@@ -425,7 +425,7 @@ export class ChangeSetHandler {
     Logger.logTrace(loggerCategory, `Querying ChangeSets`, () => ({ iModelId }));
 
     const id = query.getId();
-    const changeSets = await this._handler.getInstances<ChangeSet>(requestContext, ChangeSet, this.getRelativeUrl(iModelId, id), query.getQueryOptions());
+    const changeSets = await this._handler.getInstances<ChangeSet>(requestContext, ChangeSet, this.getRelativeUrl(iModelId, id), query.getQueryOptions(), undefined, true);
     requestContext.enter();
 
     return changeSets;

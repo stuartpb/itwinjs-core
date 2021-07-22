@@ -14,6 +14,7 @@ import { ITwinClientLoggerCategory } from "./ITwinClientLoggerCategory";
 import { request, RequestOptions, RequestQueryOptions, RequestTimeoutOptions, Response, ResponseError } from "./Request";
 import { ChunkedQueryContext } from "./ChunkedQueryContext";
 import { once } from "lodash";
+import { stringify } from "qs";
 
 const loggerCategory: string = ITwinClientLoggerCategory.Clients;
 
@@ -393,9 +394,10 @@ export abstract class WsgClient extends Client {
    * @param relativeUrlPath Relative path to the REST resource.
    * @param queryOptions Query options.
    * @param httpRequestOptions Additional options for the HTTP request.
+   * @param usePost translate the get into a post, useful if the query string ends up too long
    * @returns Array of strongly typed instances.
    */
-  protected async getInstances<T extends WsgInstance>(requestContext: AuthorizedClientRequestContext, typedConstructor: new () => T, relativeUrlPath: string, queryOptions?: RequestQueryOptions, httpRequestOptions?: HttpRequestOptions): Promise<T[]> {
+  protected async getInstances<T extends WsgInstance>(requestContext: AuthorizedClientRequestContext, typedConstructor: new () => T, relativeUrlPath: string, queryOptions?: RequestQueryOptions, httpRequestOptions?: HttpRequestOptions, usePost = false): Promise<T[]> {
     requestContext.enter();
     const url: string = await this.getUrl(requestContext) + relativeUrlPath;
     requestContext.enter();
@@ -404,7 +406,7 @@ export abstract class WsgClient extends Client {
     const chunkedQueryContext = queryOptions ? ChunkedQueryContext.create(queryOptions) : undefined;
     const typedInstances: T[] = new Array<T>();
     do {
-      const chunk = await this.getInstancesChunk(requestContext, url, chunkedQueryContext, typedConstructor, queryOptions, httpRequestOptions);
+      const chunk = await this.getInstancesChunk(requestContext, url, chunkedQueryContext, typedConstructor, queryOptions, httpRequestOptions, usePost);
       requestContext.enter();
       typedInstances.push(...chunk);
     } while (chunkedQueryContext && !chunkedQueryContext.isQueryFinished);
@@ -421,22 +423,37 @@ export abstract class WsgClient extends Client {
    * @param typedConstructor Constructor function for the type
    * @param queryOptions Query options.
    * @param httpRequestOptions Additional options for the HTTP request.
+   * @param usePost translate the get into a post, useful if the query string ends up too long
    * @returns Array of strongly typed instances.
    */
-  protected async getInstancesChunk<T extends WsgInstance>(requestContext: AuthorizedClientRequestContext, url: string, chunkedQueryContext: ChunkedQueryContext | undefined, typedConstructor: new () => T, queryOptions?: RequestQueryOptions, httpRequestOptions?: HttpRequestOptions): Promise<T[]> {
+  protected async getInstancesChunk<T extends WsgInstance>(requestContext: AuthorizedClientRequestContext, url: string, chunkedQueryContext: ChunkedQueryContext | undefined, typedConstructor: new () => T, queryOptions?: RequestQueryOptions, httpRequestOptions?: HttpRequestOptions, usePost = false): Promise<T[]> {
     requestContext.enter();
     const resultInstances: T[] = new Array<T>();
 
     if (chunkedQueryContext)
       chunkedQueryContext.handleIteration(queryOptions!);
 
-    const options: RequestOptions = {
+    const options: RequestOptions = usePost ? {
+      method: "POST",
+      qs: { $query: null },
+      accept: "application/json",
+      body: stringify(queryOptions, { delimiter: "&", encode: false, strictNullHandling: true }),
+      get headers() {
+        return {
+          /* eslint-disable @typescript-eslint/naming-convention */
+          "Content-Type": "text/plain",
+          "Content-Length": this.body.length,
+          /* eslint-enable @typescript-eslint/naming-convention */
+        };
+      },
+    } : {
       method: "GET",
       qs: queryOptions,
       accept: "application/json",
     };
 
     options.headers = {
+      ...options.headers,
       authorization: requestContext.accessToken.toTokenString(),
     };
 
