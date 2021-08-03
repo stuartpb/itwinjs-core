@@ -57,7 +57,7 @@ export class AliCloudStorageService extends CloudStorageService {
       descriptor: this.makeDescriptor(id),
       valid: 0,
       expires: expiry.getTime(),
-      url: this._client.signatureUrl(id.resource!, policy),
+      url: this._client.signatureUrl(id.resource ?? "", policy),
       bound: true,
     };
 
