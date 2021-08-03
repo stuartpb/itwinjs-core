@@ -50,7 +50,7 @@ describe("DevTools", () => {
     assert.isTrue((formattedStats.os.cpus[0].times.sys as string).endsWith("%"));
     assert.isTrue((formattedStats.os.cpus[0].times.idle as string).endsWith("%"));
     assert.isTrue((formattedStats.os.cpus[0].times.irq as string).endsWith("%"));
-    assert.isTrue((formattedStats.os.cpuUsage! as string).endsWith("%"));
+    assert.isTrue((formattedStats.os.cpuUsage ? formattedStats.os.cpuUsage as string : "").endsWith("%"));
 
     assert.isTrue((formattedStats.process.uptime as string).endsWith("secs"));
     assert.isTrue((formattedStats.process.memoryUsage.rss as string).endsWith("MB"));

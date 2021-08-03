@@ -5,7 +5,7 @@
 
 import { expect } from "chai";
 import { assert } from "@bentley/bentleyjs-core";
-import { CurrentImdlVersion, DynamicGraphicsRequest3dProps, ElementGeometry, ElementGeometryDataEntry, ElementGraphicsRequestProps, GeometryStreamIterator } from "@bentley/imodeljs-common";
+import { CurrentImdlVersion, DynamicGraphicsRequest3dProps, ElementGeometry, ElementGeometryDataEntry, ElementGraphicsRequestProps, GeometryStreamIterator, Placement3d } from "@bentley/imodeljs-common";
 import { ElementGraphicsStatus } from "@bentley/imodeljs-native";
 import { GeometricElement3d, SnapshotDb } from "../../imodeljs-backend";
 import { IModelTestUtils } from "../IModelTestUtils";
@@ -60,7 +60,7 @@ describe("ElementGraphics", () => {
       formatVersion: CurrentImdlVersion.Major,
       type: "3d",
       placement: element!.placement,
-      categoryId: element!.category,
+      categoryId: element?.category ?? "",
       geometry: { format: "json", data: element!.geom! },
     };
 
@@ -83,7 +83,7 @@ describe("ElementGraphics", () => {
     expect(element?.placement).not.to.be.undefined;
 
     const entries: ElementGeometryDataEntry[] = [];
-    const it = new GeometryStreamIterator(element!.geom!, element!.category);
+    const it = new GeometryStreamIterator(element?.geom!, element?.category ?? "");
     for (const entry of it) {
       if ("geometryQuery" !== entry.primitive.type)
         continue;

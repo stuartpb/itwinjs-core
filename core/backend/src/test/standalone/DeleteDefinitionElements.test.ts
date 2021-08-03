@@ -40,21 +40,21 @@ describe("DeleteDefinitionElements", () => {
     IModelTransformerUtils.populateSourceDb(iModelDb);
 
     // Get ElementIds of DefinitionElements created by populateSourceDb
-    const subjectId = iModelDb.elements.queryElementIdByCode(Subject.createCode(iModelDb, IModel.rootSubjectId, "Subject"))!;
-    const definitionModelId = iModelDb.elements.queryElementIdByCode(InformationPartitionElement.createCode(iModelDb, subjectId, "Definition"))!;
-    const spatialCategoryId = iModelDb.elements.queryElementIdByCode(SpatialCategory.createCode(iModelDb, definitionModelId, "SpatialCategory"))!;
-    const subCategoryId = iModelDb.elements.queryElementIdByCode(SubCategory.createCode(iModelDb, spatialCategoryId, "SubCategory"))!;
-    const spatialCategorySelectorId = iModelDb.elements.queryElementIdByCode(CategorySelector.createCode(iModelDb, definitionModelId, "SpatialCategories"))!;
-    const modelSelectorId = iModelDb.elements.queryElementIdByCode(ModelSelector.createCode(iModelDb, definitionModelId, "SpatialModels"))!;
-    const displayStyle3dId = iModelDb.elements.queryElementIdByCode(DisplayStyle3d.createCode(iModelDb, definitionModelId, "DisplayStyle3d"))!;
-    const viewId = iModelDb.elements.queryElementIdByCode(OrthographicViewDefinition.createCode(iModelDb, definitionModelId, "Orthographic View"))!;
-    const drawingCategoryId = iModelDb.elements.queryElementIdByCode(DrawingCategory.createCode(iModelDb, definitionModelId, "DrawingCategory"))!;
-    const drawingCategorySelectorId = iModelDb.elements.queryElementIdByCode(CategorySelector.createCode(iModelDb, definitionModelId, "DrawingCategories"))!;
-    const displayStyle2dId = iModelDb.elements.queryElementIdByCode(DisplayStyle2d.createCode(iModelDb, definitionModelId, "DisplayStyle2d"))!;
-    const drawingViewId = iModelDb.elements.queryElementIdByCode(DrawingViewDefinition.createCode(iModelDb, definitionModelId, "Drawing View"))!;
-    const geometryPartId = iModelDb.elements.queryElementIdByCode(GeometryPart.createCode(iModelDb, definitionModelId, "GeometryPart"))!;
-    const renderMaterialId = iModelDb.elements.queryElementIdByCode(RenderMaterialElement.createCode(iModelDb, definitionModelId, "RenderMaterial"))!;
-    const textureId = iModelDb.elements.queryElementIdByCode(Texture.createCode(iModelDb, definitionModelId, "Texture"))!;
+    const subjectId = iModelDb.elements.queryElementIdByCode(Subject.createCode(iModelDb, IModel.rootSubjectId, "Subject")) ?? "";
+    const definitionModelId = iModelDb.elements.queryElementIdByCode(InformationPartitionElement.createCode(iModelDb, subjectId, "Definition")) ?? "";
+    const spatialCategoryId = iModelDb.elements.queryElementIdByCode(SpatialCategory.createCode(iModelDb, definitionModelId, "SpatialCategory")) ?? "";
+    const subCategoryId = iModelDb.elements.queryElementIdByCode(SubCategory.createCode(iModelDb, spatialCategoryId, "SubCategory")) ?? "";
+    const spatialCategorySelectorId = iModelDb.elements.queryElementIdByCode(CategorySelector.createCode(iModelDb, definitionModelId, "SpatialCategories")) ?? "";
+    const modelSelectorId = iModelDb.elements.queryElementIdByCode(ModelSelector.createCode(iModelDb, definitionModelId, "SpatialModels")) ?? "";
+    const displayStyle3dId = iModelDb.elements.queryElementIdByCode(DisplayStyle3d.createCode(iModelDb, definitionModelId, "DisplayStyle3d")) ?? "";
+    const viewId = iModelDb.elements.queryElementIdByCode(OrthographicViewDefinition.createCode(iModelDb, definitionModelId, "Orthographic View")) ?? "";
+    const drawingCategoryId = iModelDb.elements.queryElementIdByCode(DrawingCategory.createCode(iModelDb, definitionModelId, "DrawingCategory")) ?? "";
+    const drawingCategorySelectorId = iModelDb.elements.queryElementIdByCode(CategorySelector.createCode(iModelDb, definitionModelId, "DrawingCategories")) ?? "";
+    const displayStyle2dId = iModelDb.elements.queryElementIdByCode(DisplayStyle2d.createCode(iModelDb, definitionModelId, "DisplayStyle2d")) ?? "";
+    const drawingViewId = iModelDb.elements.queryElementIdByCode(DrawingViewDefinition.createCode(iModelDb, definitionModelId, "Drawing View")) ?? "";
+    const geometryPartId = iModelDb.elements.queryElementIdByCode(GeometryPart.createCode(iModelDb, definitionModelId, "GeometryPart")) ?? "";
+    const renderMaterialId = iModelDb.elements.queryElementIdByCode(RenderMaterialElement.createCode(iModelDb, definitionModelId, "RenderMaterial")) ?? "";
+    const textureId = iModelDb.elements.queryElementIdByCode(Texture.createCode(iModelDb, definitionModelId, "Texture")) ?? "";
     const physicalObjectId1 = IModelTransformerUtils.queryByUserLabel(iModelDb, "PhysicalObject1");
     const physicalObjectId2 = IModelTransformerUtils.queryByUserLabel(iModelDb, "PhysicalObject2");
     const physicalObjectId3 = IModelTransformerUtils.queryByUserLabel(iModelDb, "PhysicalObject3");

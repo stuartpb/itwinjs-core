@@ -66,13 +66,13 @@ function verifyPrimitiveBase(actualValue: IPrimitiveBase, expectedValue: IPrimit
   if (expectedValue.dt) assert.equal(actualValue.dt, expectedValue.dt, "'dateTime' type property did not roundtrip as expected");
   if (expectedValue.s) assert.equal(actualValue.s, expectedValue.s, "'string' type property did not roundtrip as expected");
   if (expectedValue.p2d) {
-    assert.equal(actualValue.p2d!.x, expectedValue.p2d.x, "'Point2d.x' type property did not roundtrip as expected");
-    assert.equal(actualValue.p2d!.y, expectedValue.p2d.y, "'Point2d.y' type property did not roundtrip as expected");
+    assert.equal(actualValue.p2d?.x, expectedValue.p2d.x, "'Point2d.x' type property did not roundtrip as expected");
+    assert.equal(actualValue.p2d?.y, expectedValue.p2d.y, "'Point2d.y' type property did not roundtrip as expected");
   }
   if (expectedValue.p3d) {
-    assert.equal(actualValue.p3d!.x, expectedValue.p3d.x, "'Point3d.x' type property did not roundtrip as expected");
-    assert.equal(actualValue.p3d!.y, expectedValue.p3d.y, "'Point3d.y' type property did not roundtrip as expected");
-    assert.equal(actualValue.p3d!.z, expectedValue.p3d.z, "'Point3d.z' type property did not roundtrip as expected");
+    assert.equal(actualValue.p3d?.x, expectedValue.p3d.x, "'Point3d.x' type property did not roundtrip as expected");
+    assert.equal(actualValue.p3d?.y, expectedValue.p3d.y, "'Point3d.y' type property did not roundtrip as expected");
+    assert.equal(actualValue.p3d?.z, expectedValue.p3d.z, "'Point3d.z' type property did not roundtrip as expected");
   }
   if (expectedValue.bin) assert.isTrue(blobEqual(actualValue.bin, expectedValue.bin), "'binary' type property did not roundtrip as expected");
   if (expectedValue.g) expect(actualValue.g, "'geometry' type property did not roundtrip as expected.").to.deep.equal(expectedValue.g);
@@ -80,74 +80,74 @@ function verifyPrimitiveBase(actualValue: IPrimitiveBase, expectedValue: IPrimit
 
 function verifyPrimitiveArrayBase(actualValue: IPrimitiveArrayBase, expectedValue: IPrimitiveArrayBase) {
   if (expectedValue.array_bin) {
-    assert.equal(actualValue.array_bin!.length, expectedValue.array_bin.length, "'binary[].length' array length mismatch");
+    assert.equal(actualValue.array_bin?.length, expectedValue.array_bin.length, "'binary[].length' array length mismatch");
     expectedValue.array_bin.forEach((value, index) => {
-      assert.isTrue(blobEqual(actualValue.array_bin![index], value), "'binary[]' type property did not roundtrip as expected");
+      assert.isTrue(blobEqual(actualValue.array_bin ? actualValue.array_bin[index] : undefined, value), "'binary[]' type property did not roundtrip as expected");
     });
   }
   if (expectedValue.array_i) {
-    assert.equal(actualValue.array_i!.length, expectedValue.array_i.length, "'integer[].length' array length mismatch");
+    assert.equal(actualValue.array_i?.length, expectedValue.array_i.length, "'integer[].length' array length mismatch");
     expectedValue.array_i.forEach((value, index) => {
-      assert.equal(actualValue.array_i![index], value, "'integer[]' type property did not roundtrip as expected");
+      assert.equal(actualValue.array_i ? actualValue.array_i[index] : undefined, value, "'integer[]' type property did not roundtrip as expected");
     });
   }
 
   if (expectedValue.array_l) {
-    assert.equal(actualValue.array_l!.length, expectedValue.array_l.length, "'long[].length' array length mismatch");
+    assert.equal(actualValue.array_l?.length, expectedValue.array_l.length, "'long[].length' array length mismatch");
     expectedValue.array_l.forEach((value, index) => {
-      assert.equal(actualValue.array_l![index], value, "'long[]' type property did not roundtrip as expected");
+      assert.equal(actualValue.array_l ? actualValue.array_l[index] : undefined, value, "'long[]' type property did not roundtrip as expected");
     });
   }
 
   if (expectedValue.array_d) {
-    assert.equal(actualValue.array_d!.length, expectedValue.array_d.length, "'double[].length' array length mismatch");
+    assert.equal(actualValue.array_d?.length, expectedValue.array_d.length, "'double[].length' array length mismatch");
     expectedValue.array_d.forEach((value, index) => {
-      assert.equal(actualValue.array_d![index], value, "'double[]' type property did not roundtrip as expected");
+      assert.equal(actualValue.array_d ? actualValue.array_d[index] : undefined, value, "'double[]' type property did not roundtrip as expected");
     });
   }
 
   if (expectedValue.array_b) {
-    assert.equal(actualValue.array_b!.length, expectedValue.array_b.length, "'boolean[].length' array length mismatch");
+    assert.equal(actualValue.array_b?.length, expectedValue.array_b.length, "'boolean[].length' array length mismatch");
     expectedValue.array_b.forEach((value, index) => {
-      assert.equal(actualValue.array_b![index], value, "'boolean[]' type property did not roundtrip as expected");
+      assert.equal(actualValue.array_b ? actualValue.array_b[index] : undefined, value, "'boolean[]' type property did not roundtrip as expected");
     });
   }
 
   if (expectedValue.array_dt) {
-    assert.equal(actualValue.array_dt!.length, expectedValue.array_dt.length, "'dateTime[].length' array length mismatch");
+    assert.equal(actualValue.array_dt?.length, expectedValue.array_dt.length, "'dateTime[].length' array length mismatch");
     expectedValue.array_dt.forEach((value, index) => {
-      assert.equal(actualValue.array_dt![index], value, "'dateTime[]' type property did not roundtrip as expected");
+      assert.equal(actualValue.array_dt ? actualValue.array_dt[index] : undefined, value, "'dateTime[]' type property did not roundtrip as expected");
     });
   }
 
   if (expectedValue.array_g) {
-    assert.equal(actualValue.array_g!.length, expectedValue.array_g.length, "'geometry[].length' array length mismatch");
+    assert.equal(actualValue.array_g?.length, expectedValue.array_g.length, "'geometry[].length' array length mismatch");
     expectedValue.array_g.forEach((value, index) => {
-      expect(actualValue.array_g![index], "'geometry[]' type property did not roundtrip as expected").to.deep.equal(value);
+      expect(actualValue.array_g ? actualValue.array_g[index] : undefined, "'geometry[]' type property did not roundtrip as expected").to.deep.equal(value);
     });
   }
 
   if (expectedValue.array_s) {
-    assert.equal(actualValue.array_s!.length, expectedValue.array_s.length, "'string[].length' array length mismatch");
+    assert.equal(actualValue.array_s?.length, expectedValue.array_s.length, "'string[].length' array length mismatch");
     expectedValue.array_s.forEach((value, index) => {
-      assert.equal(actualValue.array_s![index], value, "'string[]' type property did not roundtrip as expected");
+      assert.equal(actualValue.array_s ? actualValue.array_s[index] : undefined, value, "'string[]' type property did not roundtrip as expected");
     });
   }
 
   if (expectedValue.array_p2d) {
-    assert.equal(actualValue.array_p2d!.length, expectedValue.array_p2d.length, "'point2d[].length' array length mismatch");
+    assert.equal(actualValue.array_p2d?.length, expectedValue.array_p2d.length, "'point2d[].length' array length mismatch");
     expectedValue.array_p2d.forEach((value, index) => {
-      assert.equal(actualValue.array_p2d![index].x, value.x, "'point2d[].x' type property did not roundtrip as expected");
-      assert.equal(actualValue.array_p2d![index].y, value.y, "'point2d[].y' type property did not roundtrip as expected");
+      assert.equal(actualValue.array_p2d ? actualValue.array_p2d[index].x : undefined, value.x, "'point2d[].x' type property did not roundtrip as expected");
+      assert.equal(actualValue.array_p2d? actualValue.array_p2d[index].y : undefined, value.y, "'point2d[].y' type property did not roundtrip as expected");
     });
   }
 
   if (expectedValue.array_p3d) {
-    assert.equal(actualValue.array_p3d!.length, expectedValue.array_p3d.length, "'point3d[].length' array length mismatch");
+    assert.equal(actualValue.array_p3d?.length, expectedValue.array_p3d.length, "'point3d[].length' array length mismatch");
     expectedValue.array_p3d.forEach((value, index) => {
-      assert.equal(actualValue.array_p3d![index].x, value.x, "'point3d[].x' type property did not roundtrip as expected");
-      assert.equal(actualValue.array_p3d![index].y, value.y, "'point3d[].y' type property did not roundtrip as expected");
-      assert.equal(actualValue.array_p3d![index].z, value.z, "'point3d[].z' type property did not roundtrip as expected");
+      assert.equal(actualValue.array_p3d ? actualValue.array_p3d[index].x : undefined, value.x, "'point3d[].x' type property did not roundtrip as expected");
+      assert.equal(actualValue.array_p3d ? actualValue.array_p3d[index].y : undefined , value.y, "'point3d[].y' type property did not roundtrip as expected");
+      assert.equal(actualValue.array_p3d ? actualValue.array_p3d[index].z : undefined, value.z, "'point3d[].z' type property did not roundtrip as expected");
     });
   }
 }
@@ -163,7 +163,7 @@ function verifyPrimitive(actualValue: IPrimitive, expectedValue: IPrimitive) {
 function verifyPrimitiveArray(actualValue: IPrimitiveArray, expectedValue: IPrimitiveArray) {
   verifyPrimitiveArrayBase(actualValue, expectedValue);
   if (expectedValue.array_st) {
-    assert.equal(actualValue.array_st!.length, expectedValue.array_st.length, "'struct[].length' array length mismatch");
+    assert.equal(actualValue.array_st?.length, expectedValue.array_st.length, "'struct[].length' array length mismatch");
     actualValue.array_st!.forEach((lhs: ComplexStruct, i: number) => {
       verifyPrimitiveBase(lhs, expectedValue.array_st![i]);
       verifyPrimitiveArrayBase(lhs, expectedValue.array_st![i]);
@@ -480,7 +480,7 @@ describe("Element and ElementAspect roundtrip test for all type of properties", 
     const [, newModelId] = IModelTestUtils.createAndInsertPhysicalPartitionAndModel(imodel, Code.createEmpty(), true);
 
     // create element with auto handled properties
-    const expectedValue = initElemProps("TestElement", imodel, newModelId, spatialCategoryId!, {
+    const expectedValue = initElemProps("TestElement", imodel, newModelId, spatialCategoryId ?? "", {
       ...primInst1,
       ...primArrInst1,
       st: { ...primArrInst2, ...primInst1 },
@@ -553,7 +553,7 @@ describe("Element and ElementAspect roundtrip test for all type of properties", 
     const [, newModelId] = IModelTestUtils.createAndInsertPhysicalPartitionAndModel(imodel, Code.createEmpty(), true);
 
     // create element to use with the ElementAspects
-    const expectedValue = initElemProps("TestElement", imodel, newModelId, spatialCategoryId!, {}) as TestElement;
+    const expectedValue = initElemProps("TestElement", imodel, newModelId, spatialCategoryId ?? "", {}) as TestElement;
 
     // insert a element
     const geomElement = imodel.elements.createElement(expectedValue);
@@ -640,8 +640,8 @@ describe("Element and ElementAspect roundtrip test for all type of properties", 
     const [, newModelId] = IModelTestUtils.createAndInsertPhysicalPartitionAndModel(imodel, Code.createEmpty(), true);
 
     // create elements to use
-    const element1 = initElemProps("TestElement", imodel, newModelId, spatialCategoryId!, {}) as TestElement;
-    const element2 = initElemProps("TestElement", imodel, newModelId, spatialCategoryId!, {}) as TestElement;
+    const element1 = initElemProps("TestElement", imodel, newModelId, spatialCategoryId ?? "", {}) as TestElement;
+    const element2 = initElemProps("TestElement", imodel, newModelId, spatialCategoryId ?? "", {}) as TestElement;
 
     const geomElement1 = imodel.elements.createElement(element1);
     const elId1 = imodel.elements.insertElement(geomElement1);

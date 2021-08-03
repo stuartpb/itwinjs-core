@@ -521,8 +521,8 @@ class CatalogImporter extends IModelTransformer {
       while (DbResult.BE_SQLITE_ROW === statement.step()) {
         const sourceCategoryId = statement.getValue(0).getId();
         const sourceCategoryName = statement.getValue(1).getString();
-        if (this._targetSpatialCategories!.has(sourceCategoryName)) {
-          const targetCategoryId = this._targetSpatialCategories!.get(sourceCategoryName)!;
+        if (this._targetSpatialCategories?.has(sourceCategoryName) ?? false) {
+          const targetCategoryId = this._targetSpatialCategories?.get(sourceCategoryName) ?? "";
           this.context.remapElement(sourceCategoryId, targetCategoryId);
           this.importer.doNotUpdateElementIds.add(targetCategoryId);
         }
@@ -538,8 +538,8 @@ class CatalogImporter extends IModelTransformer {
       while (DbResult.BE_SQLITE_ROW === statement.step()) {
         const sourceCategoryId = statement.getValue(0).getId();
         const sourceCategoryName = statement.getValue(1).getString();
-        if (this._targetDrawingCategories!.has(sourceCategoryName)) {
-          const targetCategoryId = this._targetDrawingCategories!.get(sourceCategoryName)!;
+        if (this._targetDrawingCategories?.has(sourceCategoryName) ?? false) {
+          const targetCategoryId = this._targetDrawingCategories?.get(sourceCategoryName) ?? "";
           this.context.remapElement(sourceCategoryId, targetCategoryId);
           this.importer.doNotUpdateElementIds.add(targetCategoryId);
         }
@@ -619,14 +619,14 @@ describe("Catalog", () => {
       // assert catalog was imported properly
       assert.isTrue(iModelDb.codeSpecs.hasName(catalogContainerCodeSpec.name));
       const importedContainerCodeSpec = iModelDb.codeSpecs.getByName(catalogContainerCodeSpec.name);
-      const importedContainerId = iModelDb.elements.queryElementIdByCode(createContainerCode(importedContainerCodeSpec.id, catalogContainerCodeValue))!;
+      const importedContainerId = iModelDb.elements.queryElementIdByCode(createContainerCode(importedContainerCodeSpec.id, catalogContainerCodeValue)) ?? "";
       iModelDb.elements.getElement<DefinitionContainer>(importedContainerId, DefinitionContainer);
       iModelDb.models.getModel<DefinitionModel>(importedContainerId, DefinitionModel);
       assert.isUndefined(queryEquipmentCategory(iModelDb, importedContainerId), "Expected category to be remapped");
-      assert.isTrue(Id64.isValidId64(queryEquipmentCategory(iModelDb, IModel.dictionaryId)!));
-      assert.isTrue(Id64.isValidId64(queryEquipmentTypeId(iModelDb, importedContainerId, "A-101")!));
-      assert.isTrue(Id64.isValidId64(queryEquipmentTypeId(iModelDb, importedContainerId, "A-201")!));
-      assert.isTrue(Id64.isValidId64(queryEquipmentTypeId(iModelDb, importedContainerId, "A-301")!));
+      assert.isTrue(Id64.isValidId64(queryEquipmentCategory(iModelDb, IModel.dictionaryId) ?? Id64.invalid));
+      assert.isTrue(Id64.isValidId64(queryEquipmentTypeId(iModelDb, importedContainerId, "A-101") ?? Id64.invalid));
+      assert.isTrue(Id64.isValidId64(queryEquipmentTypeId(iModelDb, importedContainerId, "A-201") ?? Id64.invalid));
+      assert.isTrue(Id64.isValidId64(queryEquipmentTypeId(iModelDb, importedContainerId, "A-301") ?? Id64.invalid));
       const templateRecipeIds = queryTemplateRecipeIds(iModelDb, importedContainerId);
       assert.equal(templateRecipeIds.size, 6); // expected value from createAcmeCatalog
     }
@@ -651,13 +651,13 @@ describe("Catalog", () => {
       // assert catalog was imported properly
       assert.isTrue(iModelDb.codeSpecs.hasName(catalogContainerCodeSpec.name));
       const importedContainerCodeSpec = iModelDb.codeSpecs.getByName(catalogContainerCodeSpec.name);
-      const importedContainerId = iModelDb.elements.queryElementIdByCode(createContainerCode(importedContainerCodeSpec.id, catalogContainerCodeValue))!;
+      const importedContainerId = iModelDb.elements.queryElementIdByCode(createContainerCode(importedContainerCodeSpec.id, catalogContainerCodeValue)) ?? "";
       iModelDb.elements.getElement<DefinitionContainer>(importedContainerId, DefinitionContainer);
       iModelDb.models.getModel<DefinitionModel>(importedContainerId, DefinitionModel);
       assert.isUndefined(queryEquipmentCategory(iModelDb, importedContainerId), "Expected category to be remapped");
-      assert.isTrue(Id64.isValidId64(queryEquipmentCategory(iModelDb, IModel.dictionaryId)!));
-      assert.isTrue(Id64.isValidId64(queryEquipmentTypeId(iModelDb, importedContainerId, "B-201")!));
-      assert.isTrue(Id64.isValidId64(queryEquipmentTypeId(iModelDb, importedContainerId, "B-304")!));
+      assert.isTrue(Id64.isValidId64(queryEquipmentCategory(iModelDb, IModel.dictionaryId) ?? Id64.invalid));
+      assert.isTrue(Id64.isValidId64(queryEquipmentTypeId(iModelDb, importedContainerId, "B-201") ?? Id64.invalid));
+      assert.isTrue(Id64.isValidId64(queryEquipmentTypeId(iModelDb, importedContainerId, "B-304") ?? Id64.invalid));
       const templateRecipeIds = queryTemplateRecipeIds(iModelDb, importedContainerId);
       assert.equal(templateRecipeIds.size, 2); // expected value from createBestCatalog
     }
@@ -675,7 +675,7 @@ describe("Catalog", () => {
       assert.equal(catalogTemplateRecipeIds.size, 3); // expected value from createTestCatalog
       const catalogImporter = new CatalogImporter(catalogDb, iModelDb, catalogRepositoryLinkId); // no standard categories in this case
       const cylinderTemplateCode = TemplateRecipe3d.createCode(catalogDb, catalogContainer.id, "Cylinder Template");
-      const cylinderTemplateId = catalogDb.elements.queryElementIdByCode(cylinderTemplateCode)!;
+      const cylinderTemplateId = catalogDb.elements.queryElementIdByCode(cylinderTemplateCode) ?? "";
       catalogImporter.exporter.excludeElement(cylinderTemplateId); // one way to implement partial import, another is by overriding shouldExportElement
       await catalogImporter.importDefinitionContainer(catalogContainer.id);
       catalogImporter.dispose();
@@ -684,7 +684,7 @@ describe("Catalog", () => {
       // assert catalog was imported properly
       assert.isTrue(iModelDb.codeSpecs.hasName(catalogContainerCodeSpec.name));
       const importedContainerCodeSpec = iModelDb.codeSpecs.getByName(catalogContainerCodeSpec.name);
-      testContainerId = iModelDb.elements.queryElementIdByCode(createContainerCode(importedContainerCodeSpec.id, catalogContainerCodeValue))!;
+      testContainerId = iModelDb.elements.queryElementIdByCode(createContainerCode(importedContainerCodeSpec.id, catalogContainerCodeValue)) ?? "";
       iModelDb.elements.getElement<DefinitionContainer>(testContainerId, DefinitionContainer);
       iModelDb.models.getModel<DefinitionModel>(testContainerId, DefinitionModel);
       const importedTemplateRecipeIds = queryTemplateRecipeIds(iModelDb, testContainerId);
@@ -715,7 +715,7 @@ describe("Catalog", () => {
         if (templateEquipmentId) {
           const instanceEquipmentId = templateToInstanceMap.get(templateEquipmentId);
           const equipmentClass = iModelDb.getJsClass("TestDomain:Equipment") as unknown as EntityClassType<Element>;
-          const equipment = iModelDb.elements.getElement<PhysicalElement>(instanceEquipmentId!, equipmentClass);
+          const equipment = iModelDb.elements.getElement<PhysicalElement>(instanceEquipmentId ?? "", equipmentClass);
           equipment.typeDefinition = new PhysicalElementIsOfType(physicalTypeId);
           equipment.update();
           assert.isDefined(equipment.typeDefinition?.id);
@@ -724,7 +724,7 @@ describe("Catalog", () => {
     }
 
     const assemblyTemplateCode = TemplateRecipe3d.createCode(iModelDb, testContainerId, "Assembly Template");
-    const assemblyTemplateId = iModelDb.elements.queryElementIdByCode(assemblyTemplateCode)!;
+    const assemblyTemplateId = iModelDb.elements.queryElementIdByCode(assemblyTemplateCode) ?? "";
     const assemblyLocations: Point3d[] = [Point3d.create(-10, 0), Point3d.create(-20, 0), Point3d.create(-30, 0)];
     for (const location of assemblyLocations) {
       const placement = new Placement3d(location, new YawPitchRollAngles(), new Range3d());
@@ -732,7 +732,7 @@ describe("Catalog", () => {
       assert.isAtLeast(templateToInstanceMap.size, 2); // parent + child
       for (const templateElementId of templateToInstanceMap.keys()) {
         const templateElement = iModelDb.elements.getElement(templateElementId); // the element in the template model
-        const instanceElement = iModelDb.elements.getElement(templateToInstanceMap.get(templateElementId)!); // the element instantiated from the template element
+        const instanceElement = iModelDb.elements.getElement(templateToInstanceMap.get(templateElementId) ?? ""); // the element instantiated from the template element
         assert.isDefined(templateElement.federationGuid);
         assert.isDefined(instanceElement.federationGuid);
         assert.notStrictEqual(templateElement.federationGuid, instanceElement.federationGuid);
@@ -742,7 +742,7 @@ describe("Catalog", () => {
     }
 
     const drawingGraphicTemplateCode = TemplateRecipe2d.createCode(iModelDb, testContainerId, "DrawingGraphic Template");
-    const drawingGraphicTemplateId = iModelDb.elements.queryElementIdByCode(drawingGraphicTemplateCode)!;
+    const drawingGraphicTemplateId = iModelDb.elements.queryElementIdByCode(drawingGraphicTemplateCode) ?? "";
     const drawingGraphicLocations: Point2d[] = [
       Point2d.create(10, 10), Point2d.create(20, 10), Point2d.create(30, 10),
       Point2d.create(10, 20), Point2d.create(20, 20), Point2d.create(30, 20),
@@ -780,10 +780,10 @@ describe("Catalog", () => {
       // assert that the cloned target contains the expected elements
       targetDb.elements.getElement<DefinitionContainer>(containerId, DefinitionContainer);
       targetDb.models.getModel<DefinitionModel>(containerId, DefinitionModel);
-      assert.isTrue(Id64.isValidId64(queryEquipmentCategory(targetDb, containerId)!));
-      assert.isTrue(Id64.isValidId64(queryEquipmentTypeId(targetDb, containerId, "A-101")!));
-      assert.isTrue(Id64.isValidId64(queryEquipmentTypeId(targetDb, containerId, "A-201")!));
-      assert.isTrue(Id64.isValidId64(queryEquipmentTypeId(targetDb, containerId, "A-301")!));
+      assert.isTrue(Id64.isValidId64(queryEquipmentCategory(targetDb, containerId) ?? Id64.invalid));
+      assert.isTrue(Id64.isValidId64(queryEquipmentTypeId(targetDb, containerId, "A-101") ?? Id64.invalid));
+      assert.isTrue(Id64.isValidId64(queryEquipmentTypeId(targetDb, containerId, "A-201") ?? Id64.invalid));
+      assert.isTrue(Id64.isValidId64(queryEquipmentTypeId(targetDb, containerId, "A-301") ?? Id64.invalid));
     });
 
     sourceDb.close();
