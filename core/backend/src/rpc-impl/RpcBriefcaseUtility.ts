@@ -37,49 +37,53 @@ export class RpcBriefcaseUtility {
 
   private static async downloadAndOpen(args: DownloadAndOpenArgs): Promise<BriefcaseDb> {
     const { requestContext, tokenProps } = args;
-    const iModelId = tokenProps.iModelId!;
-    let myBriefcaseIds: number[];
-    if (args.syncMode === SyncMode.PullOnly) {
-      myBriefcaseIds = [0]; // PullOnly means briefcaseId 0
-    } else {
-      // check with iModelHub and see if we already have acquired any briefcaseIds
-      myBriefcaseIds = await IModelHost.hubAccess.getMyBriefcaseIds({ requestContext, iModelId });
-    }
+    if (tokenProps.iModelId !== undefined && tokenProps.contextId !== undefined) {
+      const iModelId = tokenProps.iModelId;
+      let myBriefcaseIds: number[];
+      if (args.syncMode === SyncMode.PullOnly) {
+        myBriefcaseIds = [0]; // PullOnly means briefcaseId 0
+      } else {
+        // check with iModelHub and see if we already have acquired any briefcaseIds
+        myBriefcaseIds = await IModelHost.hubAccess.getMyBriefcaseIds({ requestContext, iModelId });
+      }
 
-    const resolvers = args.fileNameResolvers ?? [(arg) => BriefcaseManager.getFileName(arg), (arg) => BriefcaseManager.getCompatibilityFileName(arg)]; // eslint-disable-line deprecation/deprecation
-    // see if we can open any of the briefcaseIds we already acquired from iModelHub
-    for (const resolver of resolvers) {
-      for (const briefcaseId of myBriefcaseIds) {
-        const fileName = resolver({ briefcaseId, iModelId });
-        if (IModelJsFs.existsSync(fileName)) {
-          const briefcaseDb = BriefcaseDb.findByFilename(fileName);
-          if (briefcaseDb !== undefined)
-            return briefcaseDb as BriefcaseDb;
-          try {
-            if (args.forceDownload)
-              throw new Error(); // causes delete below
-            const db = await BriefcaseDb.open(requestContext, { fileName });
-            if (db.changeset.id !== tokenProps.changeSetId)
-              await BriefcaseManager.processChangesets(requestContext, db, { id: tokenProps.changeSetId! });
-            return db;
-          } catch (error) {
-            if (!(error instanceof IModelError && error.errorNumber === IModelStatus.AlreadyOpen))
-              // somehow we have this briefcaseId and the file exists, but we can't open it. Delete it.
-              await BriefcaseManager.deleteBriefcaseFiles(fileName, args.requestContext);
+      const resolvers = args.fileNameResolvers ?? [(arg) => BriefcaseManager.getFileName(arg), (arg) => BriefcaseManager.getCompatibilityFileName(arg)]; // eslint-disable-line deprecation/deprecation
+      // see if we can open any of the briefcaseIds we already acquired from iModelHub
+      for (const resolver of resolvers) {
+        for (const briefcaseId of myBriefcaseIds) {
+          const fileName = resolver({ briefcaseId, iModelId });
+          if (IModelJsFs.existsSync(fileName)) {
+            const briefcaseDb = BriefcaseDb.findByFilename(fileName);
+            if (briefcaseDb !== undefined)
+              return briefcaseDb as BriefcaseDb;
+            try {
+              if (args.forceDownload)
+                throw new Error(); // causes delete below
+              const db = await BriefcaseDb.open(requestContext, { fileName });
+              if (tokenProps.changeSetId !== undefined && db.changeset.id !== tokenProps.changeSetId)
+                await BriefcaseManager.processChangesets(requestContext, db, { id: tokenProps.changeSetId });
+              return db;
+            } catch (error) {
+              if (!(error instanceof IModelError && error.errorNumber === IModelStatus.AlreadyOpen))
+                // somehow we have this briefcaseId and the file exists, but we can't open it. Delete it.
+                await BriefcaseManager.deleteBriefcaseFiles(fileName, args.requestContext);
+            }
           }
         }
       }
+
+      // no local briefcase available. Download one and open it.
+      const request: RequestNewBriefcaseProps = {
+        contextId: tokenProps.contextId,
+        iModelId,
+        briefcaseId: args.syncMode === SyncMode.PullOnly ? 0 : undefined, // if briefcaseId is undefined, we'll acquire a new one.
+      };
+
+      const props = await BriefcaseManager.downloadBriefcase(requestContext, request);
+      return BriefcaseDb.open(requestContext, { fileName: props.fileName });
+    } else {
+      throw new Error("Failed to open - invalid open arguments");
     }
-
-    // no local briefcase available. Download one and open it.
-    const request: RequestNewBriefcaseProps = {
-      contextId: tokenProps.contextId!,
-      iModelId,
-      briefcaseId: args.syncMode === SyncMode.PullOnly ? 0 : undefined, // if briefcaseId is undefined, we'll acquire a new one.
-    };
-
-    const props = await BriefcaseManager.downloadBriefcase(requestContext, request);
-    return BriefcaseDb.open(requestContext, { fileName: props.fileName });
   }
 
   private static _briefcasePromise: Promise<BriefcaseDb> | undefined;
@@ -127,50 +131,54 @@ export class RpcBriefcaseUtility {
       return briefcaseDb;
     }
 
-    const checkpoint: CheckpointProps = {
-      iModelId: tokenProps.iModelId!,
-      contextId: tokenProps.contextId!,
-      changeSetId: tokenProps.changeSetId!,
-      changesetIndex: tokenProps.changesetIndex,
-      requestContext,
-    };
+    if (tokenProps.iModelId !== undefined && tokenProps.contextId !== undefined && tokenProps.changeSetId !== undefined) {
+      const checkpoint: CheckpointProps = {
+        iModelId: tokenProps.iModelId,
+        contextId: tokenProps.contextId,
+        changeSetId: tokenProps.changeSetId,
+        changesetIndex: tokenProps.changesetIndex,
+        requestContext,
+      };
 
-    // opening a checkpoint, readonly.
-    let db: SnapshotDb | void;
-    // first check if it's already open
-    db = SnapshotDb.tryFindByKey(CheckpointManager.getKey(checkpoint));
-    if (db) {
-      Logger.logTrace(loggerCategory, "Checkpoint was already open", () => ({ ...tokenProps }));
+      // opening a checkpoint, readonly.
+      let db: SnapshotDb | void;
+      // first check if it's already open
+      db = SnapshotDb.tryFindByKey(CheckpointManager.getKey(checkpoint));
+      if (db) {
+        Logger.logTrace(loggerCategory, "Checkpoint was already open", () => ({ ...tokenProps }));
+        BriefcaseManager.logUsage(requestContext, tokenProps);
+        return db;
+      }
+
+      try {
+        // now try V2 checkpoint
+        db = await SnapshotDb.openCheckpointV2(checkpoint);
+        requestContext.enter();
+        Logger.logTrace(loggerCategory, "using V2 checkpoint briefcase", () => ({ ...tokenProps }));
+      } catch (e) {
+        Logger.logTrace(loggerCategory, "unable to open V2 checkpoint - falling back to V1 checkpoint", () => ({ ...tokenProps }));
+
+        // this isn't a v2 checkpoint. Set up a race between the specified timeout period and the open. Throw an RpcPendingResponse exception if the timeout happens first.
+        const request = {
+          checkpoint,
+          localFile: V1CheckpointManager.getFileName(checkpoint),
+          aliasFiles: [V1CheckpointManager.getCompatibilityFileName(checkpoint)],// eslint-disable-line deprecation/deprecation
+        };
+        db = await BeDuration.race(timeout, V1CheckpointManager.getCheckpointDb(request));
+        requestContext.enter();
+
+        if (db === undefined) {
+          Logger.logTrace(loggerCategory, "Open V1 checkpoint - pending", () => ({ ...tokenProps }));
+          throw new RpcPendingResponse();
+        }
+        Logger.logTrace(loggerCategory, "Opened V1 checkpoint", () => ({ ...tokenProps }));
+      }
+
       BriefcaseManager.logUsage(requestContext, tokenProps);
       return db;
+    } else {
+      throw new Error("Failed to open - invalid open arguments");
     }
-
-    try {
-      // now try V2 checkpoint
-      db = await SnapshotDb.openCheckpointV2(checkpoint);
-      requestContext.enter();
-      Logger.logTrace(loggerCategory, "using V2 checkpoint briefcase", () => ({ ...tokenProps }));
-    } catch (e) {
-      Logger.logTrace(loggerCategory, "unable to open V2 checkpoint - falling back to V1 checkpoint", () => ({ ...tokenProps }));
-
-      // this isn't a v2 checkpoint. Set up a race between the specified timeout period and the open. Throw an RpcPendingResponse exception if the timeout happens first.
-      const request = {
-        checkpoint,
-        localFile: V1CheckpointManager.getFileName(checkpoint),
-        aliasFiles: [V1CheckpointManager.getCompatibilityFileName(checkpoint)],// eslint-disable-line deprecation/deprecation
-      };
-      db = await BeDuration.race(timeout, V1CheckpointManager.getCheckpointDb(request));
-      requestContext.enter();
-
-      if (db === undefined) {
-        Logger.logTrace(loggerCategory, "Open V1 checkpoint - pending", () => ({ ...tokenProps }));
-        throw new RpcPendingResponse();
-      }
-      Logger.logTrace(loggerCategory, "Opened V1 checkpoint", () => ({ ...tokenProps }));
-    }
-
-    BriefcaseManager.logUsage(requestContext, tokenProps);
-    return db;
   }
 
   public static async openWithTimeout(requestContext: AuthorizedClientRequestContext, tokenProps: IModelRpcOpenProps, syncMode: SyncMode, timeout: number = 1000): Promise<IModelConnectionProps> {

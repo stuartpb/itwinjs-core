@@ -336,7 +336,7 @@ export class IModelTransformer extends IModelExportHandler {
   /** Format an Element for the Logger. */
   private formatElementForLogger(elementProps: ElementProps): string {
     const namePiece: string = elementProps.code.value ? `${elementProps.code.value} ` : elementProps.userLabel ? `${elementProps.userLabel} ` : "";
-    return `${elementProps.classFullName} ${namePiece}[${elementProps.id!}]`;
+    return `${elementProps.classFullName} ${namePiece}[${elementProps.id}]`;
   }
 
   /** Mark the specified Element so its processing can be deferred. */
@@ -479,9 +479,11 @@ export class IModelTransformer extends IModelExportHandler {
     if (!this._wasSourceIModelCopiedToTarget) {
       this.importer.importElement(targetElementProps); // don't need to import if iModel was copied
     }
-    this.context.remapElement(sourceElement.id, targetElementProps.id!); // targetElementProps.id assigned by importElement
-    if (!this._noProvenance) {
-      const aspectProps: ExternalSourceAspectProps = this.initElementProvenance(sourceElement.id, targetElementProps.id!);
+    if (targetElementProps.id !== undefined) {
+      this.context.remapElement(sourceElement.id, targetElementProps.id); // targetElementProps.id assigned by importElement
+    }
+    if (!this._noProvenance && targetElementProps.id !== undefined) {
+      const aspectProps: ExternalSourceAspectProps = this.initElementProvenance(sourceElement.id, targetElementProps.id);
       if (aspectProps.id === undefined) {
         this.provenanceDb.elements.insertAspect(aspectProps);
       } else {
@@ -579,7 +581,7 @@ export class IModelTransformer extends IModelExportHandler {
     const targetModelProps: ModelProps = sourceModel.toJSON();
     targetModelProps.modeledElement.id = targetModeledElementId;
     targetModelProps.id = targetModeledElementId;
-    targetModelProps.parentModel = this.context.findTargetElementId(targetModelProps.parentModel!);
+    targetModelProps.parentModel = (targetModelProps.parentModel !== undefined ? this.context.findTargetElementId(targetModelProps.parentModel) : undefined);
     return targetModelProps;
   }
 
@@ -967,18 +969,20 @@ export class TemplateModelCloner extends IModelTransformer {
     targetElementProps.code = Code.createEmpty(); // clone from template should not maintain codes
     if (sourceElement instanceof GeometricElement3d) {
       const placement = Placement3d.fromJSON((targetElementProps as GeometricElement3dProps).placement);
-      if (placement.isValid) {
-        placement.multiplyTransform(this._transform3d!);
+      if (placement.isValid && this._transform3d !== undefined) {
+        placement.multiplyTransform(this._transform3d);
         (targetElementProps as GeometricElement3dProps).placement = placement;
       }
     } else if (sourceElement instanceof GeometricElement2d) {
       const placement = Placement2d.fromJSON((targetElementProps as GeometricElement2dProps).placement);
-      if (placement.isValid) {
-        placement.multiplyTransform(this._transform3d!);
+      if (placement.isValid && this._transform3d !== undefined) {
+        placement.multiplyTransform(this._transform3d);
         (targetElementProps as GeometricElement2dProps).placement = placement;
       }
     }
-    this._sourceIdToTargetIdMap!.set(sourceElement.id, Id64.invalid); // keep track of (source) elementIds from the template model, but the target hasn't been inserted yet
+    if (this._sourceIdToTargetIdMap !== undefined) {
+      this._sourceIdToTargetIdMap.set(sourceElement.id, Id64.invalid); // keep track of (source) elementIds from the template model, but the target hasn't been inserted yet
+    }
     return targetElementProps;
   }
 }

@@ -90,9 +90,9 @@ abstract class TileRequestMemoizer<Result, Props extends TileRequestProps> exten
 
     this.deleteMemoized(props);
 
-    if (tileQP.isFulfilled) {
+    if (tileQP.result !== undefined && tileQP.isFulfilled) {
       this.log("completed", props);
-      return tileQP.result!;
+      return tileQP.result;
     }
 
     assert(tileQP.isRejected);

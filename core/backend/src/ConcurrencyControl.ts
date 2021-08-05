@@ -216,7 +216,7 @@ export class ConcurrencyControl {
    * @internal
    */
   public buildRequestForElementTo(request: ConcurrencyControl.Request, element: ElementProps, opcode: DbOpcode, elementClass?: typeof Element): void {
-    const original = (DbOpcode.Update === opcode) ? this.iModel.elements.getElement(element.id!) : undefined;
+    const original = (element.id !== undefined && DbOpcode.Update === opcode) ? this.iModel.elements.getElement(element.id) : undefined;
     if (elementClass === undefined)
       elementClass = this.iModel.getJsClass<typeof Element>(element.classFullName);
     elementClass.populateRequest(request, element, this.iModel, opcode, original);
@@ -632,7 +632,7 @@ export class ConcurrencyControl {
           continue;
         // This lock is held by some other briefcase at some level.
         // If we are requesting it at a higher level, then our request would be denied.
-        if (undefined !== req.locks.find((reqLock) => (reqLock.scope > lock.lockLevel!)))
+        if (undefined !== req.locks.find((reqLock) => (!lock.lockLevel || reqLock.scope > lock.lockLevel)))
           return false;
       }
     }
@@ -869,8 +869,8 @@ export namespace ConcurrencyControl { // eslint-disable-line no-redeclare
         return new RepositoryChannelInfo();
 
       const info = this.getChannelRootInfo(props);
-      if (info !== undefined)
-        return new ChannelRootInfo(props.id!, info);   // See comment on ChannelRootInfo for why we pretend that the root's channel is itself.
+      if (props.id && info)
+        return new ChannelRootInfo(props.id, info);   // See comment on ChannelRootInfo for why we pretend that the root's channel is itself.
 
       if (props.parent !== undefined && Id64.isValidId64(props.parent.id)) {
         const pc = this.getChannelOfElement(this._iModel.elements.getElement(props.parent));
@@ -1413,7 +1413,8 @@ export namespace ConcurrencyControl { // eslint-disable-line no-redeclare
         this._db.abandonChanges();
       this._db.closeDb();
 
-      StateCache.onClose(this._locksFileName!);
+      if (this._locksFileName)
+        StateCache.onClose(this._locksFileName);
     }
 
     private initializeDb() {
@@ -1475,7 +1476,8 @@ export namespace ConcurrencyControl { // eslint-disable-line no-redeclare
       if (this.isOpen)
         this.close(false);
 
-      IModelJsFs.unlinkSync(this._locksFileName!);
+      if (this._locksFileName)
+        IModelJsFs.unlinkSync(this._locksFileName);
     }
 
     public clear() {

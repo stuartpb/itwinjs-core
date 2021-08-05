@@ -44,7 +44,14 @@ export class IpcHost {
   public static noStack = false;
   private static _ipc: IpcSocketBackend | undefined;
   /** Get the implementation of the [IpcSocketBackend]($common) interface. */
-  private static get ipc(): IpcSocketBackend { return this._ipc!; }
+  private static get ipc(): IpcSocketBackend {
+    if (this._ipc !== undefined) {
+      return this._ipc;
+    } else {
+      throw new Error("IPC is undefined");
+    }
+
+  }
   /** Determine whether Ipc is available for this backend. This will only be true if [[startup]] has been called on this class. */
   public static get isValid(): boolean { return undefined !== this._ipc; }
 
@@ -230,8 +237,11 @@ class IpcAppHandler extends IpcHandler implements IpcAppFunctions {
     const val: IModelJsNative.ErrorStatusOrResult<any, boolean> = IModelDb.findByKey(key).nativeDb.setGeometricModelTrackingEnabled(startSession);
     if (val.error)
       throw new IModelError(val.error.status, "Failed to toggle graphical editing scope");
-
-    return val.result!;
+    if (val.result) {
+      return val.result;
+    } else {
+      throw new Error("Empty result after attempting to toggle graphical editing scope");
+    }
   }
   public async isGraphicalEditingSupported(key: string): Promise<boolean> {
     return IModelDb.findByKey(key).nativeDb.isGeometricModelTrackingSupported();

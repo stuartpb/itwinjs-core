@@ -48,7 +48,11 @@ export abstract class NativeAppAuthorizationBackend extends ImsAuthorizationClie
   public async getAccessToken(): Promise<AccessToken> {
     if (!this.isAuthorized)
       this.setAccessToken(await this.refreshToken());
-    return this._accessToken!;
+    if (this._accessToken !== undefined) {
+      return this._accessToken;
+    } else {
+      throw new Error("Access token is undefined");
+    }
   }
 
   public getClientRequestContext() { return ClientRequestContext.fromJSON(IModelHost.session); }
@@ -125,8 +129,12 @@ class NativeAppHandler extends IpcHandler implements NativeAppFunctions {
 
     const downloadPromise = BriefcaseManager.downloadBriefcase(await IModelHost.getAuthorizedContext(), args);
     const checkAbort = () => {
-      const job = Downloads.isInProgress(args.fileName!);
-      return (job && (job.request as any).abort === 1) ? 1 : 0;
+      if (args.fileName !== undefined) {
+        const job = Downloads.isInProgress(args.fileName);
+        return (job && (job.request as any).abort === 1) ? 1 : 0;
+      } else {
+        throw new Error("Filename in args is undefined.");
+      }
     };
     return downloadPromise;
   }

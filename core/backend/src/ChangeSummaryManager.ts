@@ -239,7 +239,7 @@ export class ChangeSummaryManager {
         Logger.logTrace(loggerCategory, `Actual Change summary extraction done for changeset #${i + 1}.`, () => ({ iModelId, changeSetId: currentChangeSetId }));
 
         perfLogger = new PerfLogger("ChangeSummaryManager.extractChangeSummaries>Add ChangeSet info to ChangeSummary");
-        const changeSummaryId = stat.result!;
+        const changeSummaryId = (stat.result !== undefined) ? stat.result : "";
         summaries.push(changeSummaryId);
         ChangeSummaryManager.addExtendedInfos(changesFile, changeSummaryId, currentChangeSetId, currentChangeSetInfo.parentId, currentChangeSetInfo.description, currentChangeSetInfo.pushDate, currentChangeSetInfo.userCreated);
         perfLogger.dispose();
@@ -535,7 +535,7 @@ export class ChangeSummaryManager {
       if (stat.error && stat.error.status !== DbResult.BE_SQLITE_OK)
         throw new IModelError(stat.error.status, stat.error.message);
 
-      changeSummaryId = stat.result!;
+      changeSummaryId = (stat.result !== undefined) ? stat.result : "";
       ChangeSummaryManager.addExtendedInfos(changesFile, changeSummaryId, changesetId, changeset.parentId, changeset.description, changeset.pushDate, changeset.userCreated);
 
       changesFile.saveChanges();

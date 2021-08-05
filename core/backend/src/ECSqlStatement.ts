@@ -92,14 +92,17 @@ export class ECSqlStatement implements IterableIterator<any>, IDisposable {
 
   /** Reset this statement so that the next call to step will return the first row, if any. */
   public reset(): void {
-    this._stmt!.reset();
+    this._stmt?.reset();
   }
 
   /** Get the Native SQL statement
    * @internal
    */
   public getNativeSql(): string {
-    return this._stmt!.getNativeSql();
+    if (this._stmt === undefined) {
+      throw new Error("SqliteStatement is undefined");
+    }
+    return this._stmt.getNativeSql();
   }
 
   /** Call this function when finished with this statement. This releases the native resources held by the statement.
@@ -217,7 +220,12 @@ export class ECSqlStatement implements IterableIterator<any>, IDisposable {
    * > or [ECSqlStatement.bindValues]($backend).
    * @param parameter Index (1-based) or name of the parameter
    */
-  public getBinder(parameter: string | number): ECSqlBinder { return new ECSqlBinder(this._stmt!.getBinder(parameter)); }
+  public getBinder(parameter: string | number): ECSqlBinder {
+    if (this._stmt === undefined) {
+      throw new Error("SqliteStatement is undefined");
+    }
+    return new ECSqlBinder(this._stmt.getBinder(parameter));
+  }
 
   /** Bind values to all parameters in the statement.
    * @param values The values to bind to the parameters.
@@ -279,12 +287,20 @@ export class ECSqlStatement implements IterableIterator<any>, IDisposable {
    *
    * See also: [Code Samples]($docs/learning/backend/ECSQLCodeExamples)
    */
-  public step(): DbResult { return this._stmt!.step(); }
+  public step(): DbResult {
+    if (this._stmt === undefined) {
+      throw new Error("SqliteStatement is undefined");
+    }
+    return this._stmt.step();
+  }
 
   /** @internal added this back in for testing purposes */
   public async stepAsync(): Promise<DbResult> {
     return new Promise((resolve, _reject) => {
-      this._stmt!.stepAsync(resolve);
+      if (this._stmt === undefined) {
+        throw new Error("SqliteStatement is undefined");
+      }
+      this._stmt.stepAsync(resolve);
     });
   }
 
@@ -297,7 +313,10 @@ export class ECSqlStatement implements IterableIterator<any>, IDisposable {
    * call. In case of error, the respective error code is returned.
    */
   public stepForInsert(): ECSqlInsertResult {
-    const r: { status: DbResult, id: string } = this._stmt!.stepForInsert();
+    if (this._stmt === undefined) {
+      throw new Error("SqliteStatement is undefined");
+    }
+    const r: { status: DbResult, id: string } = this._stmt.stepForInsert();
     if (r.status === DbResult.BE_SQLITE_DONE)
       return new ECSqlInsertResult(r.status, r.id);
 
@@ -305,7 +324,12 @@ export class ECSqlStatement implements IterableIterator<any>, IDisposable {
   }
 
   /** Get the query result's column count (only for ECSQL SELECT statements). */
-  public getColumnCount(): number { return this._stmt!.getColumnCount(); }
+  public getColumnCount(): number {
+    if (this._stmt === undefined) {
+      throw new Error("SqliteStatement is undefined");
+    }
+    return this._stmt.getColumnCount();
+  }
 
   /** Get the current row.
    * The returned row is formatted as JavaScript object where every SELECT clause item becomes a property in the JavaScript object.
@@ -373,7 +397,12 @@ export class ECSqlStatement implements IterableIterator<any>, IDisposable {
    *
    * See also: [Code Samples]($docs/learning/backend/ECSQLCodeExamples#working-with-the-query-result)
    */
-  public getValue(columnIx: number): ECSqlValue { return new ECSqlValue(this._stmt!.getValue(columnIx)); }
+  public getValue(columnIx: number): ECSqlValue {
+    if (this._stmt === undefined) {
+      throw new Error("SqliteStatement is undefined");
+    }
+    return new ECSqlValue(this._stmt.getValue(columnIx));
+  }
 }
 
 /** Binds a value to an ECSQL parameter.

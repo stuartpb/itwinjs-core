@@ -356,7 +356,7 @@ export class BriefcaseManager {
     const files = IModelJsFs.readdirSync(folderPathname);
     for (const file of files) {
       const curPath = path.join(folderPathname, file);
-      const locStatus = (IModelJsFs.lstatSync(curPath)!.isDirectory) ? BriefcaseManager.deleteFolderAndContents(curPath) : BriefcaseManager.deleteFile(curPath);
+      const locStatus = (IModelJsFs.lstatSync(curPath)?.isDirectory) ? BriefcaseManager.deleteFolderAndContents(curPath) : BriefcaseManager.deleteFile(curPath);
       if (!locStatus)
         status = false;
     }
@@ -512,7 +512,7 @@ export class BriefcaseManager {
     const changesetProps = db.nativeDb.startCreateChangeset();
     changesetProps.briefcaseId = db.briefcaseId;
     changesetProps.description = description;
-    changesetProps.size = IModelJsFs.lstatSync(changesetProps.pathname)!.size;
+    changesetProps.size = IModelJsFs.lstatSync(changesetProps.pathname)?.size;
 
     // Refresh the access token since startCreateChangeSet may have taken significant time
     const auth = IModelHost.authorizationClient;

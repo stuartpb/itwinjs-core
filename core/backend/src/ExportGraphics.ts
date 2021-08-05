@@ -269,11 +269,11 @@ export namespace ExportGraphics {
 
     const n: Float32Array = mesh.normals;
     for (let i = 0; i < n.length; i += 3)
-      polyface.data.normal!.pushXYZ(n[i], n[i + 1], n[i + 2]);
+      polyface.data.normal?.pushXYZ(n[i], n[i + 1], n[i + 2]);
 
     const uv: Float32Array = mesh.params;
     for (let i = 0; i < uv.length; i += 2)
-      polyface.data.param!.pushXY(uv[i], uv[i + 1]);
+      polyface.data.param?.pushXY(uv[i], uv[i + 1]);
 
     const indices = mesh.indices;
     const addIndex = (idx: number) => {

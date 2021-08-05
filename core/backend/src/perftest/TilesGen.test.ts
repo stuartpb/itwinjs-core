@@ -77,7 +77,9 @@ async function writeTileMetadata(outputDir: string, fileName: string, tileStats:
     if (!fs.existsSync(treePath))
       fs.mkdirSync(treePath);
     const tilePath = path.join(treePath, `${stat.contentId}.json`);
-    fs.writeFileSync(tilePath, stat.metadata!, { flag: "w" });
+    if (stat.metadata !== undefined) {
+      fs.writeFileSync(tilePath, stat.metadata, { flag: "w" });
+    }
   }
 }
 
@@ -107,11 +109,11 @@ async function writeOverallStats(result: TileResult, config: ConfigData, outputF
 
 async function generateResultFiles(result: TileResult, configData: ConfigData, resultFilePath: string) {
   const outputDir = path.dirname(resultFilePath);
-  if (configData.genParams.reportTileStats) {
-    await writeTileStats(outputDir, configData.iModelName, result.tileStats!);
+  if (result.tileStats !== undefined && configData.genParams.reportTileStats) {
+    await writeTileStats(outputDir, configData.iModelName, result.tileStats);
   }
-  if (configData.genParams.reportTileMetadata) {
-    await writeTileMetadata(outputDir, configData.iModelName, result.tileStats!);
+  if (result.tileStats !== undefined && configData.genParams.reportTileMetadata) {
+    await writeTileMetadata(outputDir, configData.iModelName, result.tileStats);
   }
   await writeOverallStats(result, configData, resultFilePath);
 }

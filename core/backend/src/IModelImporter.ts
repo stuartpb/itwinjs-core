@@ -129,7 +129,7 @@ export class IModelImporter {
 
   /** Format a Model for the Logger. */
   private formatModelForLogger(modelProps: ModelProps): string {
-    return `${modelProps.classFullName} [${modelProps.id!}]`;
+    return `${modelProps.classFullName} [${modelProps.id}]`;
   }
 
   /** Import the specified ElementProps (either as an insert or an update) into the target iModel. */
@@ -143,7 +143,11 @@ export class IModelImporter {
     } else {
       this.onInsertElement(elementProps); // targetElementProps.id assigned by insertElement
     }
-    return elementProps.id!;
+    if (undefined !== elementProps.id) {
+      return elementProps.id;
+    } else {
+      throw new Error("Element id is undefined");
+    }
   }
 
   /** Create a new Element from the specified ElementProps and insert it into the target iModel.
@@ -411,9 +415,9 @@ export class IModelImporter {
     Logger.logInfo(loggerCategory, `Current projectExtents=${JSON.stringify(this.targetDb.projectExtents)}`);
     Logger.logInfo(loggerCategory, `Computed projectExtents without outliers=${JSON.stringify(computedProjectExtents.extents)}`);
     Logger.logInfo(loggerCategory, `Computed projectExtents with outliers=${JSON.stringify(computedProjectExtents.extentsWithOutliers)}`);
-    if (this.autoExtendProjectExtents) {
+    if (this.autoExtendProjectExtents && computedProjectExtents.extentsWithOutliers !== undefined) {
       const excludeOutliers: boolean = typeof this.autoExtendProjectExtents === "object" ? this.autoExtendProjectExtents.excludeOutliers : false;
-      const newProjectExtents: AxisAlignedBox3d = excludeOutliers ? computedProjectExtents.extents : computedProjectExtents.extentsWithOutliers!;
+      const newProjectExtents: AxisAlignedBox3d = excludeOutliers ? computedProjectExtents.extents : computedProjectExtents.extentsWithOutliers;
       if (!newProjectExtents.isAlmostEqual(this.targetDb.projectExtents)) {
         this.targetDb.updateProjectExtents(newProjectExtents);
         Logger.logInfo(loggerCategory, `Updated projectExtents=${JSON.stringify(this.targetDb.projectExtents)}`);

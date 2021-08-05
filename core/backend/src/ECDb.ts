@@ -274,7 +274,9 @@ export class ECDb implements IDisposable {
 
   /** @internal */
   public get nativeDb(): IModelJsNative.ECDb {
-    return this._nativeDb!;
+    if (this._nativeDb)
+      return this._nativeDb;
+    throw new IModelError(DbResult.BE_SQLITE_ERROR, "Failed to get native database");
   }
 
   /** Compute number of rows that would be returned by the ECSQL.
@@ -325,54 +327,56 @@ export class ECDb implements IDisposable {
    */
   public async queryRows(ecsql: string, bindings?: any[] | object, limit?: QueryLimit, quota?: QueryQuota, priority?: QueryPriority, restartToken?: string, abbreviateBlobs?: boolean): Promise<QueryResponse> {
     const stats = this._concurrentQueryStats;
-    const config = IModelHost.configuration!.concurrentQuery;
-    stats.lastActivityTime = Date.now();
-    if (!this._concurrentQueryInitialized) {
-      // Initialize concurrent query and setup statistics reset timer
-      this._concurrentQueryInitialized = this.nativeDb.concurrentQueryInit(config);
-      stats.dispose = () => {
-        if (stats.logTimerHandle) {
-          clearInterval(stats.logTimerHandle);
-          stats.logTimerHandle = null;
-        }
-        if (stats.resetTimerHandle) {
-          clearInterval(stats.resetTimerHandle);
-          stats.resetTimerHandle = null;
-        }
-      };
-      // Concurrent query will reset and log statistics every 'resetStatisticsInterval'
-      const resetIntervalMs = 1000 * 60 * Math.max(config.resetStatisticsInterval ? config.resetStatisticsInterval : 60, 10);
-      stats.resetTimerHandle = setInterval(() => {
-        if (this.isOpen && this._concurrentQueryInitialized) {
-          try {
-            const timeElapsedSinceLastActivity = Date.now() - stats.lastActivityTime;
-            if (timeElapsedSinceLastActivity < logIntervalMs) {
-              const statistics = JSON.parse(this.nativeDb.captureConcurrentQueryStats(true));
-              Logger.logInfo(loggerCategory, "Resetting concurrent query statistics", () => statistics);
-            }
-          } catch { }
-        } else {
-          clearInterval(stats.resetTimerHandle);
-          stats.resetTimerHandle = null;
-        }
-      }, resetIntervalMs);
+    if (IModelHost.configuration !== undefined) {
+      const config = IModelHost.configuration.concurrentQuery;
+      stats.lastActivityTime = Date.now();
+      if (!this._concurrentQueryInitialized) {
+        // Initialize concurrent query and setup statistics reset timer
+        this._concurrentQueryInitialized = this.nativeDb.concurrentQueryInit(config);
+        stats.dispose = () => {
+          if (stats.logTimerHandle) {
+            clearInterval(stats.logTimerHandle);
+            stats.logTimerHandle = null;
+          }
+          if (stats.resetTimerHandle) {
+            clearInterval(stats.resetTimerHandle);
+            stats.resetTimerHandle = null;
+          }
+        };
+        // Concurrent query will reset and log statistics every 'resetStatisticsInterval'
+        const resetIntervalMs = 1000 * 60 * Math.max(config.resetStatisticsInterval ? config.resetStatisticsInterval : 60, 10);
+        stats.resetTimerHandle = setInterval(() => {
+          if (this.isOpen && this._concurrentQueryInitialized) {
+            try {
+              const timeElapsedSinceLastActivity = Date.now() - stats.lastActivityTime;
+              if (timeElapsedSinceLastActivity < logIntervalMs) {
+                const statistics = JSON.parse(this.nativeDb.captureConcurrentQueryStats(true));
+                Logger.logInfo(loggerCategory, "Resetting concurrent query statistics", () => statistics);
+              }
+            } catch { }
+          } else {
+            clearInterval(stats.resetTimerHandle);
+            stats.resetTimerHandle = null;
+          }
+        }, resetIntervalMs);
 
-      // Concurrent query will log statistics every 'logStatisticsInterval'
-      const logIntervalMs = 1000 * 60 * Math.max(config.logStatisticsInterval ? config.logStatisticsInterval : 5, 5);
-      stats.logTimerHandle = setInterval(() => {
-        if (this.isOpen && this._concurrentQueryInitialized) {
-          try {
-            const timeElapsedSinceLastActivity = Date.now() - stats.lastActivityTime;
-            if (timeElapsedSinceLastActivity < logIntervalMs) {
-              const statistics = JSON.parse(this.nativeDb.captureConcurrentQueryStats(false));
-              Logger.logInfo(loggerCategory, "Concurrent query statistics", () => statistics);
-            }
-          } catch { }
-        } else {
-          clearInterval(stats.logTimerHandle);
-          stats.logTimerHandle = null;
-        }
-      }, logIntervalMs);
+        // Concurrent query will log statistics every 'logStatisticsInterval'
+        const logIntervalMs = 1000 * 60 * Math.max(config.logStatisticsInterval ? config.logStatisticsInterval : 5, 5);
+        stats.logTimerHandle = setInterval(() => {
+          if (this.isOpen && this._concurrentQueryInitialized) {
+            try {
+              const timeElapsedSinceLastActivity = Date.now() - stats.lastActivityTime;
+              if (timeElapsedSinceLastActivity < logIntervalMs) {
+                const statistics = JSON.parse(this.nativeDb.captureConcurrentQueryStats(false));
+                Logger.logInfo(loggerCategory, "Concurrent query statistics", () => statistics);
+              }
+            } catch { }
+          } else {
+            clearInterval(stats.logTimerHandle);
+            stats.logTimerHandle = null;
+          }
+        }, logIntervalMs);
+      }
     }
 
     if (!bindings) bindings = [];
@@ -385,7 +389,7 @@ export class ECDb implements IDisposable {
       if (sessionRestartToken !== "")
         sessionRestartToken = `${ClientRequestContext.current.sessionId}:${sessionRestartToken}`;
 
-      const postResult = this.nativeDb.postConcurrentQuery(ecsql, JSON.stringify(bindings, Base64EncodedString.replacer), limit!, quota!, priority!, sessionRestartToken, abbreviateBlobs);
+      const postResult = this.nativeDb.postConcurrentQuery(ecsql, JSON.stringify(bindings, Base64EncodedString.replacer), limit, quota, priority, sessionRestartToken, abbreviateBlobs);
       if (postResult.status !== IModelJsNative.ConcurrentQuery.PostStatus.Done)
         resolve({ status: QueryResponseStatus.PostError, rows: [] });
 
@@ -402,14 +406,14 @@ export class ECDb implements IDisposable {
           } else if (pollResult.status === IModelJsNative.ConcurrentQuery.PollStatus.Timeout)
             resolve({ status: QueryResponseStatus.Timeout, rows: [] });
           else if (pollResult.status === IModelJsNative.ConcurrentQuery.PollStatus.Pending)
-            setTimeout(() => { poll(); }, IModelHost.configuration!.concurrentQuery.pollInterval);
+            setTimeout(() => { poll(); }, IModelHost.configuration?.concurrentQuery.pollInterval);
           else if (pollResult.status === IModelJsNative.ConcurrentQuery.PollStatus.Cancelled)
             resolve({ status: QueryResponseStatus.Cancelled, rows: [pollResult.result] });
           else
             resolve({ status: QueryResponseStatus.Error, rows: [pollResult.result] });
         }
       };
-      setTimeout(() => { poll(); }, IModelHost.configuration!.concurrentQuery.pollInterval);
+      setTimeout(() => { poll(); }, IModelHost.configuration?.concurrentQuery.pollInterval);
     });
   }
   /** Execute a query and stream its results

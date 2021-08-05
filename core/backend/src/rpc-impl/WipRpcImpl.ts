@@ -29,10 +29,10 @@ export class WipRpcImpl extends RpcInterface implements WipRpcInterface {
   }
 
   public async getChangedElements(tokenProps: IModelRpcProps, startChangesetId: string, endChangesetId: string): Promise<ChangedElements | undefined> {
-    return ChangedElementsManager.getChangedElements(tokenProps.iModelId!, startChangesetId, endChangesetId);
+    return tokenProps.iModelId !== undefined ? ChangedElementsManager.getChangedElements(tokenProps.iModelId, startChangesetId, endChangesetId) : undefined;
   }
 
   public async isChangesetProcessed(tokenProps: IModelRpcProps, changesetId: string): Promise<boolean> {
-    return ChangedElementsManager.isProcessed(tokenProps.iModelId!, changesetId);
+    return tokenProps.iModelId !== undefined && ChangedElementsManager.isProcessed(tokenProps.iModelId, changesetId);
   }
 }

@@ -40,7 +40,7 @@ async function getIModelAfterApplyingCS(requestContext: AuthorizedClientRequestC
   assert.exists(iModelDb);
   const elapsedTime = (endTime - startTime) / 1000.0;
   assert.strictEqual(iModelDb.changeset.id, firstChangeSetId);
-  assert.strictEqual(iModelDb.changeset.index, parseInt(changeSets[0].index!, 10));
+  assert.strictEqual(iModelDb.changeset.index, changeSets[0].index !== undefined ? parseInt(changeSets[0].index, 10) : undefined);
   iModelDb.close();
   reporter.addEntry("ImodelChangesetPerformance", "GetImodel", "Execution time(s)", elapsedTime, { Description: "from hub first CS", Operation: "Open" });
 
@@ -51,7 +51,7 @@ async function getIModelAfterApplyingCS(requestContext: AuthorizedClientRequestC
   assert.exists(iModelDb1);
   const elapsedTime1 = (endTime1 - startTime1) / 1000.0;
   assert.strictEqual(iModelDb1.changeset.id, secondChangeSetId);
-  assert.strictEqual(iModelDb.changeset.index, parseInt(changeSets[1].index!, 10));
+  assert.strictEqual(iModelDb.changeset.index, changeSets[1].index !== undefined ? parseInt(changeSets[1].index, 10) : undefined);
   iModelDb1.close();
   reporter.addEntry("ImodelChangesetPerformance", "GetImodel", "Execution time(s)", elapsedTime1, { Description: "from cache second CS", Operation: "Open" });
 
@@ -131,7 +131,9 @@ async function pushIModelAfterDataChanges(requestContext: AuthorizedClientReques
   // delete any existing imodel with given name
   const iModels = await IModelHubBackend.iModelClient.iModels.get(requestContext, projectId, new IModelQuery().byName(iModelName));
   for (const iModelTemp of iModels) {
-    await IModelHost.hubAccess.deleteIModel({ requestContext, contextId: projectId, iModelId: iModelTemp.id! });
+    if (iModelTemp.id !== undefined) {
+      await IModelHost.hubAccess.deleteIModel({ requestContext, contextId: projectId, iModelId: iModelTemp.id });
+    }
   }
   // create new imodel with given name
   const rwIModelId = await IModelHost.hubAccess.createIModel({ requestContext, contextId: projectId, iModelName, description: "TestSubject" });
@@ -158,7 +160,9 @@ async function pushIModelAfterSchemaChanges(requestContext: AuthorizedClientRequ
   // delete any existing imodel with given name
   const iModels = await IModelHubBackend.iModelClient.iModels.get(requestContext, projectId, new IModelQuery().byName(iModelName));
   for (const iModelTemp of iModels) {
-    await IModelHost.hubAccess.deleteIModel({ requestContext, contextId: projectId, iModelId: iModelTemp.id! });
+    if (iModelTemp.id !== undefined) {
+      await IModelHost.hubAccess.deleteIModel({ requestContext, contextId: projectId, iModelId: iModelTemp.id });
+    }
   }
   // create new imodel with given name
   const rwIModelId = await IModelHost.hubAccess.createIModel({ requestContext, contextId: projectId, iModelName, description: "TestSubject" });
@@ -204,9 +208,11 @@ async function reverseChanges(requestContext: AuthorizedClientRequestContext, re
   const iModelName = "reverseChangeTest";
   // delete any existing imodel with given name
   const iModels = await IModelHubBackend.iModelClient.iModels.get(requestContext, projectId, new IModelQuery().byName(iModelName));
-  for (const iModelTemp of iModels)
-    await IModelHost.hubAccess.deleteIModel({ requestContext, contextId: projectId, iModelId: iModelTemp.id! });
-
+  for (const iModelTemp of iModels) {
+    if (iModelTemp.id !== undefined) {
+      await IModelHost.hubAccess.deleteIModel({ requestContext, contextId: projectId, iModelId: iModelTemp.id });
+    }
+  }
   // create new imodel with given name
   const rwIModelId = await IModelHost.hubAccess.createIModel({ requestContext, contextId: projectId, iModelName, description: "TestSubject" });
   assert.isNotEmpty(rwIModelId);
@@ -250,8 +256,11 @@ async function reinstateChanges(requestContext: AuthorizedClientRequestContext, 
   const iModelName = "reinstateChangeTest";
   // delete any existing imodel with given name
   const iModels = await IModelHubBackend.iModelClient.iModels.get(requestContext, projectId, new IModelQuery().byName(iModelName));
-  for (const iModelTemp of iModels)
-    await IModelHost.hubAccess.deleteIModel({ requestContext, contextId: projectId, iModelId: iModelTemp.id! });
+  for (const iModelTemp of iModels) {
+    if (iModelTemp.id !== undefined) {
+      await IModelHost.hubAccess.deleteIModel({ requestContext, contextId: projectId, iModelId: iModelTemp.id });
+    }
+  }
 
   // create new imodel with given name
   const rwIModelId = await IModelHost.hubAccess.createIModel({ requestContext, contextId: projectId, iModelName, description: "TestSubject" });
@@ -382,21 +391,24 @@ describe("ImodelChangesetPerformance big datasets", () => {
   async function downloadChangesets(requestContext: AuthorizedClientRequestContext, imodelId: string, changeSets: ChangeSet[], downloadDir: string) {
     if (fs.existsSync(downloadDir))
       fs.removeSync(downloadDir);
-    // get first changeset as betweenChangeSets skips the first entry
-    const csQuery1 = new ChangeSetQuery();
-    csQuery1.byId(changeSets[0].id!);
-    await IModelHubBackend.iModelClient.changeSets.download(requestContext, imodelId, csQuery1, downloadDir);
-    const incr: number = 100;
-    for (let j = 0; j <= changeSets.length; j = j + incr) {
-      const csQuery = new ChangeSetQuery();
-      if ((j + incr) < changeSets.length)
-        csQuery.betweenChangeSets(changeSets[j].id!, changeSets[j + incr].id);
-      else
-        csQuery.betweenChangeSets(changeSets[j].id!, changeSets[changeSets.length - 1].id);
-      csQuery.selectDownloadUrl();
+    if (changeSets[0].id !== undefined) {
+      // get first changeset as betweenChangeSets skips the first entry
+      const csQuery1 = new ChangeSetQuery();
+      csQuery1.byId(changeSets[0].id);
+      await IModelHubBackend.iModelClient.changeSets.download(requestContext, imodelId, csQuery1, downloadDir);
+      const incr: number = 100;
+      for (let j = 0; j <= changeSets.length; j = j + incr) {
+        const csQuery = new ChangeSetQuery();
+        if ((j + incr) < changeSets.length) {
+          csQuery.betweenChangeSets(changeSets[j].id!, changeSets[j + incr].id);
+        } else {
+          csQuery.betweenChangeSets(changeSets[j].id!, changeSets[changeSets.length - 1].id);
+        }
+        csQuery.selectDownloadUrl();
 
-      requestContext.enter();
-      await IModelHubBackend.iModelClient.changeSets.download(requestContext, imodelId, csQuery, downloadDir);
+        requestContext.enter();
+        await IModelHubBackend.iModelClient.changeSets.download(requestContext, imodelId, csQuery, downloadDir);
+      }
     }
   }
   async function setupIModel(modelInfo: any) {
@@ -441,7 +453,7 @@ describe("ImodelChangesetPerformance big datasets", () => {
     fs.writeFileSync(path.join(downloadDir, "summary.json"), JSON.stringify(modelSummary, undefined, 4));
 
     // now download the seed file, if not there
-    const seedPathname = path.join(downloadDir, "seed", modelInfo.modelName!.concat(".bim"));
+    const seedPathname = path.join(downloadDir, "seed", modelInfo.modelName.concat(".bim"));
     if (!fs.existsSync(seedPathname))
       await IModelHubBackend.iModelClient.iModels.download(requestContext, modelInfo.modelId, seedPathname);
 
@@ -464,9 +476,11 @@ describe("ImodelChangesetPerformance big datasets", () => {
           return !csFiles.find((obj) => obj === el.fileName);
         });
         for (const cs of missingChangesets) {
-          const csQuery = new ChangeSetQuery();
-          csQuery.byId(cs.id!);
-          await IModelHubBackend.iModelClient.changeSets.download(requestContext, modelInfo.modelId, csQuery, csDir);
+          if (cs.id !== undefined) {
+            const csQuery = new ChangeSetQuery();
+            csQuery.byId(cs.id);
+            await IModelHubBackend.iModelClient.changeSets.download(requestContext, modelInfo.modelId, csQuery, csDir);
+          }
         }
       } else {
         // download all again
@@ -645,8 +659,12 @@ describe("ImodelChangesetPerformance own data", () => {
     query.byId(changeSet.wsgId);
     const downloadDir = path.join(BriefcaseManager.cacheDir, modelId, "csets");
     await IModelHubBackend.iModelClient.changeSets.download(requestContext, modelId, query, downloadDir);
-    const pathname = path.join(downloadDir, changeSet.fileName!);
-    return { id: changeSet.id!, parentId: changeSet.parentId!, pathname, changesType: changeSet.changesType!, index: +changeSet.index!, pushDate: "", userCreated: "", briefcaseId: 0, description: "" };
+    if (changeSet.fileName !== undefined && changeSet.id !== undefined && changeSet.parentId !== undefined && changeSet.changesType !== undefined && changeSet.index !== undefined) {
+      const pathname = path.join(downloadDir, changeSet.fileName);
+      return { id: changeSet.id, parentId: changeSet.parentId, pathname, changesType: changeSet.changesType, index: +changeSet.index, pushDate: "", userCreated: "", briefcaseId: 0, description: "" };
+    } else {
+      throw new Error("Failed to retrieve token - invalid changeset");
+    }
   }
 
   before(async () => {
@@ -784,14 +802,14 @@ describe("ImodelChangesetPerformance own data", () => {
       const iModelName = `${iModelNameBase}I_${opSize.toString()}`;
       const iModels = await IModelHubBackend.iModelClient.iModels.get(requestContext, projectId, new IModelQuery().byName(iModelName));
       const iModel = iModels.find((im) => im.name === iModelName);
-      if (iModel) {
+      if (iModel && iModel.id !== undefined) {
         // eslint-disable-next-line no-console
         console.log(`Downloading iModel ${iModelName} from iModelHub.`);
-        const iModelPathname = path.join(BriefcaseManager.cacheDir, iModel.id!, `${iModelName}_insert.bim`);
-        await setupLocalIModel(projectId, iModel.id!, iModelPathname);
+        const iModelPathname = path.join(BriefcaseManager.cacheDir, iModel.id, `${iModelName}_insert.bim`);
+        await setupLocalIModel(projectId, iModel.id, iModelPathname);
         const saIModel: StandaloneDb = StandaloneDb.openFile(iModelPathname, OpenMode.ReadWrite);
         // download last changeset file
-        const csToken = await lastChangesetToken(iModel.id!);
+        const csToken = await lastChangesetToken(iModel.id);
         const applyOption = ChangeSetApplyOption.Merge;
         // eslint-disable-next-line no-console
         console.log(`Applying Insert changeset to iModel ${iModelName}.`);
@@ -816,14 +834,14 @@ describe("ImodelChangesetPerformance own data", () => {
       const iModelName = `${iModelNameBase}D_${opSize.toString()}`;
       const iModels = await IModelHubBackend.iModelClient.iModels.get(requestContext, projectId, new IModelQuery().byName(iModelName));
       const iModel = iModels.find((im) => im.name === iModelName);
-      if (iModel) {
+      if (iModel && iModel.id !== undefined) {
         // eslint-disable-next-line no-console
         console.log(`Downloading iModel ${iModelName} from iModelHub.`);
-        const iModelPathname = path.join(BriefcaseManager.cacheDir, iModel.id!, `${iModelName}_delete.bim`);
-        await setupLocalIModel(projectId, iModel.id!, iModelPathname);
+        const iModelPathname = path.join(BriefcaseManager.cacheDir, iModel.id, `${iModelName}_delete.bim`);
+        await setupLocalIModel(projectId, iModel.id, iModelPathname);
         const saIModel: StandaloneDb = StandaloneDb.openFile(iModelPathname, OpenMode.ReadWrite);
         // download last changeset file
-        const csToken = await lastChangesetToken(iModel.id!);
+        const csToken = await lastChangesetToken(iModel.id);
         const applyOption = ChangeSetApplyOption.Merge;
         // eslint-disable-next-line no-console
         console.log(`Applying Delete changeset to iModel ${iModelName}.`);
@@ -847,14 +865,14 @@ describe("ImodelChangesetPerformance own data", () => {
       const iModelName = `${iModelNameBase}U_${opSize.toString()}`;
       const iModels = await IModelHubBackend.iModelClient.iModels.get(requestContext, projectId, new IModelQuery().byName(iModelName));
       const iModel = iModels.find((im) => im.name === iModelName);
-      if (iModel) {
+      if (iModel && iModel.id !== undefined) {
         // eslint-disable-next-line no-console
         console.log(`Downloading iModel ${iModelName} from iModelHub.`);
-        const iModelPathname = path.join(BriefcaseManager.cacheDir, iModel.id!, `${iModelName}_update.bim`);
-        await setupLocalIModel(projectId, iModel.id!, iModelPathname);
+        const iModelPathname = path.join(BriefcaseManager.cacheDir, iModel.id, `${iModelName}_update.bim`);
+        await setupLocalIModel(projectId, iModel.id, iModelPathname);
         const saIModel: StandaloneDb = StandaloneDb.openFile(iModelPathname, OpenMode.ReadWrite);
         // download last changeset file
-        const csToken = await lastChangesetToken(iModel.id!);
+        const csToken = await lastChangesetToken(iModel.id);
         const applyOption = ChangeSetApplyOption.Merge;
         // eslint-disable-next-line no-console
         console.log(`Applying Update changeset to iModel ${iModelName}.`);

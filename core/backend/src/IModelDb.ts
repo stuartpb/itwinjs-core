@@ -126,11 +126,21 @@ export abstract class IModelDb extends IModel {
   public get isReadonly(): boolean { return this.openMode === OpenMode.Readonly; }
 
   /** The Guid that identifies this iModel. */
-  public override get iModelId(): GuidString { return super.iModelId!; } // GuidString | undefined for the IModel superclass, but required for all IModelDb subclasses
+  public override get iModelId(): GuidString {
+    if (super.iModelId === undefined) {
+      throw new IModelError(BentleyStatus.ERROR, "IModel superclass id is undefined");
+    }
+    return super.iModelId; // GuidString | undefined for the IModel superclass, but required for all IModelDb subclasses
+  }
 
   private _nativeDb?: IModelJsNative.DgnDb;
   /** @internal*/
-  public get nativeDb(): IModelJsNative.DgnDb { return this._nativeDb!; }
+  public get nativeDb(): IModelJsNative.DgnDb {
+    if (this._nativeDb === undefined) {
+      throw new IModelError(BentleyStatus.ERROR, "Native DB is undefined");
+    }
+    return this._nativeDb;
+  }
 
   /** Get the full path fileName of this iModelDb
    * @note this member is only valid while the iModel is opened.
@@ -340,7 +350,10 @@ export abstract class IModelDb extends IModel {
    */
   public async queryRows(ecsql: string, bindings?: any[] | object, limit?: QueryLimit, quota?: QueryQuota, priority?: QueryPriority, restartToken?: string, abbreviateBlobs?: boolean): Promise<QueryResponse> {
     const stats = this._concurrentQueryStats;
-    const config = IModelHost.configuration!.concurrentQuery;
+    if (IModelHost.configuration === undefined) {
+      throw new IModelError(DbResult.BE_SQLITE_ERROR, "Configuration is undefined");
+    }
+    const config = IModelHost.configuration.concurrentQuery;
     stats.lastActivityTime = Date.now();
     if (!this._concurrentQueryInitialized) {
       // Initialize concurrent query and setup statistics reset timer
@@ -403,7 +416,7 @@ export abstract class IModelDb extends IModel {
         if (sessionRestartToken !== "")
           sessionRestartToken = `${ClientRequestContext.current.sessionId}:${sessionRestartToken}`;
 
-        const postResult = this.nativeDb.postConcurrentQuery(ecsql, JSON.stringify(bindings, Base64EncodedString.replacer), limit!, quota!, priority!, sessionRestartToken, abbreviateBlobs);
+        const postResult = this.nativeDb.postConcurrentQuery(ecsql, JSON.stringify(bindings, Base64EncodedString.replacer), limit, quota, priority, sessionRestartToken, abbreviateBlobs);
         if (postResult.status !== IModelJsNative.ConcurrentQuery.PostStatus.Done)
           resolve({ status: QueryResponseStatus.PostError, rows: [] });
 
@@ -1046,7 +1059,11 @@ export abstract class IModelDb extends IModel {
     if (val.error)
       throw new IModelError(val.error.status, `Error getting class meta data for: ${classFullName}`);
 
-    const metaData = new EntityMetaData(JSON.parse(val.result!));
+    if (val.result === undefined) {
+      throw new IModelError(val.error.status, `Undefined result when getting class meta data for: ${classFullName}`);
+    }
+
+    const metaData = new EntityMetaData(JSON.parse(val.result));
     this.classMetaDataRegistry.add(classFullName, metaData);
 
     // Recursive, to make sure that base classes are cached.
@@ -1158,13 +1175,14 @@ export abstract class IModelDb extends IModel {
     return new Promise<SnapResponseProps>((resolve, reject) => {
       if (!this.isOpen) {
         reject(new Error("not open"));
-      } else {
-        request!.doSnap(this.nativeDb, JsonUtils.toObject(props), (ret: IModelJsNative.ErrorStatusOrResult<IModelStatus, SnapResponseProps>) => {
+      } else if (request !== undefined) {
+        request.doSnap(this.nativeDb, JsonUtils.toObject(props), (ret: IModelJsNative.ErrorStatusOrResult<IModelStatus, SnapResponseProps>) => {
           this._snaps.delete(sessionId);
-          if (ret.error !== undefined)
+          if (ret.error !== undefined) {
             reject(new Error(ret.error.message));
-          else
-            resolve(ret.result!); // eslint-disable-line @typescript-eslint/no-unnecessary-type-assertion
+          } else if (ret.result !== undefined) {
+            resolve(ret.result); // eslint-disable-line @typescript-eslint/no-unnecessary-type-assertion
+          }
         });
       }
     });
@@ -1187,10 +1205,11 @@ export abstract class IModelDb extends IModel {
         reject(new Error("not open"));
       } else {
         this.nativeDb.getGeometryContainment(JSON.stringify(props), (ret: IModelJsNative.ErrorStatusOrResult<IModelStatus, GeometryContainmentResponseProps>) => {
-          if (ret.error !== undefined)
+          if (ret.error !== undefined) {
             reject(new Error(ret.error.message));
-          else
-            resolve(ret.result!);
+          } else if (ret.result !== undefined) {
+            resolve(ret.result);
+          }
         });
       }
     });
@@ -1204,10 +1223,11 @@ export abstract class IModelDb extends IModel {
         reject(new Error("not open"));
       } else {
         this.nativeDb.getMassProperties(JSON.stringify(props), (ret: IModelJsNative.ErrorStatusOrResult<IModelStatus, MassPropertiesResponseProps>) => {
-          if (ret.error !== undefined)
+          if (ret.error !== undefined) {
             reject(new Error(ret.error.message));
-          else
-            resolve(ret.result!);
+          } else if (ret.result !== undefined) {
+            resolve(ret.result);
+          }
         });
       }
     });
@@ -1431,7 +1451,10 @@ export namespace IModelDb { // eslint-disable-line no-redeclare
       if (modeledElementProps.id === IModel.rootSubjectId) {
         throw new IModelError(IModelStatus.NotFound, "Root subject does not have a sub-model");
       }
-      return this.getModel<T>(modeledElementProps.id!, modelClass);
+      if (modeledElementProps.id === undefined) {
+        throw new Error("Failed to get sub-model")
+      }
+      return this.getModel<T>(modeledElementProps.id, modelClass);
     }
 
     /** Get the sub-model of the specified Element.
@@ -1443,10 +1466,10 @@ export namespace IModelDb { // eslint-disable-line no-redeclare
      */
     public tryGetSubModel<T extends Model>(modeledElementId: Id64String | GuidString | Code, modelClass?: EntityClassType<Model>): T | undefined {
       const modeledElementProps = this._iModel.elements.tryGetElementProps(modeledElementId);
-      if ((undefined === modeledElementProps) || (IModel.rootSubjectId === modeledElementProps.id)) {
+      if ((undefined === modeledElementProps) || (undefined === modeledElementProps.id) || (IModel.rootSubjectId === modeledElementProps.id)) {
         return undefined;
       }
-      return this.tryGetModel<T>(modeledElementProps.id!, modelClass);
+      return this.tryGetModel<T>(modeledElementProps.id, modelClass);
     }
 
     /** Create a new model in memory.
@@ -2191,7 +2214,12 @@ export class BriefcaseDb extends IModelDb {
   }
 
   /** The Guid that identifies the *context* that owns this iModel. */
-  public override get contextId(): GuidString { return super.contextId!; } // GuidString | undefined for the superclass, but required for BriefcaseDb
+  public override get contextId(): GuidString {
+    if (super.contextId === undefined) {
+      throw new Error("Superclass context ID is undefined");
+    }
+    return super.contextId;  // GuidString | undefined for the superclass, but required for BriefcaseDb
+  }
 
   /** Get the ConcurrencyControl for this iModel.
    * The concurrency control is used available *only* if the briefcase has been setup to synchronize changes with iModelHub (i.e., syncMode = SyncMode.PullAndPush),
@@ -2503,7 +2531,10 @@ export class SnapshotDb extends IModelDb {
   public static openForApplyChangesets(path: string, props?: SnapshotOpenOptions): SnapshotDb {
     const file = { path, key: props?.key };
     const nativeDb = this.openDgnDb(file, OpenMode.ReadWrite, undefined, props);
-    return new SnapshotDb(nativeDb, file.key!);
+    if (file.key === undefined) {
+      throw new Error("File key is undefined");
+    }
+    return new SnapshotDb(nativeDb, file.key);
   }
 
   /** Open a read-only iModel *snapshot*.
@@ -2515,7 +2546,10 @@ export class SnapshotDb extends IModelDb {
   public static openFile(path: string, opts?: SnapshotOpenOptions): SnapshotDb {
     const file = { path, key: opts?.key };
     const nativeDb = this.openDgnDb(file, OpenMode.Readonly, undefined, opts);
-    return new SnapshotDb(nativeDb, file.key!);
+    if (file.key === undefined) {
+      throw new Error("File key is undefined");
+    }
+    return new SnapshotDb(nativeDb, file.key);
   }
 
   /** Open a previously downloaded V1 checkpoint file.
@@ -2560,8 +2594,8 @@ export class SnapshotDb extends IModelDb {
    * @internal
    */
   public override async reattachDaemon(requestContext: AuthorizedClientRequestContext): Promise<void> {
-    if (undefined !== this._reattachDueTimestamp && this._reattachDueTimestamp <= Date.now()) {
-      const { expiryTimestamp } = await V2CheckpointManager.attach({ requestContext, contextId: this.contextId!, iModelId: this.iModelId, changeSetId: this.changeset.id });
+    if (undefined !== this.contextId && undefined !== this._reattachDueTimestamp && this._reattachDueTimestamp <= Date.now()) {
+      const { expiryTimestamp } = await V2CheckpointManager.attach({ requestContext, contextId: this.contextId, iModelId: this.iModelId, changeSetId: this.changeset.id });
       this.setReattachDueTimestamp(expiryTimestamp);
     }
   }
@@ -2683,6 +2717,9 @@ export class StandaloneDb extends IModelDb {
       throw error;
     }
 
-    return new StandaloneDb(nativeDb, file.key!);
+    if (file.key === undefined) {
+      throw new Error("File key is undefined");
+    }
+    return new StandaloneDb(nativeDb, file.key);
   }
 }

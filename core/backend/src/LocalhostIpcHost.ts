@@ -31,7 +31,9 @@ class LocalTransport extends IpcWebSocketTransport {
   }
 
   public send(message: IpcWebSocketMessage): void {
-    this._connection!.send(JSON.stringify(message));
+    if (this._connection !== undefined) {
+      this._connection.send(JSON.stringify(message));
+    }
   }
 }
 

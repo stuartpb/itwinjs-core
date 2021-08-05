@@ -103,7 +103,7 @@ export class IModelHubBackend {
 
   public static async queryIModelByName(arg: { requestContext?: AuthorizedClientRequestContext, contextId: GuidString, iModelName: string }): Promise<GuidString | undefined> {
     const iModels = await this.iModelClient.iModels.get(await this.getRequestContext(arg), arg.contextId, new IModelQuery().byName(arg.iModelName));
-    return iModels.length === 0 ? undefined : iModels[0].id!;
+    return iModels.length === 0 ? undefined : iModels[0].id;
   }
 
   public static async pushChangeset(arg: IModelIdArg & { changesetProps: ChangesetFileProps }): Promise<ChangesetIndex> {
@@ -112,7 +112,9 @@ export class IModelHubBackend {
     changeset.id = changesetProps.id;
     changeset.parentId = changesetProps.parentId;
     changeset.changesType = changesetProps.changesType as number;
-    changeset.fileSize = changesetProps.size!.toString();
+    if (changesetProps.size !== undefined) {
+      changeset.fileSize = changesetProps.size.toString();
+    }
     changeset.description = changesetProps.description;
     changeset.briefcaseId = changesetProps.briefcaseId;
     if (changeset.description.length >= 255) {

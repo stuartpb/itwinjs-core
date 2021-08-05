@@ -66,9 +66,11 @@ export class IModelReadRpcImpl extends RpcInterface implements IModelReadRpcInte
           throw val.error; // if they're asking for more than one model, don't throw on error.
         continue;
       }
-      const range = JSON.parse(val.result!);
-      if (range.modelExtents) {
-        ranges.push(range.modelExtents);
+      if (val.result !== undefined) {
+        const range = JSON.parse(val.result);
+        if (range.modelExtents) {
+          ranges.push(range.modelExtents);
+        }
       }
     }
     return ranges;

@@ -25,23 +25,25 @@ export class ECSchemaXmlContext {
   }
 
   public addSchemaPath(searchPath: string): void {
-    this._nativeContext!.addSchemaPath(searchPath);
+    this._nativeContext?.addSchemaPath(searchPath);
   }
 
   public setSchemaLocater(locater: IModelJsNative.ECSchemaXmlContext.SchemaLocaterCallback): void {
-    this._nativeContext!.setSchemaLocater(locater);
+    this._nativeContext?.setSchemaLocater(locater);
   }
 
   public setFirstSchemaLocater(locater: IModelJsNative.ECSchemaXmlContext.SchemaLocaterCallback): void {
-    this._nativeContext!.setFirstSchemaLocater(locater);
+    this._nativeContext?.setFirstSchemaLocater(locater);
   }
 
   public readSchemaFromXmlFile(filePath: string): any {
-    const response = this._nativeContext!.readSchemaFromXmlFile(filePath);
-    if (response.error) {
+    const response = this._nativeContext?.readSchemaFromXmlFile(filePath);
+    if (response !== undefined && response.error) {
       throw new IModelError(response.error.status, response.error.message);
     }
-
-    return JSON.parse(response.result!);
+    if (response !== undefined && response.result !== undefined) {
+      return JSON.parse(response.result);
+    }
+    throw new Error("Unable to read schema from xml file");
   }
 }

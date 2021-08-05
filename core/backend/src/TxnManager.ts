@@ -158,7 +158,7 @@ class ChangedEntitiesProc {
     evt.raiseEvent(txnEntities);
 
     // Notify frontend listeners.
-    const entities: ChangedEntities = { };
+    const entities: ChangedEntities = {};
     this._inserted.addToChangedEntities(entities, "inserted");
     this._deleted.addToChangedEntities(entities, "deleted");
     this._updated.addToChangedEntities(entities, "updated");
@@ -180,24 +180,28 @@ class ChangedEntitiesProc {
         ? "SELECT ElementId, ChangeType, ECClassId FROM temp.txn_Elements"
         : "SELECT ModelId, ChangeType, ECClassId FROM temp.txn_Models";
       iModel.withPreparedSqliteStatement(select, (sql: SqliteStatement) => {
-        const stmt = sql.stmt!;
-        while (sql.step() === DbResult.BE_SQLITE_ROW) {
-          const id = stmt.getValueId(0);
-          const classId = stmt.getValueId(2);
-          switch (stmt.getValueInteger(1)) {
-            case 0:
-              changes._inserted.insert(id, classId);
-              break;
-            case 1:
-              changes._updated.insert(id, classId);
-              break;
-            case 2:
-              changes._deleted.insert(id, classId);
-              break;
-          }
+        if (sql.stmt !== undefined) {
+          const stmt = sql.stmt;
+          while (sql.step() === DbResult.BE_SQLITE_ROW) {
+            const id = stmt.getValueId(0);
+            const classId = stmt.getValueId(2);
+            switch (stmt.getValueInteger(1)) {
+              case 0:
+                changes._inserted.insert(id, classId);
+                break;
+              case 1:
+                changes._updated.insert(id, classId);
+                break;
+              case 2:
+                changes._deleted.insert(id, classId);
+                break;
+            }
 
-          if (++changes._currSize >= maxSize)
-            changes.sendEvent(iModel, changedEvent, evtName);
+            if (++changes._currSize >= maxSize)
+              changes.sendEvent(iModel, changedEvent, evtName);
+          }
+        } else {
+          throw new Error("SQL statement is undefined");
         }
       });
 

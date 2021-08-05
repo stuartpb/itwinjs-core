@@ -114,20 +114,26 @@ export class Model extends Entity implements ModelProps {
         break;
       }
       case DbOpcode.Delete: {
-        req.addLocks([ConcurrencyControl.Request.getModelLock(props.id!, LockScope.Exclusive)]);
+        if (props.id !== undefined) {
+          req.addLocks([ConcurrencyControl.Request.getModelLock(props.id, LockScope.Exclusive)]);
+        }
         // before we can delete a model, we must delete all of its elements. If that fails, we cannot continue.
         iModel.withPreparedStatement(`select ecinstanceid from BisCore.Element where model.id=?`, (stmt) => {
-          stmt.bindId(1, props.id!);
-          while (stmt.step() === DbResult.BE_SQLITE_ROW) {
-            const elid = stmt.getValue(0).getId();
-            const el = iModel.elements.getElement(elid);
-            iModel.concurrencyControl.buildRequestForElementTo(req, el, DbOpcode.Delete);
+          if (props.id !== undefined) {
+            stmt.bindId(1, props.id);
+            while (stmt.step() === DbResult.BE_SQLITE_ROW) {
+              const elid = stmt.getValue(0).getId();
+              const el = iModel.elements.getElement(elid);
+              iModel.concurrencyControl.buildRequestForElementTo(req, el, DbOpcode.Delete);
+            }
           }
         });
         break;
       }
       case DbOpcode.Update: {
-        req.addLocks([ConcurrencyControl.Request.getModelLock(props.id!, LockScope.Exclusive)]);
+        if (props.id !== undefined) {
+          req.addLocks([ConcurrencyControl.Request.getModelLock(props.id, LockScope.Exclusive)]);
+        }
         break;
       }
     }
@@ -291,7 +297,11 @@ export class GeometricModel extends Model implements GeometricModelProps {
     const { error, result } = this.iModel.nativeDb.queryModelExtents(JSON.stringify({ id: this.id.toString() }));
     if (error)
       throw new IModelError(error.status, "Error querying model extents");
-    return Range3d.fromJSON(JSON.parse(result!).modelExtents);
+    if (result !== undefined) {
+      return Range3d.fromJSON(JSON.parse(result).modelExtents);
+    } else {
+      throw new Error("Result is undefined");
+    }
   }
 }
 

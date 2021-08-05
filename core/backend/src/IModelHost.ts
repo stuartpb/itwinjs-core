@@ -196,7 +196,13 @@ export class IModelHost {
 
   private static _platform?: typeof IModelJsNative;
   /** @internal */
-  public static get platform(): typeof IModelJsNative { return this._platform!; }
+  public static get platform(): typeof IModelJsNative {
+    if (this._platform) {
+      return this._platform;
+    } else {
+      throw new Error("Platform is undefined");
+    }
+  }
 
   public static configuration?: IModelHostConfiguration;
   /** Event raised just after the backend IModelHost was started */
@@ -230,7 +236,11 @@ export class IModelHost {
    * @throws if authorizationClient has not been set up
    */
   public static async getAccessToken(requestContext?: ClientRequestContext): Promise<AccessToken> {
-    return this.authorizationClient!.getAccessToken(requestContext);
+    if (this.authorizationClient !== undefined) {
+      return this.authorizationClient.getAccessToken(requestContext);
+    } else {
+      throw new Error("Failed to get access token - authorization client is undefined");
+    }
   }
   /** @internal */
   public static async getAuthorizedContext() {
@@ -538,19 +548,21 @@ export class IModelHost {
   public static get compressCachedTiles(): boolean { return false !== IModelHost.configuration?.compressCachedTiles; }
 
   private static setupTileCache() {
-    const config = IModelHost.configuration!;
-    const credentials = config.tileCacheCredentials;
-    if (undefined === credentials)
-      return;
+    if (IModelHost.configuration !== undefined) {
+      const config = IModelHost.configuration;
+      const credentials = config.tileCacheCredentials;
+      if (undefined === credentials)
+        return;
 
-    IModelHost.tileUploader = new CloudStorageTileUploader();
+      IModelHost.tileUploader = new CloudStorageTileUploader();
 
-    if (credentials.service === "azure" && !IModelHost.tileCacheService) {
-      IModelHost.tileCacheService = new AzureBlobStorage(credentials);
-    } else if (credentials.service === "alicloud") {
-      IModelHost.tileCacheService = new AliCloudStorageService(credentials);
-    } else if (credentials.service !== "external") {
-      throw new IModelError(BentleyStatus.ERROR, "Unsupported cloud service credentials for tile cache.");
+      if (credentials.service === "azure" && !IModelHost.tileCacheService) {
+        IModelHost.tileCacheService = new AzureBlobStorage(credentials);
+      } else if (credentials.service === "alicloud") {
+        IModelHost.tileCacheService = new AliCloudStorageService(credentials);
+      } else if (credentials.service !== "external") {
+        throw new IModelError(BentleyStatus.ERROR, "Unsupported cloud service credentials for tile cache.");
+      }
     }
   }
 }
