@@ -150,7 +150,9 @@ export class IModelHubBackend {
     const myHubBriefcases = await this.iModelClient.briefcases.get(requestContext, arg.iModelId, new BriefcaseQuery().ownedByMe().selectDownloadUrl());
     const myBriefcaseIds: number[] = [];
     for (const hubBc of myHubBriefcases)
-      myBriefcaseIds.push(hubBc.briefcaseId!); // save the list of briefcaseIds we already own.
+      if (hubBc.briefcaseId !== undefined) {
+        myBriefcaseIds.push(hubBc.briefcaseId); // save the list of briefcaseIds we already own.
+      }
     return myBriefcaseIds;
   }
 
@@ -159,10 +161,10 @@ export class IModelHubBackend {
     const briefcase = await this.iModelClient.briefcases.create(requestContext, arg.iModelId);
     requestContext.enter();
 
-    if (!briefcase)
+    if (!briefcase || briefcase.briefcaseId === undefined)
       throw new IModelError(BriefcaseStatus.CannotAcquire, "Could not acquire briefcase");
 
-    return briefcase.briefcaseId!;
+    return briefcase.briefcaseId;
   }
 
   public static toChangeSetProps(cs: ChangeSet): ChangesetProps {
@@ -174,7 +176,10 @@ export class IModelHubBackend {
   }
   private static toChangeSetFileProps(cs: ChangeSet, basePath: string): ChangesetFileProps {
     const csProps = this.toChangeSetProps(cs) as ChangesetFileProps;
-    csProps.pathname = join(basePath, cs.fileName!);
+    if (cs.fileName === undefined) {
+      throw new IModelError(IModelStatus.BadArg, "Changeset filename is undefined");
+    }
+    csProps.pathname = join(basePath, cs.fileName);
     return csProps;
   }
 
@@ -193,14 +198,18 @@ export class IModelHubBackend {
 
   public static async queryChangeset(arg: ChangesetArg): Promise<ChangesetProps> {
     const hasIndex = (undefined !== arg.changeset.index);
-    if ((hasIndex && arg.changeset.index! <= 0) || arg.changeset.id === "")
+    if ((hasIndex && arg.changeset.index !== undefined && arg.changeset.index <= 0) || arg.changeset.id === "")
       return this.changeSet0;
 
     const query = new ChangeSetQuery();
-    if (hasIndex)
+    if (hasIndex) {
       query.filter(`Index+eq+${arg.changeset.index}`);
-    else
-      query.byId(arg.changeset.id!);
+    } else {
+      if (arg.changeset.id === undefined) {
+        throw new IModelError(IModelStatus.BadArg, "Changeset ID is undefined");
+      }
+      query.byId(arg.changeset.id);
+    }
 
     const requestContext = await this.getRequestContext(arg);
     const changeSets = await this.iModelClient.changeSets.get(requestContext, arg.iModelId, query);
@@ -270,12 +279,18 @@ export class IModelHubBackend {
 
     const cancelRequest: any = {};
     const progressCallback: ProgressCallback = (progress) => {
-      if (arg.onProgress && arg.onProgress(progress.loaded, progress.total!) !== 0)
+      if (progress.total === undefined) {
+        throw new IModelError(IModelStatus.NotFound, "Progress total is undefined");
+      }
+      if (arg.onProgress && arg.onProgress(progress.loaded, progress.total) !== 0)
         cancelRequest.cancel?.();
     };
 
     await this.iModelClient.checkpoints.download(requestContext, checkpoints[0], arg.localFile, progressCallback, cancelRequest);
-    return checkpoints[0].mergedChangeSetId!;
+    if (checkpoints[0].mergedChangeSetId === undefined) {
+      throw new IModelError(IModelStatus.NotFound, "Checkpoint changeset ID is undefined");
+    }
+    return checkpoints[0].mergedChangeSetId;
   }
 
   public static async downloadV2Checkpoint(arg: CheckPointArg): Promise<ChangesetId> {
@@ -329,7 +344,10 @@ export class IModelHubBackend {
       if (timer)
         clearInterval(timer);
     }
-    return checkpoints[0].changeSetId!;
+    if (checkpoints[0].changeSetId === undefined) {
+      throw new IModelError(IModelStatus.BadArg, "Checkpoint changeset ID is undefined");
+    }
+    return checkpoints[0].changeSetId;
   }
 
   public static async releaseAllLocks(arg: BriefcaseIdArg & ChangesetIndexArg) {

@@ -20,12 +20,8 @@ export class SQLiteDb implements IDisposable {
 
   /** @internal */
   public get nativeDb(): IModelJsNative.SQLiteDb {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    if (this._nativeDb !== undefined) {
-      return this._nativeDb;
-    } else {
-      throw new Error("Native DB is undefined");
-    }
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion,@typescript-eslint/no-non-null-assertion
+    return this._nativeDb!;
   }
 
   constructor() {

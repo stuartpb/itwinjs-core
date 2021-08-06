@@ -136,10 +136,7 @@ export abstract class IModelDb extends IModel {
   private _nativeDb?: IModelJsNative.DgnDb;
   /** @internal*/
   public get nativeDb(): IModelJsNative.DgnDb {
-    if (this._nativeDb === undefined) {
-      throw new IModelError(BentleyStatus.ERROR, "Native DB is undefined");
-    }
-    return this._nativeDb;
+    return this._nativeDb!;
   }
 
   /** Get the full path fileName of this iModelDb
@@ -1452,7 +1449,7 @@ export namespace IModelDb { // eslint-disable-line no-redeclare
         throw new IModelError(IModelStatus.NotFound, "Root subject does not have a sub-model");
       }
       if (modeledElementProps.id === undefined) {
-        throw new Error("Failed to get sub-model")
+        throw new Error("Failed to get sub-model");
       }
       return this.getModel<T>(modeledElementProps.id, modelClass);
     }
