@@ -327,15 +327,17 @@ export class Format {
   private async createUnit(unitsProvider: UnitsProvider, name: string, label?: string): Promise<void> {
     if (name === undefined || typeof (name) !== "string" || (label !== undefined && typeof (label) !== "string")) // throws if name is undefined or name isn't a string or if label is defined and isn't a string
       throw new QuantityError(QuantityStatus.InvalidJson, `This Composite has a unit with an invalid 'name' or 'label' attribute.`);
-    for (const unit of this.units!) {
-      const unitObj = unit[0].name;
-      if (unitObj.toLowerCase() === name.toLowerCase()) // duplicate names are not allowed
-        throw new QuantityError(QuantityStatus.InvalidJson, `The unit ${unitObj} has a duplicate name.`);
+    if (this.units !== undefined) {
+      for (const unit of this.units) {
+        const unitObj = unit[0].name;
+        if (unitObj.toLowerCase() === name.toLowerCase()) // duplicate names are not allowed
+          throw new QuantityError(QuantityStatus.InvalidJson, `The unit ${unitObj} has a duplicate name.`);
+      }
     }
     const newUnit: UnitProps = await unitsProvider.findUnitByName(name);
     if (!newUnit || !newUnit.isValid)
       throw new QuantityError(QuantityStatus.InvalidJson, `Invalid unit name '${name}'.`);
-    this.units!.push([newUnit, label]);
+    this.units?.push([newUnit, label]);
   }
 
   /**

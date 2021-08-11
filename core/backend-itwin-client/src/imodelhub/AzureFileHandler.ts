@@ -371,7 +371,9 @@ export class AzureFileHandler implements FileHandler {
       let i = 0;
       const callback: ProgressCallback = (progress: ProgressInfo) => {
         const uploaded = i * chunkSize + progress.loaded;
-        progressCallback!({ loaded: uploaded, percent: uploaded / fileSize, total: fileSize });
+        if (progressCallback !== undefined) {
+          progressCallback({ loaded: uploaded, percent: uploaded / fileSize, total: fileSize });
+        }
       };
       for (; i * chunkSize < fileSize; ++i) {
         await this.uploadChunk(requestContext, uploadUrlString, file, i, progressCallback ? callback : undefined);

@@ -417,7 +417,7 @@ export class BentleyError extends Error {
 
   /** Return the meta data associated with this BentleyError. */
   public getMetaData(): any {
-    return this.hasMetaData ? this._getMetaData!() : undefined;
+    return (this.hasMetaData && this._getMetaData !== undefined) ? this._getMetaData() : undefined;
   }
 
   /** This function returns the name of each error status. Override this method to handle more error status codes. */

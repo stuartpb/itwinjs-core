@@ -8,6 +8,7 @@ import { BentleyStatus, IModelError } from "@bentley/imodeljs-common";
 import { MobileRpcGateway, MobileRpcProtocol } from "../common/MobileRpcProtocol";
 import { MobileRpcConfiguration } from "../common/MobileRpcManager";
 import { MobileHost } from "./MobileHost";
+import { ThematicUniforms } from "../../../frontend/lib/render/webgl/ThematicUniforms";
 
 export class MobileRpcServer {
   private static _nextId = -1;
@@ -77,7 +78,10 @@ export class MobileRpcServer {
         return;
       }
 
-      this._connection!.send(message, (err) => {
+      if (this._connection === undefined) {
+        throw new IModelError(BentleyStatus.ERROR, "No connection.");
+      }
+      this._connection.send(message, (err) => {
         if (err) {
           throw err;
         }

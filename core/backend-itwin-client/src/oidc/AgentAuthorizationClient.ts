@@ -135,8 +135,8 @@ export class AgentAuthorizationClient extends BackendAuthorizationClient impleme
    * The token is refreshed if necessary.
    */
   public async getAccessToken(requestContext?: ClientRequestContext): Promise<AccessToken> {
-    if (this.isAuthorized)
-      return this._accessToken!;
+    if (this.isAuthorized && this._accessToken !== undefined)
+      return this._accessToken;
     return this.generateAccessToken(requestContext || new ClientRequestContext());
   }
 }

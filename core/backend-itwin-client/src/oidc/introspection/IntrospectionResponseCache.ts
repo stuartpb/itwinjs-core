@@ -42,8 +42,7 @@ export abstract class IntrospectionResponseCache {
       return undefined;
 
     const currentTimeInSeconds = new Date().getTime() / 1000; // UTC time in seconds since 1970-01-01
-    const secondsUntilExpiration = response.exp! - currentTimeInSeconds;
-    if (secondsUntilExpiration <= 0) {
+    if (response.exp !== undefined && response.exp - currentTimeInSeconds <= 0) {
       await this.remove(key);
       return undefined;
     }

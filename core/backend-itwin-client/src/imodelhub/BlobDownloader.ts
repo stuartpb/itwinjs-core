@@ -145,10 +145,10 @@ export class BlobDownloader {
       progressReportAfter: 500,
       enableResumableDownload: true,
     };
-    if (Number.isInteger(userConfig.blockSize)) {
-      if (userConfig.blockSize! < 1024)
+    if (userConfig.blockSize !== undefined && Number.isInteger(userConfig.blockSize)) {
+      if (userConfig.blockSize < 1024)
         throw new Error("blockSize must be equal or greater then 1024");
-      if (userConfig.blockSize! % 1024 !== 0)
+      if (userConfig.blockSize % 1024 !== 0)
         throw new Error("blockSize must be multiple of 1024");
     } else {
       userConfig.blockSize = defaultConfig.blockSize;
@@ -163,20 +163,20 @@ export class BlobDownloader {
     if (typeof userConfig.enableResumableDownload === "undefined")
       userConfig.enableResumableDownload = defaultConfig.enableResumableDownload;
 
-    if (Number.isInteger(userConfig.simultaneousDownloads)) {
-      if (userConfig.simultaneousDownloads! <= 0 || userConfig.simultaneousDownloads! >= 16)
+    if (userConfig.simultaneousDownloads !== undefined && Number.isInteger(userConfig.simultaneousDownloads)) {
+      if (userConfig.simultaneousDownloads <= 0 || userConfig.simultaneousDownloads >= 16)
         throw new Error("simultaneousDownload must be >= 1 and <=16");
     } else {
       userConfig.simultaneousDownloads = defaultConfig.simultaneousDownloads;
     }
-    if (Number.isInteger(userConfig.downloadRateWindowSize)) {
-      if (userConfig.downloadRateWindowSize! <= 0 || userConfig.downloadRateWindowSize! >= 10)
+    if (userConfig.downloadRateWindowSize !== undefined && Number.isInteger(userConfig.downloadRateWindowSize)) {
+      if (userConfig.downloadRateWindowSize <= 0 || userConfig.downloadRateWindowSize >= 10)
         throw new Error("downloadRateWindowSize must be >= 1 and <= 10");
     } else {
       userConfig.downloadRateWindowSize = defaultConfig.downloadRateWindowSize;
     }
-    if (Number.isInteger(userConfig.progressReportAfter)) {
-      if (userConfig.progressReportAfter! <= 0 || userConfig.progressReportAfter! >= 10000)
+    if (userConfig.progressReportAfter !== undefined && Number.isInteger(userConfig.progressReportAfter)) {
+      if (userConfig.progressReportAfter <= 0 || userConfig.progressReportAfter >= 10000)
         throw new Error("progressReportAfter must be >= 1 and <= 10000");
     } else {
       userConfig.progressReportAfter = defaultConfig.progressReportAfter;
@@ -239,7 +239,13 @@ export class BlobDownloader {
     const { blobSize, blobMD5 } = await this.readHeader(downloadUrl);
     this.makeDirectoryRecursive(path.dirname(downloadFile));
     const userConfig = this.checkAndFixUseConfig(config);
-    const blockCount = Math.ceil(blobSize / userConfig.blockSize!);
+    if (userConfig.blockSize === undefined) {
+      throw new Error("Block size is undefined");
+    }
+    if (userConfig.downloadRateWindowSize === undefined) {
+      throw new Error("Download rate window size is undefined");
+    }
+    const blockCount = Math.ceil(blobSize / userConfig.blockSize);
     const sessionData = {
       startedOn: Date.now(),
       bytesDownloaded: 0,
@@ -260,12 +266,12 @@ export class BlobDownloader {
         tempName: `${downloadFile}-temp`,
         version: this.resumeDataVer,
         blobSize,
-        blockSize: userConfig.blockSize!,
+        blockSize: userConfig.blockSize,
         blobMD5,
         blocks: Array(blockCount).fill(undefined).map(() => BlockState.Pending),
       },
       speedData: {
-        measurementWindowInSeconds: userConfig.downloadRateWindowSize!,
+        measurementWindowInSeconds: userConfig.downloadRateWindowSize,
         timeSinceLastMeasurement: 0,
         bytesSinceLastMeasurement: 0,
       },
@@ -283,7 +289,7 @@ export class BlobDownloader {
       sessionData.progress.addListener(onProgress);
     }
     // read resume data
-    const resumeDataFromDisk = userConfig.ignoreResumeData! ? undefined : this.getResumeData(sessionData, true);
+    const resumeDataFromDisk = (userConfig.ignoreResumeData !== undefined && userConfig.ignoreResumeData) ? undefined : this.getResumeData(sessionData, true);
     if (resumeDataFromDisk) {
       sessionData.resumeData = { ...resumeDataFromDisk };
     } else {
@@ -309,7 +315,7 @@ export class BlobDownloader {
     return sessionData;
   }
   private static saveResumeData(session: SessionData) {
-    if (!session.config.enableResumableDownload!)
+    if (!session.config.enableResumableDownload)
       return;
 
     if (!this.hasPendingBlocks(session.resumeData)) {
@@ -415,7 +421,7 @@ export class BlobDownloader {
     }
   }
   private static async checkDownloadedFileMD5(session: SessionData) {
-    if (session.resumeData.blobMD5 !== "" && session.config.checkMD5AfterDownload! && !this.hasPendingBlocks(session.resumeData)) {
+    if (session.resumeData.blobMD5 !== "" && session.config.checkMD5AfterDownload && !this.hasPendingBlocks(session.resumeData)) {
       const md5 = await this.calculateFileMD5(session.resumeData.fileName);
       if (md5 !== session.resumeData.blobMD5) {
         throw new Error(`${session.resumeData.fileName} md5 hash ${md5} != ${session.resumeData.blobMD5}`);
@@ -572,9 +578,9 @@ export class BlobDownloader {
         }
         const release = lockSync(session.resumeData.tempName, { stale: 10000 });
         try {
-          if (this.hasPendingBlocks(session.resumeData)) {
+          if (this.hasPendingBlocks(session.resumeData) && session.config.simultaneousDownloads !== undefined) {
             this.startProgress(session);
-            const simTask = Math.min(session.config.simultaneousDownloads!, session.resumeData.blocks.length);
+            const simTask = Math.min(session.config.simultaneousDownloads, session.resumeData.blocks.length);
             const httpsAgent = this.getHttpsAgent();
             const worker = Array(simTask).fill(undefined).map(async () => this.downloadBlocks(session, httpsAgent));
             await Promise.all(worker);

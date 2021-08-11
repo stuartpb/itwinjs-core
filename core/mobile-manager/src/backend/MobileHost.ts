@@ -93,7 +93,12 @@ export interface MobileHostOpts extends NativeHostOpts {
  */
 export class MobileHost {
   private static _device?: MobileDevice;
-  public static get device() { return this._device!; }
+  public static get device() {
+    if (this._device === undefined) {
+      throw new Error("Device is undefined");
+    }
+    return this._device;
+  }
   public static readonly onMemoryWarning = new BeEvent();
   public static readonly onOrientationChanged = new BeEvent();
   public static readonly onEnterForeground = new BeEvent();

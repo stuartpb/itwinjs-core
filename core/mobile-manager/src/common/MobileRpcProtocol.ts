@@ -185,7 +185,10 @@ export class MobileRpcProtocol extends RpcProtocol {
 
     while (this._capacity !== 0 && this._pending.length) {
       --this._capacity;
-      const next = this._pending.shift()!;
+      const next = this._pending.shift();
+      if (next === undefined) {
+        throw new IModelError(BentleyStatus.ERROR, "Invalid state (sending undefined chunk).");
+      }
       for (const chunk of next) {
         this.socket.send(chunk);
       }

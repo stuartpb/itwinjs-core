@@ -54,7 +54,7 @@ export class UrlFileHandler implements FileHandler {
             progressCallback({ percent: 100, total: fileSize, loaded: fileSize });
           resolve();
         } else {
-          reject(new Error(response.statusCode!.toString()));
+          reject(new Error(response.statusCode !== undefined ? response.statusCode.toString() : "Empty status code in response"));
         }
       };
       const request = uploadUrlString.startsWith("https:") ? https.request(requestOptions, callback) : http.request(requestOptions, callback);

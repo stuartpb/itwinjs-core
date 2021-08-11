@@ -25,7 +25,7 @@ import { ISchemaPartVisitor, SchemaPartVisitorDelegate } from "../SchemaPartVisi
 import { getItemNamesFromFormatString } from "../utils/FormatEnums";
 import { AbstractParser, AbstractParserConstructor, CAProviderTuple } from "./AbstractParser";
 import { ClassProps, PropertyProps, RelationshipConstraintProps, SchemaReferenceProps } from "./JsonProps";
-import {validateSchemaReferences, validateSchemaReferencesSync} from "../Validation/ECRules";
+import { validateSchemaReferences, validateSchemaReferencesSync } from "../Validation/ECRules";
 
 type AnyCAContainer = Schema | ECClass | Property | RelationshipConstraint;
 type AnyMutableCAContainer = MutableSchema | MutableClass | MutableProperty | MutableRelationshipConstraint;
@@ -159,10 +159,13 @@ export class SchemaReadHelper<T = unknown> {
     const schemaKey = new SchemaKey(ref.name, ECVersion.fromString(ref.version));
     const refSchema = await this._context.getSchema(schemaKey, SchemaMatchType.LatestWriteCompatible);
     if (undefined === refSchema)
-      throw new ECObjectsError(ECObjectsStatus.UnableToLocateSchema, `Could not locate the referenced schema, ${ref.name}.${ref.version}, of ${this._schema!.schemaKey.name}`);
+      throw new ECObjectsError(ECObjectsStatus.UnableToLocateSchema, `Could not locate the referenced schema, ${ref.name}.${ref.version}, of ${this._schema?.schemaKey.name}`);
 
     await (this._schema as MutableSchema).addReference(refSchema);
-    const diagnostics = validateSchemaReferences(this._schema!);
+    if (undefined === this._schema) {
+      throw new ECObjectsError(ECObjectsStatus.SchemaContextUndefined, "Schema is undefined");
+    }
+    const diagnostics = validateSchemaReferences(this._schema);
 
     let errorMessage: string = "";
     for await (const diagnostic of diagnostics) {
@@ -389,10 +392,10 @@ export class SchemaReadHelper<T = unknown> {
     if (undefined === schemaName || 0 === schemaName.length)
       throw new ECObjectsError(ECObjectsStatus.InvalidECJson, `The SchemaItem ${name} is invalid without a schema name`);
 
-    if (isInThisSchema && undefined === await this._schema!.getItem(itemName)) {
+    if (isInThisSchema && undefined !== this._schema && undefined === await this._schema.getItem(itemName)) {
       const foundItem = this._parser.findItem(itemName);
       if (foundItem) {
-        schemaItem = await this.loadSchemaItem(this._schema!, ...foundItem);
+        schemaItem = await this.loadSchemaItem(this._schema, ...foundItem);
         if (!skipVisitor && schemaItem && this._visitorHelper) {
           await this._visitorHelper.visitSchemaPart(schemaItem);
         }
@@ -428,10 +431,10 @@ export class SchemaReadHelper<T = unknown> {
     if (undefined === schemaName || schemaName.length === 0)
       throw new ECObjectsError(ECObjectsStatus.InvalidECJson, `The SchemaItem ${name} is invalid without a schema name`);
 
-    if (isInThisSchema && undefined === this._schema!.getItemSync(itemName)) {
+    if (isInThisSchema && undefined !== this._schema && undefined === this._schema.getItemSync(itemName)) {
       const foundItem = this._parser.findItem(itemName);
       if (foundItem) {
-        schemaItem = this.loadSchemaItemSync(this._schema!, ...foundItem);
+        schemaItem = this.loadSchemaItemSync(this._schema, ...foundItem);
         if (!skipVisitor && schemaItem && this._visitorHelper) {
           this._visitorHelper.visitSchemaPartSync(schemaItem);
         }

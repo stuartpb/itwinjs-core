@@ -147,7 +147,7 @@ module.exports = {
       }
     ],
     "@typescript-eslint/no-namespace": "off",
-    "@typescript-eslint/no-non-null-assertion": "error",
+    "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-parameter-properties": "off",
     "@typescript-eslint/no-redeclare": [
       "error",

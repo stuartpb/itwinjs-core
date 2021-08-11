@@ -6,7 +6,8 @@
  * @module Comparison
  */
 
-import { AnyClass, AnyEnumerator, AnyProperty, Constant, CustomAttribute,
+import {
+  AnyClass, AnyEnumerator, AnyProperty, Constant, CustomAttribute,
   CustomAttributeClass, CustomAttributeContainerProps, EntityClass, Enumeration, Format, InvertedUnit, KindOfQuantity,
   Mixin, OverrideFormat, Phenomenon, PropertyCategory, RelationshipClass, RelationshipConstraint,
   Schema, SchemaItem, Unit,

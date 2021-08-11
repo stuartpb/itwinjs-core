@@ -64,7 +64,7 @@ export async function downloadFileAtomic(requestContext: ClientRequestContext, d
         cancelRequest.cancel = () => false;
 
       // Ensure that `fileStream` has fully written/cleaned up before continuing
-      await closePromise!;
+      await closePromise;
     }
   }
 }

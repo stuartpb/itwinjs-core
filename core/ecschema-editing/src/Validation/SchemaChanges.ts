@@ -6,7 +6,8 @@
  * @module Comparison
  */
 
-import { AnyClass, AnyEnumerator, CustomAttribute, ECClass, ECObjectsError, ECObjectsStatus,
+import {
+  AnyClass, AnyEnumerator, CustomAttribute, ECClass, ECObjectsError, ECObjectsStatus,
   EntityClass, Enumeration, Format, KindOfQuantity, OverrideFormat, Property, RelationshipConstraint,
   Schema, SchemaItem, SchemaItemType, schemaItemTypeToString,
 } from "@bentley/ecschema-metadata";
@@ -205,7 +206,9 @@ export abstract class BaseSchemaChanges implements ISchemaChanges {
   protected addChangeToMap<V extends ISchemaChanges>(changes: Map<string, V>, changesType: SchemaChangesConstructor, change: ISchemaChange, changeKey: string) {
     if (changes.has(changeKey)) {
       const existingChanges = changes.get(changeKey);
-      existingChanges!.addChange(change);
+      if (existingChanges !== undefined) {
+        existingChanges.addChange(change);
+      }
     } else {
       const newChanges = new changesType(this._schema, changeKey);
       newChanges.addChange(change);
@@ -447,7 +450,9 @@ export class SchemaChanges extends BaseSchemaChanges {
   private addChangeToSchemaItemMap(change: ISchemaChange, schemaItem: SchemaItem) {
     if (this.schemaItemChanges.has(schemaItem.name)) {
       const existingChanges = this.schemaItemChanges.get(schemaItem.name);
-      existingChanges!.addChange(change);
+      if (existingChanges !== undefined) {
+        existingChanges.addChange(change);
+      }
     } else {
       const newChanges = new SchemaItemChanges(this.schema, schemaItem.name, schemaItem.schemaItemType);
       newChanges.addChange(change);
@@ -458,7 +463,9 @@ export class SchemaChanges extends BaseSchemaChanges {
   private addChangeToClassMap(change: ISchemaChange, ecClass: AnyClass) {
     if (this.classChanges.has(ecClass.name)) {
       const existingChanges = this.classChanges.get(ecClass.name);
-      existingChanges!.addChange(change);
+      if (existingChanges !== undefined) {
+        existingChanges.addChange(change);
+      }
     } else {
       const newChanges = new ClassChanges(this.schema, ecClass.name, ecClass.schemaItemType);
       newChanges.addChange(change);
@@ -469,7 +476,9 @@ export class SchemaChanges extends BaseSchemaChanges {
   private addChangeToEnumerationMap(change: ISchemaChange, enumeration: Enumeration) {
     if (this.enumerationChanges.has(enumeration.name)) {
       const existingChanges = this.enumerationChanges.get(enumeration.name);
-      existingChanges!.addChange(change);
+      if (existingChanges !== undefined) {
+        existingChanges.addChange(change);
+      }
     } else {
       const newChanges = new EnumerationChanges(this.schema, enumeration.name, enumeration.schemaItemType);
       newChanges.addChange(change);
@@ -491,7 +500,9 @@ export class SchemaChanges extends BaseSchemaChanges {
   private addChangeToFormatMap(change: ISchemaChange, format: Format) {
     if (this.formatChanges.has(format.name)) {
       const existingChanges = this.formatChanges.get(format.name);
-      existingChanges!.addChange(change);
+      if (existingChanges !== undefined) {
+        existingChanges.addChange(change);
+      }
     } else {
       const newChanges = new FormatChanges(this.schema, format.name, format.schemaItemType);
       newChanges.addChange(change);

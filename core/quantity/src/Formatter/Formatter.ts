@@ -213,7 +213,7 @@ export class Formatter {
         if ((Math.abs(unitValue) < 0.0001) && spec.format.hasFormatTraitSet(FormatTraits.ZeroEmpty)) return "";
       }
 
-      if (i < spec.format.units!.length - 1) {
+      if (spec.format.units !== undefined && i < spec.format.units.length - 1) {
         const wholePart = Math.floor(unitValue);
         const componentText = Formatter.formatCompositePart(wholePart, false, currentLabel, spec);
         posMagnitude = unitValue - wholePart;
@@ -311,20 +311,20 @@ export class Formatter {
         const fractionString = `${fn.getNumeratorString()}/${fn.getDenominatorString()}`;
         formattedValue = formattedValue + wholeFractionSeparator + fractionString;
       }
-    } else /* if (usesStops)*/ {
+    } else if (spec.format.stationOffsetSize !== undefined) /* if (usesStops)*/ {
       // we assume that stopping value is always positive
       posMagnitude = Math.floor(posMagnitude * precisionScale + FPV_ROUNDFACTOR) / precisionScale;
 
-      const denominator = (Math.pow(10, spec.format.stationOffsetSize!));
+      const denominator = (Math.pow(10, spec.format.stationOffsetSize));
       const tVal = Math.floor(posMagnitude); // this is the integer part only
       const hiPart = Math.floor(tVal / denominator);
       const lowPart = tVal - hiPart * denominator;
       const fract = posMagnitude - tVal;
       const fractionPart = Math.floor(fract * precisionScale + FPV_ROUNDFACTOR);
-      const stationString = hiPart.toFixed(0) + spec.format.stationSeparator + lowPart.toFixed(0).padStart(spec.format.stationOffsetSize!, "0");
+      const stationString = hiPart.toFixed(0) + spec.format.stationSeparator + lowPart.toFixed(0).padStart(spec.format.stationOffsetSize, "0");
       let fractionString = "";
       if (fractionPart > 0) {
-        fractionString = (fractionPart/precisionScale).toFixed(spec.format.precision);
+        fractionString = (fractionPart / precisionScale).toFixed(spec.format.precision);
         // remove leading "0."
         fractionString = fractionString.substr(2).padEnd(spec.format.precision, "0");
         if (!isKeepTrailingZeroes) fractionString = Formatter.trimTrailingZeroes(fractionString);

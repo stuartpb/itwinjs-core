@@ -59,7 +59,10 @@
     "plugins": [
       "@bentley"
     ],
-    "extends": "plugin:@bentley/imodeljs-recommended"
+    "extends": "plugin:@bentley/imodeljs-recommended",
+    "rules": {
+      "@typescript-eslint/no-non-null-assertion": "error"
+    }
   },
   "nyc": {
     "extends": "./node_modules/@bentley/build-tools/.nycrc"

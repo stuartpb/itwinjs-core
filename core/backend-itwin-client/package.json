@@ -110,6 +110,7 @@
     ],
     "extends": "plugin:@bentley/imodeljs-recommended",
     "rules": {
+      "@typescript-eslint/no-non-null-assertion": "error",
       "@bentley/no-internal-barrel-imports": [
         "error",
         {
@@ -128,7 +129,8 @@
           "**/test/**/*.tsx"
         ],
         "rules": {
-          "@bentley/no-internal-barrel-imports": "off"
+          "@bentley/no-internal-barrel-imports": "off",
+          "@typescript-eslint/no-non-null-assertion": "off"
         }
       }
     ]

@@ -423,7 +423,9 @@ export class EnvMacroSubst {
         subst = defaultValues[envvar];
       }
       str = str.slice(0, startMacro) + subst + str.slice(endMacro + 1);
-      startNext += startMacro + subst!.length;
+      if (subst !== undefined) {
+        startNext += startMacro + subst.length;
+      }
     }
     return str;
   }

@@ -80,7 +80,21 @@
     "extends": "plugin:@bentley/imodeljs-recommended",
     "rules": {
       "radix": "warn",
-      "@typescript-eslint/explicit-member-accessibility": "warn"
-    }
+      "@typescript-eslint/explicit-member-accessibility": "warn",
+      "@typescript-eslint/no-non-null-assertion": "error"
+    },
+    "overrides": [
+      {
+        "files": [
+          "*.test.ts",
+          "*.test.tsx",
+          "**/test/**/*.ts",
+          "**/test/**/*.tsx"
+        ],
+        "rules": {
+          "@typescript-eslint/no-non-null-assertion": "off"
+        }
+      }
+    ]
   }
 }
