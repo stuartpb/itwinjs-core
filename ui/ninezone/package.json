@@ -33,9 +33,9 @@
     "url": "http://www.bentley.com"
   },
   "peerDependencies": {
-    "@bentley/bentleyjs-core": "workspace:^2.19.2",
-    "@bentley/ui-abstract": "workspace:^2.19.2",
-    "@bentley/ui-core": "workspace:^2.19.2",
+    "@bentley/bentleyjs-core": "^2.19.2",
+    "@bentley/ui-abstract": "^2.19.2",
+    "@bentley/ui-core": "^2.19.2",
     "react": "^16.8.0",
     "react-dom": "^16.8.0"
   },
@@ -44,12 +44,12 @@
     "NOTE: All tools used by scripts in this package must be listed as devDependencies"
   ],
   "devDependencies": {
-    "@bentley/bentleyjs-core": "workspace:*",
-    "@bentley/build-tools": "workspace:*",
-    "@bentley/eslint-plugin": "workspace:*",
+    "@bentley/bentleyjs-core": "2.19.2",
+    "@bentley/build-tools": "2.19.2",
+    "@bentley/eslint-plugin": "2.19.2",
     "@bentley/react-scripts": "4.0.3",
-    "@bentley/ui-abstract": "workspace:*",
-    "@bentley/ui-core": "workspace:*",
+    "@bentley/ui-abstract": "2.19.2",
+    "@bentley/ui-core": "2.19.2",
     "@testing-library/react": "^8.0.1",
     "@testing-library/react-hooks": "^3.2.1",
     "@types/chai": "^4.1.4",

@@ -36,26 +36,25 @@
     "url": "http://www.bentley.com"
   },
   "dependencies": {
-    "@bentley/bentleyjs-core": "workspace:*"
+    "@bentley/bentleyjs-core": "2.19.2"
   },
   "peerDependencies": {
-    "@bentley/itwin-client": "workspace:^2.19.2",
-    "@bentley/telemetry-client": "workspace:^2.19.2"
+    "@bentley/itwin-client": "^2.19.2",
+    "@bentley/telemetry-client": "^2.19.2"
   },
   "devDependencies": {
-    "@bentley/build-tools": "workspace:*",
-    "@bentley/certa": "workspace:*",
-    "@bentley/config-loader": "workspace:*",
-    "@bentley/eslint-plugin": "workspace:*",
-    "@bentley/itwin-client": "workspace:*",
-    "@bentley/oidc-signin-tool": "workspace:*",
-    "@bentley/telemetry-client": "workspace:*",
+    "@bentley/build-tools": "2.19.2",
+    "@bentley/certa": "2.19.2",
+    "@bentley/config-loader": "2.19.2",
+    "@bentley/eslint-plugin": "2.19.2",
+    "@bentley/itwin-client": "2.19.2",
+    "@bentley/oidc-signin-tool": "2.19.2",
+    "@bentley/telemetry-client": "2.19.2",
     "@types/chai": "^4.1.4",
     "@types/mocha": "^8.2.2",
     "@types/node": "10.14.1",
     "chai": "^4.1.2",
     "eslint": "^7.11.0",
-    "internal-tools": "workspace:*",
     "mocha": "^8.3.2",
     "rimraf": "^3.0.2",
     "source-map-loader": "^1.0.0",

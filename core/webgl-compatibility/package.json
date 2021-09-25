@@ -33,13 +33,13 @@
     "url": "http://www.bentley.com"
   },
   "peerDependencies": {
-    "@bentley/bentleyjs-core": "workspace:^2.19.2"
+    "@bentley/bentleyjs-core": "^2.19.2"
   },
   "devDependencies": {
-    "@bentley/bentleyjs-core": "workspace:*",
-    "@bentley/build-tools": "workspace:*",
-    "@bentley/certa": "workspace:*",
-    "@bentley/eslint-plugin": "workspace:*",
+    "@bentley/bentleyjs-core": "2.19.2",
+    "@bentley/build-tools": "2.19.2",
+    "@bentley/certa": "2.19.2",
+    "@bentley/eslint-plugin": "2.19.2",
     "@types/chai": "^4.1.4",
     "@types/mocha": "^8.2.2",
     "@types/node": "10.14.1",

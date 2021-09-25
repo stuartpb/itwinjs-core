@@ -30,19 +30,19 @@
     "url": "http://www.bentley.com"
   },
   "dependencies": {
-    "@bentley/backend-itwin-client": "workspace:*",
-    "@bentley/bentleyjs-core": "workspace:*",
+    "@bentley/backend-itwin-client": "2.19.2",
+    "@bentley/bentleyjs-core": "2.19.2",
     "applicationinsights": "^1.7.5"
   },
   "peerDependencies": {
-    "@bentley/itwin-client": "workspace:^2.19.2"
+    "@bentley/itwin-client": "^2.19.2"
   },
   "devDependencies": {
-    "@bentley/build-tools": "workspace:*",
-    "@bentley/certa": "workspace:*",
-    "@bentley/config-loader": "workspace:*",
-    "@bentley/eslint-plugin": "workspace:*",
-    "@bentley/itwin-client": "workspace:*",
+    "@bentley/build-tools": "2.19.2",
+    "@bentley/certa": "2.19.2",
+    "@bentley/config-loader": "2.19.2",
+    "@bentley/eslint-plugin": "2.19.2",
+    "@bentley/itwin-client": "2.19.2",
     "@types/chai": "^4.1.4",
     "@types/mocha": "^8.2.2",
     "@types/node": "10.14.1",

@@ -35,8 +35,8 @@
     "json5": "^2.1.0"
   },
   "devDependencies": {
-    "@bentley/build-tools": "workspace:*",
-    "@bentley/eslint-plugin": "workspace:*",
+    "@bentley/build-tools": "2.19.2",
+    "@bentley/eslint-plugin": "2.19.2",
     "@types/json5": "0.0.30",
     "@types/node": "10.14.1",
     "eslint": "^7.11.0",

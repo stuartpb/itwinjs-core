@@ -30,16 +30,16 @@
     "iModel"
   ],
   "peerDependencies": {
-    "@bentley/bentleyjs-core": "workspace:^2.19.2",
+    "@bentley/bentleyjs-core": "^2.19.2",
     "bunyan": "^1.8.12",
     "bunyan-seq": "^0.2.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.0"
   },
   "devDependencies": {
-    "@bentley/bentleyjs-core": "workspace:*",
-    "@bentley/build-tools": "workspace:*",
-    "@bentley/eslint-plugin": "workspace:*",
+    "@bentley/bentleyjs-core": "2.19.2",
+    "@bentley/build-tools": "2.19.2",
+    "@bentley/eslint-plugin": "2.19.2",
     "@types/bunyan": "^1.8.4",
     "@types/bunyan-seq": "^0.2.0",
     "@types/node": "10.14.1",

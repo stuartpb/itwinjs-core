@@ -57,7 +57,7 @@
     "yargs": "^16.0.0"
   },
   "devDependencies": {
-    "@bentley/eslint-plugin": "workspace:*",
+    "@bentley/eslint-plugin": "2.19.2",
     "@types/node": "10.14.1",
     "eslint": "^7.11.0"
   },

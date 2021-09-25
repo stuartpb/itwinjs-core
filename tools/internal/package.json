@@ -4,9 +4,7 @@
   "description": "Internal build tools for Tools for collecting and reporting performance data",
   "license": "MIT",
   "main": "bin/internal-tools.js",
-  "bin": {
-    "internal-tools": "./bin/internal-tools.js"
-  },
+  "bin": {},
   "scripts": {
     "compile": "",
     "build": "",

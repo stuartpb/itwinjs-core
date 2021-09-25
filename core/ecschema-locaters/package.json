@@ -31,9 +31,9 @@
     "url": "http://www.bentley.com"
   },
   "devDependencies": {
-    "@bentley/build-tools": "workspace:*",
-    "@bentley/ecschema-metadata": "workspace:*",
-    "@bentley/eslint-plugin": "workspace:*",
+    "@bentley/build-tools": "2.19.2",
+    "@bentley/ecschema-metadata": "2.19.2",
+    "@bentley/eslint-plugin": "2.19.2",
     "@types/chai": "^4.1.4",
     "@types/chai-as-promised": "^7",
     "@types/glob": "^5.0.35",
@@ -54,7 +54,7 @@
     "glob": "^7.1.2"
   },
   "peerDependencies": {
-    "@bentley/ecschema-metadata": "workspace:^2.19.2"
+    "@bentley/ecschema-metadata": "^2.19.2"
   },
   "nyc": {
     "extends": "./node_modules/@bentley/build-tools/.nycrc",

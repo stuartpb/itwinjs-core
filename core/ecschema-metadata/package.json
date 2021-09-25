@@ -33,10 +33,10 @@
     "url": "http://www.bentley.com"
   },
   "devDependencies": {
-    "@bentley/bentleyjs-core": "workspace:*",
-    "@bentley/build-tools": "workspace:*",
-    "@bentley/eslint-plugin": "workspace:*",
-    "@bentley/imodeljs-i18n": "workspace:*",
+    "@bentley/bentleyjs-core": "2.19.2",
+    "@bentley/build-tools": "2.19.2",
+    "@bentley/eslint-plugin": "2.19.2",
+    "@bentley/imodeljs-i18n": "2.19.2",
     "@bentley/units-schema": "^1.0.5",
     "@types/almost-equal": "1.1.0",
     "@types/benchmark": "^2.1.0",
@@ -62,8 +62,8 @@
     "xmlhttprequest": "^1.8.0"
   },
   "peerDependencies": {
-    "@bentley/bentleyjs-core": "workspace:^2.19.2",
-    "@bentley/imodeljs-i18n": "workspace:^2.19.2"
+    "@bentley/bentleyjs-core": "^2.19.2",
+    "@bentley/imodeljs-i18n": "^2.19.2"
   },
   "dependencies": {
     "almost-equal": "^1.1.0"
@@ -79,11 +79,23 @@
     "rules": {
       "radix": "warn",
       "@typescript-eslint/explicit-member-accessibility": "warn",
-      "@bentley/no-internal-barrel-imports": ["error", {"ignored-barrel-modules": ["./src/ECObjects.ts"]}]
+      "@bentley/no-internal-barrel-imports": [
+        "error",
+        {
+          "ignored-barrel-modules": [
+            "./src/ECObjects.ts"
+          ]
+        }
+      ]
     },
     "overrides": [
       {
-        "files": ["*.test.ts", "*.test.tsx", "**/test/**/*.ts", "**/test/**/*.tsx"],
+        "files": [
+          "*.test.ts",
+          "*.test.tsx",
+          "**/test/**/*.ts",
+          "**/test/**/*.tsx"
+        ],
         "rules": {
           "@bentley/no-internal-barrel-imports": "off"
         }
