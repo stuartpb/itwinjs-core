@@ -7,12 +7,14 @@
  * @module ArraysAndInterfaces
  */
 
+import { AkimaCurve3d } from "../bspline/AkimaCurve3d";
 import { BezierCurve3d } from "../bspline/BezierCurve3d";
 import { BezierCurve3dH } from "../bspline/BezierCurve3dH";
 import { BezierCurveBase } from "../bspline/BezierCurveBase";
 import { BSplineCurve3d } from "../bspline/BSplineCurve";
 import { BSplineCurve3dH } from "../bspline/BSplineCurve3dH";
 import { BSplineSurface3d, BSplineSurface3dH } from "../bspline/BSplineSurface";
+import { InterpolationCurve3d } from "../bspline/InterpolationCurve3d";
 import { Arc3d } from "../curve/Arc3d";
 import { CoordinateXYZ } from "../curve/CoordinateXYZ";
 import { BagOfCurves, CurveCollection } from "../curve/CurveCollection";
@@ -45,27 +47,31 @@ import { Point3d, Vector3d } from "./Point3dVector3d";
  * @public
  */
 export abstract class GeometryHandler {
-  /** handle strongly typed LineSegment3d */
+  /** handle strongly typed [[LineSegment3d]] */
   public abstract handleLineSegment3d(g: LineSegment3d): any;
-  /** handle strongly typed  LineString3d  */
+  /** handle strongly typed  [[LineString3d]]  */
   public abstract handleLineString3d(g: LineString3d): any;
-  /** handle strongly typed  Arc3d  */
+  /** handle strongly typed  [[Arc3d]]  */
   public abstract handleArc3d(g: Arc3d): any;
-  /** handle strongly typed  CurveCollection  */
+  /** handle strongly typed  [[CurveCollection]]  */
   public handleCurveCollection(_g: CurveCollection): any { }
-  /** handle strongly typed  BSplineCurve3d  */
+  /** handle strongly typed  [[BSplineCurve3d]]  */
   public abstract handleBSplineCurve3d(g: BSplineCurve3d): any;
-  /** handle strongly typed  BSplineCurve3dH  */
+  /** handle strongly typed  [[InterpolationCurve3d]]  */
+  public abstract handleInterpolationCurve3d(g: InterpolationCurve3d): any;
+  /** handle strongly typed  [[AkimaCurve3d]]  */
+  public abstract handleAkimaCurve3d(g: AkimaCurve3d): any;
+  /** handle strongly typed  [[BSplineCurve3dH]]  */
   public abstract handleBSplineCurve3dH(g: BSplineCurve3dH): any;
-  /** handle strongly typed  BSplineSurface3d  */
+  /** handle strongly typed  [[BSplineSurface3d]]  */
   public abstract handleBSplineSurface3d(g: BSplineSurface3d): any;
-  /** handle strongly typed  CoordinateXYZ  */
+  /** handle strongly typed  [[CoordinateXYZ]]  */
   public abstract handleCoordinateXYZ(g: CoordinateXYZ): any;
-  /** handle strongly typed  BSplineSurface3dH  */
+  /** handle strongly typed  [[BSplineSurface3dH]]  */
   public abstract handleBSplineSurface3dH(g: BSplineSurface3dH): any;
-  /** handle strongly typed  IndexedPolyface  */
+  /** handle strongly typed  [[IndexedPolyface]]  */
   public abstract handleIndexedPolyface(g: IndexedPolyface): any;
-  /** handle strongly typed TransitionSpiral3d
+  /** handle strongly typed [[TransitionSpiral3d]]
    * @alpha
    */
   public abstract handleTransitionSpiral(g: TransitionSpiral3d): any;
@@ -80,6 +86,7 @@ export abstract class GeometryHandler {
   public handleUnionRegion(g: UnionRegion): any { return this.handleCurveCollection(g); }
   /** handle strongly typed  BagOfCurves (base class method calls handleCurveCollection) */
   public handleBagOfCurves(g: BagOfCurves): any { return this.handleCurveCollection(g); }
+  /** handle strongly typed  BagOfCurves (base class method calls handleCurveCollection) */
   /** handle strongly typed  Sphere */
   public abstract handleSphere(g: Sphere): any;
   /** handle strongly typed  Cone */
@@ -124,6 +131,10 @@ export class NullGeometryHandler extends GeometryHandler {
   public override handleCurveCollection(_g: CurveCollection): any { return undefined; }
   /** no-action implementation */
   public handleBSplineCurve3d(_g: BSplineCurve3d): any { return undefined; }
+  /** no-action implementation */
+  public handleInterpolationCurve3d(_g: InterpolationCurve3d): any { return undefined; }
+  /** no-action implementation */
+  public handleAkimaCurve3d(_g: AkimaCurve3d): any { return undefined; }
   /** no-action implementation */
   public handleBSplineCurve3dH(_g: BSplineCurve3dH): any { return undefined; }
   /** no-action implementation */
@@ -185,6 +196,10 @@ export class RecurseToCurvesGeometryHandler extends GeometryHandler {
   public handleArc3d(_g: Arc3d): any { return undefined; }
   /** no-action implementation */
   public handleBSplineCurve3d(_g: BSplineCurve3d): any { return undefined; }
+  /** no-action implementation */
+  public handleInterpolationCurve3d(_g: InterpolationCurve3d): any { return undefined; }
+  /** no-action implementation */
+  public handleAkimaCurve3d(_g: AkimaCurve3d): any { return undefined; }
   /** no-action implementation */
   public handleBSplineCurve3dH(_g: BSplineCurve3dH): any { return undefined; }
   /** no-action implementation */
@@ -275,12 +290,21 @@ export interface IStrokeHandler {
    */
   announcePointTangent(xyz: Point3d, fraction: number, tangent: Vector3d): void;
 
-  /** Announce that curve primitive cp should be evaluated in the specified fraction interval. */
+  /** Announce that curve primitive cp should be evaluated in the specified fraction interval.
+   * * Note that this method is permitted (expected) to provide pre-stroked data if available.
+   * * In th pre-stroked case, the cp passed to the handler will be the stroked image, not the original.
+   * * Callers that want summary data should implement (and return true from) needPrimaryDataForStrokes
+  */
   announceIntervalForUniformStepStrokes(
     cp: CurvePrimitive,
     numStrokes: number,
     fraction0: number,
     fraction1: number): void;
+  /**
+   * OPTIONAL method for a handler to indicate that it wants primary geometry (e.g. spirals) rather than strokes.
+   * @returns true if primary geometry should be passed (rather than stroked or otherwise simplified)
+  */
+  needPrimaryGeometryForStrokes?(): boolean;
   /** Announce numPoints interpolated between point0 and point1, with associated fractions */
   announceSegmentInterval(
     cp: CurvePrimitive,
