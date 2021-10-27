@@ -21,7 +21,7 @@ import { AnimationIntervalTool } from "./tools/AnimationIntervalTool";
 import { ChangeUnitsTool } from "./tools/ChangeUnitsTool";
 import { ClipColorTool, TestClipStyleTool, ToggleSectionCutTool } from "./tools/ClipTools";
 import {
-  ApplyRenderingStyleTool, ChangeViewFlagsTool, OverrideSubCategoryTool, SaveRenderingStyleTool, ToggleSkyboxTool, WoWIgnoreBackgroundTool,
+  ApplyRenderingStyleTool, ChangeViewFlagsTool, OverrideSubCategoryTool, QueryScheduleScriptTool, SaveRenderingStyleTool, ToggleSkyboxTool, WoWIgnoreBackgroundTool,
 } from "./tools/DisplayStyleTools";
 import {
   ClearEmphasizedElementsTool, ClearIsolatedElementsTool, EmphasizeSelectedElementsTool, EmphasizeVisibleElementsTool, IsolateSelectedElementsTool,
@@ -58,6 +58,7 @@ import { ElementIdFromSourceAspectIdTool, SourceAspectIdFromElementIdTool } from
 import { ToggleTileRequestDecorationTool } from "./tools/TileRequestDecoration";
 import { ToggleTileTreeBoundsDecorationTool } from "./tools/TileTreeBoundsDecoration";
 import { ToggleToolTipsTool } from "./tools/ToolTipProvider";
+import { ChangeCameraTool, ToggleTileTreeReferencesTool } from "./tools/ViewportTools";
 
 /** Entry-point for the package. Before using the package you *must* call [[FrontendDevTools.initialize]].
  * @beta
@@ -133,6 +134,7 @@ export class FrontendDevTools {
       MeasureTileLoadTimeTool,
       OverrideSubCategoryTool,
       OverrideSubCategoryPriorityTool,
+      QueryScheduleScriptTool,
       RealityTransitionTool,
       ReorderMapLayers,
       ReportWebGLCompatibilityTool,
@@ -165,6 +167,7 @@ export class FrontendDevTools {
       ToggleSkyboxTool,
       ToggleTileRequestDecorationTool,
       ToggleTileTreeBoundsDecorationTool,
+      ToggleTileTreeReferencesTool,
       ToggleToolTipsTool,
       ToggleViewAttachmentBoundariesTool,
       ToggleViewAttachmentClipShapesTool,
