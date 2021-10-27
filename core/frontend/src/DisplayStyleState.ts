@@ -21,7 +21,7 @@ import { ElementState } from "./EntityState";
 import { IModelApp } from "./IModelApp";
 import { IModelConnection } from "./IModelConnection";
 import { PlanarClipMaskState } from "./PlanarClipMaskState";
-import { RenderSystem, TextureImage } from "./render/RenderSystem";
+import { RenderSystem } from "./render/RenderSystem";
 import { RenderScheduleState } from "./RenderScheduleState";
 import { getCesiumOSMBuildingsUrl, MapCartoRectangle, TileTreeReference } from "./tile/internal";
 import { viewGlobalLocation, ViewGlobalLocationConstants } from "./ViewGlobalLocation";
