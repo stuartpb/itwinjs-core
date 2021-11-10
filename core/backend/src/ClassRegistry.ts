@@ -51,12 +51,13 @@ export class ClassRegistry {
    * @param entityMetaData The Entity metadata that defines the class
    */
   private static generateClassForEntity(entityMetaData: EntityMetaData, iModel: IModelDb): typeof Entity {
-    const name = entityMetaData.ecclass.split(":");
-    const domainName = name[0];
-    const className = name[1];
+    const fullName = entityMetaData.ecclass;
+    const nameParts = entityMetaData.ecclass.split(":");
+    const domainName = nameParts[0];
+    const className = nameParts[1];
 
     if (0 === entityMetaData.baseClasses.length) // metadata must contain a superclass
-      throw new IModelError(IModelStatus.BadArg, `class ${name} has no superclass`);
+      throw new IModelError(IModelStatus.BadArg, `class ${fullName} has no superclass`);
 
     // make sure schema exists
     let schema = Schemas.getRegisteredSchema(domainName);
@@ -66,9 +67,12 @@ export class ClassRegistry {
     // this method relies on the caller having previously created/registered all superclasses
     const superclass = this._classMap.get(entityMetaData.baseClasses[0].toLowerCase());
     if (undefined === superclass)
-      throw new IModelError(IModelStatus.NotFound, `cannot find superclass for class ${name}`);
+      throw new IModelError(IModelStatus.NotFound, `cannot find superclass for class ${fullName}`);
 
-    const generatedClass = class extends superclass { public static override get className() { return className; } };
+    const generatedClass = class extends superclass {
+      public static override get className() { return className; }
+      public static override get classFullName() { return fullName; }
+    };
     // the above line creates an anonymous class. For help debugging, set the "constructor.name" property to be the same as the bisClassName.
     Object.defineProperty(generatedClass, "name", { get: () => className });  // this is the (only) way to change that readonly property.
 
