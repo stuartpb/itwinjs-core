@@ -185,8 +185,6 @@ export interface ElectricalPhysicalTypeProps extends PhysicalTypeProps {
 /** The Substation:ElectricalPhysicalType class representation.
  */
 export class ElectricalPhysicalType extends PhysicalType implements PhysicalTypeProps {
-  /** @internal */
-  public static get classFullName(): string { return SubstationFullClassNames.ElectricalPhysicalType; }
   public static get className(): string { return "ElectricalPhysicalType"; }
   public static get schemaName(): string { return "Substation"; }
   public physicalClassName: string;

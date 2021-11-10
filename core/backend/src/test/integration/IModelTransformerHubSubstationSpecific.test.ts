@@ -200,6 +200,7 @@ describe.only("IModelTransformerHubSubstationSpecific (#integration)", () => {
 
     const placedBreaker = await placeACMEBreaker(requestContext, masterDb, "ACMEB1");
     await saveAndPushChanges(masterDb, "State0 -> State1");
+    const masterPostCatalogPlacementExternalAspectCount = count(masterDb, ExternalSourceAspect.classFullName);
     const changeSetMasterState0 = masterDb.changeSetId;
     // create Branch1 iModel using Master as a template
     const branchIModelName1 = "Branch1";
@@ -222,11 +223,9 @@ describe.only("IModelTransformerHubSubstationSpecific (#integration)", () => {
 
     try {
       // incert repository link of the parent
-      const repoLInkId =await  addReference(branchDb1, branchDb1.contextId, branchDb1.iModelId, branchDb1.name);
       // record provenance in Branch1 and Branch2 iModels
       const provenanceInserterB1 = new IModelTransformer(masterDb, branchDb1, {
         wasSourceIModelCopiedToTarget: true,
-        targetScopeElementId: repoLInkId,
       });
       await provenanceInserterB1.processAll();
       provenanceInserterB1.dispose();
@@ -252,7 +251,7 @@ describe.only("IModelTransformerHubSubstationSpecific (#integration)", () => {
       });
       await branch1ToMaster.processChanges(requestContext,changeSetBranch1State0);
       branch1ToMaster.dispose();
-      assert.equal(count(masterDb, ExternalSourceAspect.classFullName), 0);
+      assert.equal(count(masterDb, ExternalSourceAspect.classFullName), masterPostCatalogPlacementExternalAspectCount);
       await saveAndPushChanges(masterDb, "State0 -> State2"); // a squash of 2 branch changes into 1 in the masterDb change ledger
       const changeSetMasterState2 = masterDb.changeSetId;
       assert.notEqual(changeSetMasterState2, changeSetMasterState0);
