@@ -223,11 +223,11 @@ describe.only("IModelTransformerHubSubstationSpecific (#integration)", () => {
 
     try {
       // incert repository link of the parent
-      // const repoLInkId =await  addReference(branchDb1, branchDb1.contextId, branchDb1.iModelId, branchDb1.name);
+      const repoLInkId =await  addReference(branchDb1, branchDb1.contextId, branchDb1.iModelId, branchDb1.name);
       // record provenance in Branch1 and Branch2 iModels
       const provenanceInserterB1 = new IModelTransformer(masterDb, branchDb1, {
         wasSourceIModelCopiedToTarget: true,
-        // targetScopeElementId: repoLInkId,
+        targetScopeElementId: repoLInkId,
       });
       await provenanceInserterB1.processAll();
       provenanceInserterB1.dispose();
@@ -249,6 +249,7 @@ describe.only("IModelTransformerHubSubstationSpecific (#integration)", () => {
       // merge changes made on Branch1 back to Master
       const branch1ToMaster = new IModelTransformer(branchDb1, masterDb, {
         isReverseSynchronization: true, // provenance stored in source/branch
+        targetScopeElementId: repoLInkId,
         noProvenance: true,
       });
       await branch1ToMaster.processChanges(requestContext,changeSetBranch1State0);
