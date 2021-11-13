@@ -432,7 +432,6 @@ export class IModelTransformer extends IModelExportHandler {
   /** Override of [IModelExportHandler.onExportElement]($backend) that imports an element into the target iModel when it is exported from the source iModel.
    * This override calls [[onTransformElement]] and then [IModelImporter.importElement]($backend) to update the target iModel.
    */
-  // TODO: don't just ignore _isUpdate
   protected override onExportElement(sourceElement: Element): void {
     let targetElementId: Id64String | undefined;
     let targetElementProps: ElementProps;
