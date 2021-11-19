@@ -8,18 +8,20 @@ import * as path from "path";
 import * as Semver from "semver";
 import * as sinon from "sinon";
 import { DbResult, Guid, Id64, Id64String, Logger, LogLevel, OpenMode } from "@itwin/core-bentley";
-import { Point3d, Range3d, StandardViewIndex, Transform, YawPitchRollAngles } from "@itwin/core-geometry";
+import { Point3d, Range2d, Range3d, StandardViewIndex, Transform, YawPitchRollAngles } from "@itwin/core-geometry";
 import {
-  CategorySelector, DisplayStyle3d, DocumentListModel, Drawing, DrawingCategory, DrawingGraphic, DrawingModel, ECSqlStatement, Element,
+  CategorySelector, DisplayStyle2d, DisplayStyle3d, DocumentListModel, Drawing, DrawingCategory, DrawingGraphic, DrawingModel, DrawingViewDefinition, ECSqlStatement, Element,
   ElementMultiAspect, ElementOwnsExternalSourceAspects, ElementRefersToElements, ElementUniqueAspect, ExternalSourceAspect, GenericPhysicalMaterial,
   IModelCloneContext, IModelDb, IModelHost, IModelJsFs, IModelSchemaLoader, InformationRecordModel, InformationRecordPartition, LinkElement, Model,
   ModelSelector, OrthographicViewDefinition, PhysicalModel, PhysicalObject, PhysicalPartition, PhysicalType, Relationship, RepositoryLink, Schema,
+  SectionDrawing,
+  SectionDrawingModel,
   SnapshotDb, SpatialCategory, StandaloneDb, Subject,
 } from "@itwin/core-backend";
 import { ExtensiveTestScenario, IModelTestUtils, KnownTestLocations } from "@itwin/core-backend/lib/cjs/test";
 import {
   AxisAlignedBox3d, BriefcaseIdValue, Code, CodeScopeSpec, CodeSpec, ColorDef, CreateIModelProps, DefinitionElementProps, ExternalSourceAspectProps,
-  IModel, IModelError, PhysicalElementProps, Placement3d,
+  IModel, IModelError, PhysicalElementProps, Placement3d, QueryRowFormat,
 } from "@itwin/core-common";
 import { IModelExporter, IModelExportHandler, IModelTransformer, TransformerLoggerCategory } from "../../core-transformer";
 import {
@@ -1174,6 +1176,107 @@ describe("IModelTransformer", () => {
       "The targetDb must now have an equivalent BisCore schema because it was updated"
     );
 
+    sourceDb.close();
+    targetDb.close();
+  });
+
+  it("warns on missing predecessors", async () => {
+    const sourceDbPath = IModelTestUtils.prepareOutputFile(
+      "IModelTransformer",
+      "MissingPredecessorsSource.bim"
+    );
+
+    function populateDb(
+      db: IModelDb,
+      { useRelClass }: { useRelClass: boolean }
+    ) {
+      /* eslint-disable @typescript-eslint/no-shadow */
+      // create a document partition in our iModel's root
+      const documentListModelId = DocumentListModel.insert(
+        db,
+        IModelDb.rootSubjectId,
+        "DocumentList"
+      );
+      const drawingElemId = db.elements.insertElement({
+        classFullName: SectionDrawing.classFullName,
+        code: SectionDrawing.createCode(db, documentListModelId, "Drawing1"),
+        model: documentListModelId,
+      });
+
+      const drawingModelId = db.models.insertModel(
+        db.models.createModel<SectionDrawingModel>({
+          classFullName: SectionDrawingModel.classFullName,
+          modeledElement: {
+            id: drawingElemId,
+            ...(useRelClass
+              ? { relClassName: "BisCore:BaseModelForView2d" }
+              : {}),
+          },
+        })
+      );
+
+      const drawingCateg1Id = DrawingCategory.insert(
+        db,
+        IModelDb.dictionaryId,
+        "drawing-category",
+        { color: ColorDef.red.toJSON() }
+      );
+      const categorySelectorId = CategorySelector.insert(
+        db,
+        IModelDb.dictionaryId,
+        "category-selector-for-drawings",
+        [drawingCateg1Id]
+      );
+
+      const displayStyleId = DisplayStyle2d.insert(
+        db,
+        IModelDb.dictionaryId,
+        "display-style2d"
+      );
+
+      const viewDefId = DrawingViewDefinition.insert(
+        db,
+        IModel.dictionaryId,
+        "my-drawing-view",
+        drawingModelId,
+        categorySelectorId,
+        displayStyleId,
+        Range2d.createFrom({ low: { x: 0, y: 0 }, high: { x: 1, y: 1 } })
+      );
+
+      return [drawingModelId, viewDefId];
+      /* eslint-enable @typescript-eslint/no-shadow */
+    }
+
+    const sourceDb = SnapshotDb.createEmpty(sourceDbPath, {
+      rootSubject: { name: "MissingPredecessors" },
+    });
+    const [_spatialCateg2Id, drawingModelId, viewDefId] = populateDb(sourceDb, { useRelClass: false });
+    sourceDb.saveChanges();
+    sourceDb.models.deleteModel(drawingModelId);
+    sourceDb.elements.deleteElement(drawingModelId);
+    sourceDb.saveChanges();
+
+    const targetDbPath = IModelTestUtils.prepareOutputFile(
+      "IModelTransformer",
+      "MissingPredecessorsTarget.bim"
+    );
+    const targetDb = SnapshotDb.createEmpty(targetDbPath, {
+      rootSubject: { name: "MissingPredecessors" },
+    });
+
+    const transformer = new IModelTransformer(sourceDb, targetDb);
+    await transformer.processAll();
+    targetDb.saveChanges();
+
+    const messages: string[] = [];
+    sinon.replace(Logger, "logWarning", sinon.fake((...[_category, message, _metadata]: Parameters<Logger["logWarning"]>) => {
+      messages.push(message);
+    }));
+
+    expect(messages).to.include(`Source element (${viewDefId}) "" has a missing predecessor (${drawingModelId})`);
+
+    sinon.restore();
     sourceDb.close();
     targetDb.close();
   });

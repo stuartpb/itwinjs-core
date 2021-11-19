@@ -370,6 +370,7 @@ export class IModelTransformer extends IModelExportHandler {
   }
 
   /** Determine if any predecessors have not been imported yet.
+   * if the predecessor does not exist in the source, it will be ignored
    * @param sourceElement The Element from the source iModel
    */
   private findMissingPredecessors(sourceElement: Element): Id64Set {
@@ -383,7 +384,11 @@ export class IModelTransformer extends IModelExportHandler {
           // a valid Id indicates that the predecessor has already been remapped
           sourcePredecessorIds.delete(sourcePredecessorId);
         } else {
-          const sourcePredecessor = this.sourceDb.elements.getElement(sourcePredecessorId);
+          const sourcePredecessor = this.sourceDb.elements.tryGetElement(sourcePredecessorId);
+          if (sourcePredecessor === undefined) {
+            Logger.logWarning(loggerCategory, `Source element (${sourceElement.id}) "${sourceElement.getDisplayLabel()}" has a missing predecessor (${sourcePredecessorId})`);
+            return;
+          }
           if (!this.exporter.shouldExportElement(sourcePredecessor)) {
             // any predecessor that has been explicitly excluded is not considered missing
             sourcePredecessorIds.delete(sourcePredecessorId);
