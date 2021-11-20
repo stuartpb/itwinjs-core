@@ -1186,10 +1186,7 @@ describe("IModelTransformer", () => {
       "MissingPredecessorsSource.bim"
     );
 
-    function populateDb(
-      db: IModelDb,
-      { useRelClass }: { useRelClass: boolean }
-    ): [Id64String, Id64String] {
+    function populateDb(db: IModelDb): [Id64String, Id64String] {
       /* eslint-disable @typescript-eslint/no-shadow */
       // create a document partition in our iModel's root
       const documentListModelId = DocumentListModel.insert(
@@ -1208,9 +1205,7 @@ describe("IModelTransformer", () => {
           classFullName: SectionDrawingModel.classFullName,
           modeledElement: {
             id: drawingElemId,
-            ...(useRelClass
-              ? { relClassName: "BisCore:BaseModelForView2d" }
-              : {}),
+            relClassName: "BisCore:BaseModelForView2d",
           },
         })
       );
@@ -1251,7 +1246,7 @@ describe("IModelTransformer", () => {
     const sourceDb = SnapshotDb.createEmpty(sourceDbPath, {
       rootSubject: { name: "MissingPredecessors" },
     });
-    const [drawingModelId, viewDefId] = populateDb(sourceDb, { useRelClass: false });
+    const [drawingModelId, viewDefId] = populateDb(sourceDb);
     sourceDb.saveChanges();
     sourceDb.models.deleteModel(drawingModelId);
     sourceDb.elements.deleteElement(drawingModelId);
