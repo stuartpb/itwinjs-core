@@ -1189,7 +1189,7 @@ describe("IModelTransformer", () => {
     function populateDb(
       db: IModelDb,
       { useRelClass }: { useRelClass: boolean }
-    ) {
+    ): [Id64String, Id64String] {
       /* eslint-disable @typescript-eslint/no-shadow */
       // create a document partition in our iModel's root
       const documentListModelId = DocumentListModel.insert(
@@ -1251,7 +1251,7 @@ describe("IModelTransformer", () => {
     const sourceDb = SnapshotDb.createEmpty(sourceDbPath, {
       rootSubject: { name: "MissingPredecessors" },
     });
-    const [_spatialCateg2Id, drawingModelId, viewDefId] = populateDb(sourceDb, { useRelClass: false });
+    const [drawingModelId, viewDefId] = populateDb(sourceDb, { useRelClass: false });
     sourceDb.saveChanges();
     sourceDb.models.deleteModel(drawingModelId);
     sourceDb.elements.deleteElement(drawingModelId);
@@ -1265,16 +1265,16 @@ describe("IModelTransformer", () => {
       rootSubject: { name: "MissingPredecessors" },
     });
 
+    const messages: string[] = [];
+    sinon.replace(Logger, "logWarning", sinon.fake((...[_category, message, _metadata]: Parameters<typeof Logger["logWarning"]>) => {
+      messages.push(message);
+    }));
+
     const transformer = new IModelTransformer(sourceDb, targetDb);
     await transformer.processAll();
     targetDb.saveChanges();
 
-    const messages: string[] = [];
-    sinon.replace(Logger, "logWarning", sinon.fake((...[_category, message, _metadata]: Parameters<Logger["logWarning"]>) => {
-      messages.push(message);
-    }));
-
-    expect(messages).to.include(`Source element (${viewDefId}) "" has a missing predecessor (${drawingModelId})`);
+    expect(messages).to.include(`Source element (${viewDefId}) "my-drawing-view" has a missing predecessor (${drawingModelId})`);
 
     sinon.restore();
     sourceDb.close();

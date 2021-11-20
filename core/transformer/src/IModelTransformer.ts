@@ -387,6 +387,7 @@ export class IModelTransformer extends IModelExportHandler {
           const sourcePredecessor = this.sourceDb.elements.tryGetElement(sourcePredecessorId);
           if (sourcePredecessor === undefined) {
             Logger.logWarning(loggerCategory, `Source element (${sourceElement.id}) "${sourceElement.getDisplayLabel()}" has a missing predecessor (${sourcePredecessorId})`);
+            sourcePredecessorIds.delete(sourcePredecessorId);
             return;
           }
           if (!this.exporter.shouldExportElement(sourcePredecessor)) {
