@@ -6157,12 +6157,12 @@ packages:
     requiresBuild: true
     dev: false
 
-  /@bentley/itwin-client/3.0.0-dev.127_7fdb6ffd00c0a40cffa93dcb4b2e0c86:
-    resolution: {integrity: sha512-zL1g0GutuuHS6UtJqskdY15EA26mGQurW15uf70b+XKq3X4vFDpc9a9geJ/7Lg0KzrdUpfgJJdHyzaV8PClXpw==}
+  /@bentley/itwin-client/3.0.0-dev.129_133b422ff0fdd83c24a0ec3b0d1e3ef4:
+    resolution: {integrity: sha512-2WIWsPwSbc/H9aDdr52rumQx1ldNAOFwrmPjGhLLwqwn1Jrr7H1N70uHtbbvZxVxdUga8elu9vsS9tkBMO0/wQ==}
     peerDependencies:
-      '@itwin/core-bentley': ^3.0.0-dev.127
+      '@itwin/core-bentley': ^3.0.0-dev.129
     dependencies:
-      '@itwin/core-bentley': 3.0.0-dev.127
+      '@itwin/core-bentley': 3.0.0-dev.129
       deep-assign: 2.0.0
       js-base64: 3.7.2
       lodash: 4.17.21
@@ -6619,8 +6619,8 @@ packages:
       oidc-client: 1.11.5
     dev: false
 
-  /@itwin/certa/3.0.0-dev.127:
-    resolution: {integrity: sha512-+IFgkWPPJVk1rNWfPQQ9z8lJ0SEtlGrcolwcqwbyK7lX0Iqwtsa2MCmi8mEcwfDFGXzqamCMnDpJj9Vonm1hEw==}
+  /@itwin/certa/3.0.0-dev.129:
+    resolution: {integrity: sha512-hSg+Z0SmlV6FcbQRTImmdcgf+42/WOLaUxvJGrxtMbOkYsBiC/MWfSA1QBi/1p3hwKGMDmFsVO9SVkZdqVJuPw==}
     hasBin: true
     peerDependencies:
       electron: ^14.0.0
@@ -6642,8 +6642,8 @@ packages:
       - supports-color
       - utf-8-validate
 
-  /@itwin/certa/3.0.0-dev.127_electron@14.2.1:
-    resolution: {integrity: sha512-+IFgkWPPJVk1rNWfPQQ9z8lJ0SEtlGrcolwcqwbyK7lX0Iqwtsa2MCmi8mEcwfDFGXzqamCMnDpJj9Vonm1hEw==}
+  /@itwin/certa/3.0.0-dev.129_electron@14.2.1:
+    resolution: {integrity: sha512-hSg+Z0SmlV6FcbQRTImmdcgf+42/WOLaUxvJGrxtMbOkYsBiC/MWfSA1QBi/1p3hwKGMDmFsVO9SVkZdqVJuPw==}
     hasBin: true
     peerDependencies:
       electron: ^14.0.0
@@ -6667,8 +6667,8 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@itwin/core-bentley/3.0.0-dev.127:
-    resolution: {integrity: sha512-8C0GGQVQqCoHJxyyYF1tfo4CzgvRm3zeZCTlsOKh1czaPAFZW+yxh2HK/xJmUWuZTCs91c5lH0RYBT0vjPWGlQ==}
+  /@itwin/core-bentley/3.0.0-dev.129:
+    resolution: {integrity: sha512-6jnaEF82fm/ccC+/XnNZW1AkV9NPL1tFptBW0PfqHMc7OsJzw+CBVqcE2Pmt+QLDP7wvcR5zOu9y+UExe5XCPA==}
 
   /@itwin/core-bentley/3.0.0-extension.1:
     resolution: {integrity: sha512-3r1aRoZp694aqP2E0M9dZiaPSAC0E/E2VTvvN9K73NnlTvO4jpaIdt520oHp7tkGYx24VS9Q8+ED1Z0CH9+RkA==}
@@ -6690,8 +6690,8 @@ packages:
   /@itwin/electron-authorization/0.3.2:
     resolution: {integrity: sha512-lb1R6TOOh0u1c/nw6RWiXtJ2A6Is3NrPSwHvZ+Z23rZ7Ww5C0qutM4PYtVpf20Onmy2Lq6sQk8mHkHwP7B8j1w==}
     dependencies:
-      '@bentley/itwin-client': 3.0.0-dev.127_7fdb6ffd00c0a40cffa93dcb4b2e0c86
-      '@itwin/core-bentley': 3.0.0-dev.127
+      '@bentley/itwin-client': 3.0.0-dev.129_133b422ff0fdd83c24a0ec3b0d1e3ef4
+      '@itwin/core-bentley': 3.0.0-dev.129
       '@openid/appauth': 1.3.1
       keytar: 7.7.0
       open: 8.4.0
@@ -6783,8 +6783,8 @@ packages:
   /@itwin/oidc-signin-tool/3.0.0-dev.110:
     resolution: {integrity: sha512-uoTmMBqnEueiBQSzP6JjaTQu96fJa8JBqTESZZT/6Ub43jP1jYUcI+t0bk0lq3V4GF1GVWisTmcBaW6VK7kHsw==}
     dependencies:
-      '@itwin/certa': 3.0.0-dev.127
-      '@itwin/core-bentley': 3.0.0-dev.127
+      '@itwin/certa': 3.0.0-dev.129
+      '@itwin/core-bentley': 3.0.0-dev.129
       dotenv: 10.0.0
       dotenv-expand: 5.1.0
       openid-client: 4.9.1
@@ -6798,8 +6798,8 @@ packages:
   /@itwin/oidc-signin-tool/3.0.0-dev.110_electron@14.2.1:
     resolution: {integrity: sha512-uoTmMBqnEueiBQSzP6JjaTQu96fJa8JBqTESZZT/6Ub43jP1jYUcI+t0bk0lq3V4GF1GVWisTmcBaW6VK7kHsw==}
     dependencies:
-      '@itwin/certa': 3.0.0-dev.127_electron@14.2.1
-      '@itwin/core-bentley': 3.0.0-dev.127
+      '@itwin/certa': 3.0.0-dev.129_electron@14.2.1
+      '@itwin/core-bentley': 3.0.0-dev.129
       dotenv: 10.0.0
       dotenv-expand: 5.1.0
       openid-client: 4.9.1

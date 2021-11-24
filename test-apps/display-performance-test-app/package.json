@@ -51,6 +51,7 @@
     "@itwin/hypermodeling-frontend": "workspace:*",
     "@bentley/reality-data-client": "workspace:*",
     "@itwin/browser-authorization": "^0.3.0",
+    "@itwin/electron-authorization": "^0.3.2",
     "body-parser": "^1.18.2"
   },
   "devDependencies": {
