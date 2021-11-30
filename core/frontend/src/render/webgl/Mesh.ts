@@ -10,7 +10,7 @@ import { assert, dispose } from "@itwin/core-bentley";
 import { Point3d, Range3d } from "@itwin/core-geometry";
 import { FeatureIndexType, FillFlags, LinePixels, RenderMode, ViewFlags } from "@itwin/core-common";
 import { InstancedGraphicParams } from "../InstancedGraphicParams";
-import { MeshParams, SegmentEdgeParams, SilhouetteParams, SurfaceType, TesselatedPolyline, VertexIndices } from "../primitives/VertexTable";
+import { EdgeTable, MeshParams, SegmentEdgeParams, SilhouetteParams, SurfaceType, TesselatedPolyline, VertexIndices } from "../primitives/VertexTable";
 import { RenderMemory } from "../RenderMemory";
 import { RenderGeometry } from "../RenderSystem";
 import { AttributeMap } from "./AttributeMap";
@@ -49,6 +49,7 @@ export class MeshData implements WebGLDisposable {
   public readonly hasFixedNormals: boolean;   // Fixed normals will not be flipped to face front (Terrain skirts).
   public readonly lut: VertexLUT;
   public readonly viewIndependentOrigin?: Point3d;
+  public readonly edgeTable?: EdgeTable;
   private readonly _textureAlwaysDisplayed: boolean;
 
   private constructor(lut: VertexLUT, params: MeshParams, viOrigin: Point3d | undefined) {
@@ -77,6 +78,7 @@ export class MeshData implements WebGLDisposable {
     const edges = params.edges;
     this.edgeWidth = undefined !== edges ? edges.weight : 1;
     this.edgeLineCode = LineCode.valueFromLinePixels(undefined !== edges ? edges.linePixels : LinePixels.Solid);
+    this.edgeTable = params.edgeTable;
   }
 
   public static create(params: MeshParams, viOrigin: Point3d | undefined): MeshData | undefined {
@@ -452,13 +454,15 @@ export class SurfaceGeometry extends MeshGeometry {
 
     // ###TODO remove POC code
     let edgesBuffer;
-    const genFakeEdges = true;
+    const genFakeEdges = false;
     if (genFakeEdges) {
       const edges = new Uint8Array(indices.data.length);
       for (let i = 1; i < edges.length; i += 3)
         edges[i * 3] = 1;
 
       edgesBuffer = BufferHandle.createArrayBuffer(edges);
+    } else if (mesh.edgeTable) {
+      edgesBuffer = BufferHandle.createArrayBuffer(mesh.edgeTable.indices);
     }
 
     return undefined !== indexBuffer ? new SurfaceGeometry(indexBuffer, indices.length, mesh, edgesBuffer) : undefined;

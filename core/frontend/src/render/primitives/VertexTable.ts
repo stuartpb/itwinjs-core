@@ -694,6 +694,13 @@ function convertEdges(meshArgs: MeshArgs): EdgeParams | undefined {
   };
 }
 
+export interface EdgeTable {
+  // 24-bit per-vertex indices into lookup table.
+  // ###TODO allow size to vary (8, 16, or 24-bit - smallest possible based on lookup table size)
+  indices: Uint8Array;
+  // ###TODO lookup table
+}
+
 /**
  * Describes mesh geometry to be submitted to the rendering system.
  * A mesh consists of a surface and its edges, which may include any combination of silhouettes, polylines, and single segments.
@@ -705,14 +712,16 @@ export class MeshParams {
   public readonly edges?: EdgeParams;
   public readonly isPlanar: boolean;
   public readonly auxChannels?: AuxChannelTable;
+  public readonly edgeTable?: EdgeTable;
 
   /** Directly construct a MeshParams. The MeshParams takes ownership of all input data. */
-  public constructor(vertices: VertexTable, surface: SurfaceParams, edges?: EdgeParams, isPlanar?: boolean, auxChannels?: AuxChannelTable) {
+  public constructor(vertices: VertexTable, surface: SurfaceParams, edges?: EdgeParams, isPlanar?: boolean, auxChannels?: AuxChannelTable, edgeTable?: EdgeTable) {
     this.vertices = vertices;
     this.surface = surface;
     this.edges = edges;
     this.isPlanar = !!isPlanar;
     this.auxChannels = auxChannels;
+    this.edgeTable = edgeTable;
   }
 
   /** Construct from a MeshArgs. */
