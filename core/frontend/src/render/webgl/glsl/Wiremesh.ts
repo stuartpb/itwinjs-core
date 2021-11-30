@@ -21,7 +21,7 @@ const computeBarycentric = `
 
 const computeEdgePresent = `
   v_edgePresent = vec3(1.0);
-  v_edgePresent[vertIndex] = 0.0 == decodeUInt24(a_edge) ? 2.0 : 0.0;
+  v_edgePresent[vertIndex] = u_allEdgesVisible || 0.0 != decodeUInt24(a_edge) ? 2.0 : 0.0;
 `;
 
 // Fragment shader draws in the line color for fragments close to the edge of the triangle.
@@ -54,6 +54,12 @@ export function addWiremesh(builder: ProgramBuilder): void {
     return;
 
   builder.vert.addFunction(decodeUint24);
+  builder.vert.addUniform("u_allEdgesVisible", VariableType.Boolean, (prog) => {
+    prog.addGraphicUniform("u_allEdgesVisible", (uniform, _params) => {
+      // ###TODO: Set to true only if params.target.currentViewFlags.wiremesh
+      uniform.setUniform1i(1);
+    });
+  });
 
   builder.addInlineComputedVarying("v_barycentric", VariableType.Vec3, computeBarycentric);
   builder.addInlineComputedVarying("v_edgePresent", VariableType.Vec3, computeEdgePresent);
