@@ -10,7 +10,7 @@ import { assert, Dictionary } from "@itwin/core-bentley";
 import { Angle, IndexedPolyface, Point2d, Point3d, Polyface, PolyfaceVisitor, Range3d, Vector3d } from "@itwin/core-geometry";
 import { MeshEdge, MeshEdges, MeshPolyline, OctEncodedNormal, OctEncodedNormalPair, QPoint3d, QPoint3dList, TextureMapping } from "@itwin/core-common";
 import { DisplayParams } from "../DisplayParams";
-import { Triangle, TriangleKey, TriangleSet } from "../Primitives";
+import { Triangle, TriangleKey, TriangleList, TriangleSet } from "../Primitives";
 import { StrokesPrimitivePointLists } from "../Strokes";
 import { VertexKey, VertexKeyProps, VertexMap } from "../VertexKey";
 import { Mesh } from "./MeshPrimitives";
@@ -227,7 +227,11 @@ export class MeshBuilder {
       return;
 
     this._currentPolyface = undefined;
-    buildMeshEdges(mesh, currentPolyface);
+    const genEdgeTable = true;
+    if (genEdgeTable)
+      buildEdgeTable(mesh, currentPolyface);
+    else
+      buildMeshEdges(mesh, currentPolyface);
   }
 
   public addVertex(vertex: VertexKeyProps, addToMeshOnInsert = true): number {
@@ -398,6 +402,108 @@ function buildMeshEdges(mesh: Mesh, polyface: MeshBuilderPolyface): void {
         mesh.edges.silhouette.push(edgeInfo.edge);
         mesh.edges.silhouetteNormals.push(new OctEncodedNormalPair(OctEncodedNormal.fromVector(normal0), OctEncodedNormal.fromVector(normal1)));
       }
+    }
+  }
+}
+
+function buildEdgeTable(mesh: Mesh, polyface: MeshBuilderPolyface): void {
+  class Face {
+    public constructor(public triangleIndex: number, public normal: Vector3d) { }
+  }
+
+  class Edge {
+    public face1?: Face;
+
+    public constructor(public visible: boolean, public face0: Face, public edge: MeshEdge) { }
+
+    public addFace(visible: boolean, face: Face) {
+      assert(undefined === this.face1);
+      this.face1 = face;
+      this.visible ||= visible;
+    }
+  }
+
+  if (!mesh.triangles)
+    return;
+
+  // We need to detect the edge pairs. Can't do that from the Mesh indices as they are not shared -
+  // so we'll assume that the polyface indices are properly shared. This should be true as they use a
+  // separate index array.
+  const edgeMap = new Dictionary<MeshEdge, Edge>((lhs, rhs) => lhs.compareTo(rhs));
+  const triangle = new  Triangle();
+  const polyfacePoints = [new Point3d(), new Point3d(), new Point3d()];
+  const polyfaceIndices = [0, 0, 0];
+
+  for (let triangleIndex = polyface.baseTriangleIndex; triangleIndex < mesh.triangles.length; triangleIndex++) {
+    let indexNotFound = false;
+    mesh.triangles.getTriangle(triangleIndex, triangle);
+
+    for (let j = 0; j < 3; j++) {
+      const foundPolyfaceIndex = polyface.vertexIndexMap.get(triangle.indices[j]);
+      assert(undefined !== foundPolyfaceIndex);
+      if (undefined === foundPolyfaceIndex) {
+        indexNotFound = true;
+        continue;
+      }
+
+      polyfaceIndices[j] = foundPolyfaceIndex;
+      polyface.polyface.data.getPoint(foundPolyfaceIndex, polyfacePoints[j]);
+    }
+
+    if (indexNotFound)
+      continue;
+
+    const normal = Vector3d.createCrossProductToPoints(polyfacePoints[0], polyfacePoints[1], polyfacePoints[2]);
+    normal.normalizeInPlace();
+
+    for (let j = 0; j < 3; j++) {
+      const jNext = (j + 1) % 3;
+      const meshEdge = new MeshEdge(triangle.indices[j], triangle.indices[jNext]);
+      const polyfaceEdge = new MeshEdge(polyfaceIndices[j], polyfaceIndices[jNext]);
+      const face = new Face(triangleIndex, normal);
+      const edge = new Edge(triangle.isEdgeVisible(j), face, meshEdge);
+
+      const findOrInsert = edgeMap.findOrInsert(polyfaceEdge, edge);
+      if (!findOrInsert.inserted)
+        findOrInsert.value.addFace(edge.visible, face);
+    }
+  }
+
+  // If there is no visibility indication in the mesh, infer it from the mesh geometry.
+  if (!polyface.edgeOptions.generateAllEdges) {
+    const minEdgeDot = Math.cos(polyface.edgeOptions.minCreaseAngle);
+    for (const edge of edgeMap.values()) {
+      if (edge.visible && undefined !== edge.face1) {
+        if (Math.abs(edge.face0.normal.dotProduct(edge.face1.normal)) > minEdgeDot)
+          edge.visible = false;
+      }
+    }
+  }
+
+  // Now for each edge, set the opposite-edge visibility flags for the corresponding face vertices.
+  const maxPlanarDot = 0.999999;
+  const match = [false, false, false];
+  for (const edge of edgeMap.values()) {
+    let visible = edge.visible;
+    if (!visible && edge.face1)
+      visible = Math.abs(edge.face0.normal.dotProduct(edge.face1.normal)) < maxPlanarDot;
+
+    if (visible) {
+      function markVisible(triangles: TriangleList, face: Face) {
+        triangles.getTriangle(face.triangleIndex, triangle);
+        for (let i = 0; i < 3; i++)
+          match[i] = edge.edge.indices[0] === triangle.indices[i] || edge.edge.indices[1] === triangle.indices[i];
+
+        let oppositeIndexIndex = 0;
+        if (match[0])
+          oppositeIndexIndex = match[1] ? 2 : 1;
+
+        triangles.oppositeEdgeVisibility[triangle.indices[oppositeIndexIndex]] = true;
+      }
+
+      markVisible(mesh.triangles, edge.face0);
+      if (edge.face1)
+        markVisible(mesh.triangles, edge.face1);
     }
   }
 }

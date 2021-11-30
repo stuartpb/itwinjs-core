@@ -84,6 +84,7 @@ export class Triangle {
 export class TriangleList {
   private readonly _flags: number[] = [];
   public readonly indices: number[] = [];
+  public readonly oppositeEdgeVisibility: boolean[] = [];
 
   public get length(): number { return this._flags.length; }
   public get isEmpty(): boolean { return 0 === this.length; }
@@ -95,16 +96,21 @@ export class TriangleList {
         flags |= (0x0002 << i);
 
       this.indices.push(triangle.indices[i]);
+      this.oppositeEdgeVisibility.push(false);
     }
 
     this._flags.push(flags);
   }
+
   public addFromTypedArray(indices: Uint16Array | Uint32Array, flags: number = 0) {
     for (let i = 0; i < indices.length;) {
       this.indices.push(indices[i++]);
       this.indices.push(indices[i++]);
       this.indices.push(indices[i++]);
       this._flags.push(flags);
+      this.oppositeEdgeVisibility.push(false);
+      this.oppositeEdgeVisibility.push(false);
+      this.oppositeEdgeVisibility.push(false);
     }
   }
 

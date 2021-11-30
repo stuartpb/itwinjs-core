@@ -790,7 +790,7 @@ export class MeshParams {
     const channels = undefined !== args.auxChannels ? AuxChannelTable.fromChannels(args.auxChannels, vertices.numVertices) : undefined;
     let edges;
     let edgeTable;
-    const genEdgeTable = true;
+    const genEdgeTable = false;
     if (genEdgeTable) {
       edgeTable = buildEdgeTable(args, surfaceIndices)
     } else {
