@@ -55,9 +55,8 @@ export function addWiremesh(builder: ProgramBuilder): void {
 
   builder.vert.addFunction(decodeUint24);
   builder.vert.addUniform("u_allEdgesVisible", VariableType.Boolean, (prog) => {
-    prog.addGraphicUniform("u_allEdgesVisible", (uniform, _params) => {
-      // ###TODO: Set to true only if params.target.currentViewFlags.wiremesh
-      uniform.setUniform1i(1);
+    prog.addGraphicUniform("u_allEdgesVisible", (uniform, params) => {
+      uniform.setUniform1i(params.target.currentViewFlags.wiremesh ? 1 : 0);
     });
   });
 
