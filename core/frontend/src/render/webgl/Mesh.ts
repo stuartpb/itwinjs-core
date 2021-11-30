@@ -443,26 +443,43 @@ function wantLighting(vf: ViewFlags) {
 export class SurfaceGeometry extends MeshGeometry {
   private readonly _buffers: BuffersContainer;
   private readonly _indices: BufferHandle;
+  private readonly _edges?: BufferHandle;
 
   public get lutBuffers() { return this._buffers; }
 
   public static create(mesh: MeshData, indices: VertexIndices): SurfaceGeometry | undefined {
     const indexBuffer = BufferHandle.createArrayBuffer(indices.data);
-    return undefined !== indexBuffer ? new SurfaceGeometry(indexBuffer, indices.length, mesh) : undefined;
+
+    // ###TODO remove POC code
+    let edgesBuffer;
+    const genFakeEdges = true;
+    if (genFakeEdges) {
+      const edges = new Uint8Array(indices.data.length);
+      for (let i = 1; i < edges.length; i += 3)
+        edges[i * 3] = 1;
+
+      edgesBuffer = BufferHandle.createArrayBuffer(edges);
+    }
+
+    return undefined !== indexBuffer ? new SurfaceGeometry(indexBuffer, indices.length, mesh, edgesBuffer) : undefined;
   }
 
   public get isDisposed(): boolean {
     return this._buffers.isDisposed
-      && this._indices.isDisposed;
+      && this._indices.isDisposed
+      && (!this._edges || this._edges.isDisposed);
   }
 
   public dispose() {
     dispose(this._buffers);
     dispose(this._indices);
+    dispose(this._edges);
   }
 
   public collectStatistics(stats: RenderMemory.Statistics): void {
     stats.addSurface(this._indices.bytesUsed);
+    if (this._edges)
+      stats.addVisibleEdges(this._edges.bytesUsed);
   }
 
   public get isLit() { return SurfaceType.Lit === this.surfaceType || SurfaceType.TexturedLit === this.surfaceType; }
@@ -663,13 +680,21 @@ export class SurfaceGeometry extends MeshGeometry {
     }
   }
 
-  private constructor(indices: BufferHandle, numIndices: number, mesh: MeshData) {
+  private constructor(indices: BufferHandle, numIndices: number, mesh: MeshData, edges: BufferHandle | undefined) {
     super(mesh, numIndices);
     this._buffers = BuffersContainer.create();
     const attrPos = AttributeMap.findAttribute("a_pos", TechniqueId.Surface, false);
     assert(undefined !== attrPos);
     this._buffers.addBuffer(indices, [BufferParameters.create(attrPos.location, 3, GL.DataType.UnsignedByte, false, 0, 0, false)]);
     this._indices = indices;
+
+    if (!edges)
+      return;
+
+    const attrEdges = AttributeMap.findAttribute("a_edge", TechniqueId.Surface, false);
+    assert(undefined !== attrEdges);
+    this._buffers.addBuffer(edges, [BufferParameters.create(attrEdges.location, 3, GL.DataType.UnsignedByte, false, 0, 0, false)]);
+    this._edges = edges;
   }
 
   private wantTextures(target: Target, surfaceTextureExists: boolean): boolean {
