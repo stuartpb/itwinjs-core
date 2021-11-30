@@ -9,7 +9,7 @@
 import { assert } from "@itwin/core-bentley";
 import { Point2d, Point3d, Range2d, Vector3d } from "@itwin/core-geometry";
 import {
-  ColorDef, ColorIndex, FeatureIndex, FeatureIndexType, FillFlags, LinePixels, MeshEdge, OctEncodedNormalPair, PolylineData, PolylineTypeFlags,
+  ColorDef, ColorIndex, EdgeArgs, FeatureIndex, FeatureIndexType, FillFlags, LinePixels, MeshEdge, OctEncodedNormalPair, PolylineData, PolylineTypeFlags,
   QParams2d, QParams3d, QPoint2d, QPoint3dList, RenderMaterial, RenderTexture,
 } from "@itwin/core-common";
 import { IModelApp } from "../../IModelApp";
@@ -701,6 +701,52 @@ export interface EdgeTable {
   // ###TODO lookup table
 }
 
+function buildEdgeTable(args: MeshArgs, surfaceIndices: VertexIndices): EdgeTable | undefined {
+  if (!args.edges)
+    return undefined;
+
+  const edgeIndices = new Uint8Array(surfaceIndices.length * 3);
+  function setEdgeVisible(endPointIndices: number[]) {
+    for (let i = 0; i < surfaceIndices.length; i += 3) {
+      const i0 = surfaceIndices.decodeIndex(i);
+      const i1 = surfaceIndices.decodeIndex(i + 1);
+      const i2 = surfaceIndices.decodeIndex(i + 2);
+
+      let numMatch = 0;
+      let match = [false, false, false];
+      const si = [i0, i1, i2];
+      for (let j = 0; j < 3; j++) {
+        if (si[j] === endPointIndices[0] || si[j] === endPointIndices[1]) {
+          assert(match[j] === false);
+          match[j] = true;
+          ++numMatch;
+        }
+      }
+
+      assert(numMatch < 3);
+      if (2 !== numMatch)
+        continue;
+
+      let oppositeIndex = 0;
+      if (match[0])
+        oppositeIndex = match[1] ? 2 : 1;
+
+      edgeIndices[(i + oppositeIndex) * 3] = 1;
+    }
+  }
+
+  function buildEdges(edgeArgs: EdgeArgs | undefined) {
+    if (edgeArgs?.edges)
+      for (const edge of edgeArgs.edges)
+        setEdgeVisible(edge.indices);
+  }
+
+  buildEdges(args.edges?.edges);
+  buildEdges(args.edges?.silhouettes);
+
+  return { indices: edgeIndices };
+}
+
 /**
  * Describes mesh geometry to be submitted to the rendering system.
  * A mesh consists of a surface and its edges, which may include any combination of silhouettes, polylines, and single segments.
@@ -742,8 +788,16 @@ export class MeshParams {
     };
 
     const channels = undefined !== args.auxChannels ? AuxChannelTable.fromChannels(args.auxChannels, vertices.numVertices) : undefined;
-    const edges = convertEdges(args);
-    return new MeshParams(vertices, surface, edges, args.isPlanar, channels);
+    let edges;
+    let edgeTable;
+    const genEdgeTable = true;
+    if (genEdgeTable) {
+      edgeTable = buildEdgeTable(args, surfaceIndices)
+    } else {
+      edges = convertEdges(args);
+    }
+
+    return new MeshParams(vertices, surface, edges, args.isPlanar, channels, edgeTable);
   }
 }
 

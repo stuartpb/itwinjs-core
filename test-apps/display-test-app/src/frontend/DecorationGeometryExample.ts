@@ -16,9 +16,9 @@ class GeometryDecorator {
   public constructor(viewport: Viewport) {
     this._iModel = viewport.iModel;
 
-    this.addSphere(0);
+    //this.addSphere(0);
     this.addBox(2);
-    this.addCone(4);
+    //this.addCone(4);
     this.addShape(6);
   }
 
