@@ -373,7 +373,7 @@ function buildMeshEdges(mesh: Mesh, polyface: MeshBuilderPolyface): void {
   if (!polyface.edgeOptions.generateAllEdges) {
     const minEdgeDot = Math.cos(polyface.edgeOptions.minCreaseAngle);
     for (const edgeInfo of edgeMap.values()) {
-      if (undefined !== edgeInfo.faceIndex1) {
+      if (undefined !== edgeInfo.faceIndex1 && edgeInfo.visible) {
         const normal0 = triangleNormals[edgeInfo.faceIndex0];
         const normal1 = triangleNormals[edgeInfo.faceIndex1];
         if (Math.abs(normal0.dotProduct(normal1)) > minEdgeDot)
