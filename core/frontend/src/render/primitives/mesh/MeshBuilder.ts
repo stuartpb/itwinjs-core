@@ -408,13 +408,13 @@ function buildMeshEdges(mesh: Mesh, polyface: MeshBuilderPolyface): void {
 
 function buildEdgeTable(mesh: Mesh, polyface: MeshBuilderPolyface): void {
   class Face {
-    public constructor(public triangleIndex: number, public normal: Vector3d) { }
+    public constructor(public triangleIndex: number, public normal: Vector3d, public edge: MeshEdge) { }
   }
 
   class Edge {
     public face1?: Face;
 
-    public constructor(public visible: boolean, public face0: Face, public edge: MeshEdge) { }
+    public constructor(public visible: boolean, public face0: Face) { }
 
     public addFace(visible: boolean, face: Face) {
       assert(undefined === this.face1);
@@ -460,8 +460,8 @@ function buildEdgeTable(mesh: Mesh, polyface: MeshBuilderPolyface): void {
       const jNext = (j + 1) % 3;
       const meshEdge = new MeshEdge(triangle.indices[j], triangle.indices[jNext]);
       const polyfaceEdge = new MeshEdge(polyfaceIndices[j], polyfaceIndices[jNext]);
-      const face = new Face(triangleIndex, normal);
-      const edge = new Edge(triangle.isEdgeVisible(j), face, meshEdge);
+      const face = new Face(triangleIndex, normal, meshEdge);
+      const edge = new Edge(triangle.isEdgeVisible(j), face);
 
       const findOrInsert = edgeMap.findOrInsert(polyfaceEdge, edge);
       if (!findOrInsert.inserted)
@@ -492,13 +492,15 @@ function buildEdgeTable(mesh: Mesh, polyface: MeshBuilderPolyface): void {
       function markVisible(triangles: TriangleList, face: Face) {
         triangles.getTriangle(face.triangleIndex, triangle);
         for (let i = 0; i < 3; i++)
-          match[i] = edge.edge.indices[0] === triangle.indices[i] || edge.edge.indices[1] === triangle.indices[i];
+          match[i] = face.edge.indices[0] === triangle.indices[i] || face.edge.indices[1] === triangle.indices[i];
 
         let oppositeIndexIndex = 0;
         if (match[0])
           oppositeIndexIndex = match[1] ? 2 : 1;
 
-        triangles.oppositeEdgeVisibility[face.triangleIndex * 3 + oppositeIndexIndex] = true;
+        const index = face.triangleIndex * 3 + oppositeIndexIndex;
+        assert(!triangles.oppositeEdgeVisibility[index])
+        triangles.oppositeEdgeVisibility[index] = true;
       }
 
       markVisible(mesh.triangles, edge.face0);
