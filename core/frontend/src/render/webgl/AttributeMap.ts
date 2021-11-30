@@ -99,8 +99,14 @@ export class AttributeMap {
       ["a_pos", 0, VariableType.Vec2],
     ]);
 
+    const surface = new AttributeMapEntry([
+      ["a_pos", 0, VariableType.Vec3],
+      ["a_edge", 1, VariableType.Vec3],
+    ]);
+
     this._attrMaps = new Map<TechniqueId | undefined, AttributeMapEntry>([
       [undefined, posOnly],
+      [TechniqueId.Surface, surface],
       [TechniqueId.SkySphereGradient, skySphere],
       [TechniqueId.SkySphereTexture, skySphere],
       [TechniqueId.Polyline, polyline],

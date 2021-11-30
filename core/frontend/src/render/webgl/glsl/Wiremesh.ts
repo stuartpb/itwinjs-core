@@ -8,6 +8,7 @@
 
 import { System } from "../System";
 import { FragmentShaderComponent, ProgramBuilder, VariableType } from "../ShaderBuilder";
+import { decodeUint24 } from "./Decode";
 
 // Vertex shader produces barycentric coordinate for corner of triangle to be smoothly interpolated over face of triangle.
 // This requires WebGL 2 because gl_VertexID.
@@ -19,17 +20,8 @@ const computeBarycentric = `
 `;
 
 const computeEdgePresent = `
-  bool doOneEdge = true;
-  if (doOneEdge) {
-    if (vertIndex == 0)
-      v_edgePresent = vec3(0.0, 1.0, 1.0);
-    else if (vertIndex == 1)
-      v_edgePresent = vec3(1.0, 0.0, 1.0);
-    else
-      v_edgePresent = vec3(1.0, 1.0, 2.0);
-  } else {
-    v_edgePresent = vec3(2.0);
-  }
+  v_edgePresent = vec3(1.0);
+  v_edgePresent[vertIndex] = 0.0 == decodeUInt24(a_edge) ? 2.0 : 0.0;
 `;
 
 // Fragment shader draws in the line color for fragments close to the edge of the triangle.
@@ -39,7 +31,7 @@ const applyWiremesh = `
   const vec3 lineColor = vec3(0.0);
   vec3 delta = fwidth(v_barycentric);
   vec3 factor = smoothstep(vec3(0.0), delta * lineWidth, v_barycentric);
-  // vec3 color = mix(lineColor, baseColor.rgb, min(min(factor.x * v_edgePresent.x, factor.y * v_edgePresent.y), factor.z * v_edgePresent.z));
+
   float r = 1.0;
   if (v_edgePresent.x > 1.0)
     r = factor.x;
@@ -48,7 +40,7 @@ const applyWiremesh = `
   if (v_edgePresent.z > 1.0)
     r = min(r, factor.z);
 
-  bool colorCode = true;
+  bool colorCode = false;
   vec3 color = mix(lineColor, colorCode ? v_barycentric : baseColor.rgb, r);
 
   return vec4(color, baseColor.a);
@@ -58,9 +50,13 @@ const applyWiremesh = `
  * @internal
  */
 export function addWiremesh(builder: ProgramBuilder): void {
-  if (System.instance.isWebGL2) {
-    builder.addInlineComputedVarying("v_barycentric", VariableType.Vec3, computeBarycentric);
-    builder.addInlineComputedVarying("v_edgePresent", VariableType.Vec3, computeEdgePresent);
-    builder.frag.set(FragmentShaderComponent.ApplyWiremesh, applyWiremesh);
-  }
+  if (!System.instance.isWebGL2)
+    return;
+
+  builder.vert.addFunction(decodeUint24);
+
+  builder.addInlineComputedVarying("v_barycentric", VariableType.Vec3, computeBarycentric);
+  builder.addInlineComputedVarying("v_edgePresent", VariableType.Vec3, computeEdgePresent);
+
+  builder.frag.set(FragmentShaderComponent.ApplyWiremesh, applyWiremesh);
 }
