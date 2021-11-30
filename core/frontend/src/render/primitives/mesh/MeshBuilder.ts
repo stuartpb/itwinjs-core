@@ -498,7 +498,7 @@ function buildEdgeTable(mesh: Mesh, polyface: MeshBuilderPolyface): void {
         if (match[0])
           oppositeIndexIndex = match[1] ? 2 : 1;
 
-        triangles.oppositeEdgeVisibility[triangle.indices[oppositeIndexIndex]] = true;
+        triangles.oppositeEdgeVisibility[face.triangleIndex * 3 + oppositeIndexIndex] = true;
       }
 
       markVisible(mesh.triangles, edge.face0);

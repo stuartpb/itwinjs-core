@@ -16,10 +16,10 @@ class GeometryDecorator {
   public constructor(viewport: Viewport) {
     this._iModel = viewport.iModel;
 
-    //this.addSphere(0); - works - but slow
-    this.addBox(2); // missing some edges
-    this.addCone(4); // works
-    this.addShape(6); // works
+    this.addSphere(0);
+    this.addBox(2);
+    this.addCone(4);
+    this.addShape(6);
   }
 
   public decorate(context: DecorateContext): void {

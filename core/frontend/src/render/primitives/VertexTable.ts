@@ -747,6 +747,19 @@ function buildEdgeTable(args: MeshArgs, surfaceIndices: VertexIndices): EdgeTabl
   return { indices: edgeIndices };
 }
 
+function convertEdgeTable(args: MeshArgs): EdgeTable | undefined {
+  if (!args.oppositeEdgeVisibility)
+    return undefined;
+
+  assert(args.oppositeEdgeVisibility.length === args.vertIndices?.length);
+  const indices = new Uint8Array(args.oppositeEdgeVisibility.length * 3);
+  for (let i = 0; i < args.oppositeEdgeVisibility.length; i++)
+    if (args.oppositeEdgeVisibility[i])
+      indices[i * 3] = 1;
+
+  return { indices };
+}
+
 /**
  * Describes mesh geometry to be submitted to the rendering system.
  * A mesh consists of a surface and its edges, which may include any combination of silhouettes, polylines, and single segments.
@@ -793,6 +806,8 @@ export class MeshParams {
     const genEdgeTable = false;
     if (genEdgeTable) {
       edgeTable = buildEdgeTable(args, surfaceIndices)
+    } else if (args.oppositeEdgeVisibility) {
+      edgeTable = convertEdgeTable(args);
     } else {
       edges = convertEdges(args);
     }

@@ -113,6 +113,7 @@ export class MeshArgsEdges {
 export class MeshArgs {
   public edges = new MeshArgsEdges();
   public vertIndices?: number[];
+  public oppositeEdgeVisibility?: boolean[];
   public points?: QPoint3dList;
   public normals?: OctEncodedNormal[];
   public textureUv?: Point2d[];
@@ -131,6 +132,7 @@ export class MeshArgs {
   public clear() {
     this.edges.clear();
     this.vertIndices = undefined;
+    this.oppositeEdgeVisibility = undefined;
     this.points = undefined;
     this.normals = undefined;
     this.textureUv = undefined;
@@ -152,6 +154,7 @@ export class MeshArgs {
 
     this.vertIndices = mesh.triangles.indices;
     this.points = mesh.points;
+    this.oppositeEdgeVisibility = mesh.triangles.oppositeEdgeVisibility;
 
     if (!mesh.displayParams.ignoreLighting && 0 < mesh.normals.length)
       this.normals = mesh.normals;
