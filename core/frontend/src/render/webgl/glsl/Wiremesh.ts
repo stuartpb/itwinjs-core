@@ -27,7 +27,7 @@ const computeEdgePresent = `
 // Fragment shader draws in the line color for fragments close to the edge of the triangle.
 // Vertex shader requires WebGL 2 which includes the functionality of the GL_OES_standard_derivatives extension.
 const applyWiremesh = `
-  const float lineWidth = 6.0;
+  const float lineWidth = 1.0;
   const vec3 lineColor = vec3(0.0);
   vec3 delta = fwidth(v_barycentric);
   vec3 factor = smoothstep(vec3(0.0), delta * lineWidth, v_barycentric);
