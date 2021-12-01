@@ -14,7 +14,7 @@ import {
 } from "@itwin/core-common";
 import { IModelApp } from "../../IModelApp";
 import { AuxChannelTable } from "./AuxChannelTable";
-import { MeshArgs, PolylineArgs } from "./mesh/MeshPrimitives";
+import { EdgeMap, MeshArgs, PolylineArgs } from "./mesh/MeshPrimitives";
 
 /**
  * Holds an array of indices into a VertexTable. Each index is a 24-bit unsigned integer.
@@ -694,76 +694,70 @@ function convertEdges(meshArgs: MeshArgs): EdgeParams | undefined {
   };
 }
 
-export interface EdgeTable {
-  // 24-bit per-vertex indices into lookup table.
-  // ###TODO allow size to vary (8, 16, or 24-bit - smallest possible based on lookup table size)
+export interface EdgeTableProps {
   indices: Uint8Array;
-  // ###TODO lookup table
-}
-
-function buildEdgeTable(args: MeshArgs, surfaceIndices: VertexIndices): EdgeTable | undefined {
-  if (!args.edges)
-    return undefined;
-
-  const edgeIndices = new Uint8Array(surfaceIndices.length * 3);
-  function setEdgeVisible(endPointIndices: number[]) {
-    for (let i = 0; i < surfaceIndices.length; i += 3) {
-      const i0 = surfaceIndices.decodeIndex(i);
-      const i1 = surfaceIndices.decodeIndex(i + 1);
-      const i2 = surfaceIndices.decodeIndex(i + 2);
-
-      let numMatch = 0;
-      let match = [false, false, false];
-      const si = [i0, i1, i2];
-      for (let j = 0; j < 3; j++) {
-        if (si[j] === endPointIndices[0] || si[j] === endPointIndices[1]) {
-          assert(match[j] === false);
-          match[j] = true;
-          ++numMatch;
-        }
-      }
-
-      assert(numMatch < 3);
-      if (2 !== numMatch)
-        continue;
-
-      let oppositeIndex = 0;
-      if (match[0])
-        oppositeIndex = match[1] ? 2 : 1;
-
-      edgeIndices[(i + oppositeIndex) * 3] = 1;
-    }
-  }
-
-  function buildEdges(edgeArgs: EdgeArgs | undefined) {
-    if (edgeArgs?.edges)
-      for (const edge of edgeArgs.edges)
-        setEdgeVisible(edge.indices);
-  }
-
-  buildEdges(args.edges?.edges);
-  buildEdges(args.edges?.silhouettes);
-
-  return { indices: edgeIndices };
+  edges: Uint16Array;
+  width: number;
+  height: number;
 }
 
 const scratchUint32Array = new Uint32Array(1);
 const scratchUint8Array = new Uint8Array(scratchUint32Array.buffer);
 
-function convertEdgeTable(args: MeshArgs): EdgeTable | undefined {
-  if (!args.oppositeEdgeIndices || !args.edgeMap || args.edgeMap.length <= 1)
-    return undefined;
+export class EdgeTable {
+  /** For each vertex index in the mesh, an index into [[edges]] that supplies the edge opposite that vertex.
+   * An index of zero indicates the edge does not exist - no data is stored in the lookup table for nonexistent edges.
+   * ###TODO Allow size to be smaller than 24 bits if lookup table is small enough
+   * ###TODO Reserve 1 bit to indicate whether edge is a silhouette.
+   */
+  public readonly indices: Uint8Array;
+  /** Lookup table containing - for each unique edge - 3 [OctEncodedNormal]($common)s describing the surface normals of the faces and the direction of the edge.
+   * If the edge only has one face, the other normal will be encoded as 0.
+   * Note: [[indices]] into this lookup table are one-based.
+   */
+  public readonly edges: Uint16Array;
+  public readonly width: number;
+  public readonly height: number;
 
-  assert(args.oppositeEdgeIndices.length === args.vertIndices?.length);
-  const indices = new Uint8Array(args.oppositeEdgeIndices.length * 3);
-  for (let i = 0; i < args.oppositeEdgeIndices.length; i++) {
-    scratchUint32Array[0] = args.oppositeEdgeIndices[i];
-    indices[i * 3 + 0] = scratchUint8Array[0];
-    indices[i * 3 + 1] = scratchUint8Array[1];
-    indices[i * 3 + 2] = scratchUint8Array[2];
+  public constructor(props: EdgeTableProps) {
+    this.indices = props.indices;
+    this.edges = props.edges;
+    this.width = props.width;
+    this.height = props.height;
   }
 
-  return { indices };
+  public static buildFrom(indices: number[], edgeMap: EdgeMap): EdgeTable {
+    // 6 bytes per edge = 1.5 RGBA per edge - request twice as many for half as many indices.
+    const dimensions = computeDimensions(Math.floor((indices.length + 1) / 2), 3, 0);
+    const props: EdgeTableProps = {
+      indices: new Uint8Array(3 * indices.length),
+      edges: new Uint16Array(dimensions.width * dimensions.height * 2),
+      width: dimensions.width,
+      height: dimensions.height,
+    };
+
+    for (let i = 0; i < indices.length; i++) {
+      scratchUint32Array[0] = indices[i];
+      props.indices[i * 3 + 0] = scratchUint8Array[0];
+      props.indices[i * 3 + 1] = scratchUint8Array[1];
+      props.indices[i * 3 + 2] = scratchUint8Array[2];
+    }
+
+    const edges = edgeMap.toArray();
+    for (let i = 0; i < edges.length; i++) {
+      const edge = edges[i];
+      const index = 3 * i;
+      props.edges[index + 0] = edge.normal0;
+      props.edges[index + 1] = edge.normal1;
+      props.edges[index + 2] = edge.direction;
+    }
+
+    return new this(props);
+  }
+
+  public static fromMeshArgs(args: MeshArgs): EdgeTable | undefined {
+    return args.oppositeEdgeIndices && args.edgeMap && args.edgeMap.length > 1 ? this.buildFrom(args.oppositeEdgeIndices, args.edgeMap) : undefined;
+  }
 }
 
 /**
@@ -808,15 +802,9 @@ export class MeshParams {
 
     const channels = undefined !== args.auxChannels ? AuxChannelTable.fromChannels(args.auxChannels, vertices.numVertices) : undefined;
     let edges;
-    let edgeTable;
-    const genEdgeTable = false;
-    if (genEdgeTable) {
-      edgeTable = buildEdgeTable(args, surfaceIndices)
-    } else if (args.oppositeEdgeIndices) {
-      edgeTable = convertEdgeTable(args);
-    } else {
+    const edgeTable = EdgeTable.fromMeshArgs(args);
+    if (!edgeTable)
       edges = convertEdges(args);
-    }
 
     return new MeshParams(vertices, surface, edges, args.isPlanar, channels, edgeTable);
   }
