@@ -8,7 +8,58 @@
 
 import { System } from "../System";
 import { FragmentShaderComponent, ProgramBuilder, VariableType } from "../ShaderBuilder";
+import { TextureUnit } from "../RenderFlags";
 import { decodeUint24 } from "./Decode";
+import { octDecodeNormal } from "./Surface";
+
+const initializeLut = `
+  g_edge_step = vec2(1.0) / u_edgeLUTParams.xy;
+  g_edge_center = g_edge_step * 0.5;
+`;
+
+// The edge index is an integer in [1..numEdges].
+// Each edge is represented by 1.5 RGBA values.
+// The third component of the returned vec3 is 0 if edge begins at the first 2 bytes of the texel, or 1 if at the second 2 bytes.
+const computeLUTCoords = `
+vec3 computeEdgeLUTCoords(float edgeIndex) {
+  float baseIndex = (edgeIndex - 1.0) * 6.0;
+  float halfIndex = baseIndex * 0.5;
+  float index = floor(halfIndex);
+
+  float epsilon = 0.5 / u_edgeLUTParams.x;
+  float yId = floor(index / u_edgeLUTParams.x + epsilon);
+  float xId = index - u_edgeLUTParams.x * yId;
+
+  vec2 texCoord = g_edge_center + vec2(xId, yId) / u_edgeLUTParams.xy;
+  return vec3(texCoord, 2.0 * (halfIndex - index));
+}
+`;
+
+const sampleEdgeNormals = `
+bool sampleEdgeOctEncodedNormals(float edgeIndex, out vec2 n0, out vec2 n1, out vec2 dir) {
+  if (0.0 == edgeIndex) {
+    n0 = n1 = dir = vec2(0.0);
+    return false;
+  }
+
+  vec3 coords = computeEdgeLUTCoords(edgeIndex);
+  vec2 tc = coords.xy;
+  vec4 s0 = TEXTURE(u_edgeLUT, tc.xy);
+  tc.x += g_edge_step.x;
+  vec4 s1 = TEXTURE(u_edgeLUT, tc.xy);
+  if (coords.z == 0.0) {
+    n0 = s0.xy;
+    n1 = s0.zw;
+    dir = s1.xy;
+  } else {
+    n0 = s0.zw;
+    n1 = s1.xy;
+    dir = s1.zw;
+  }
+
+  return true;
+}
+`;
 
 // Vertex shader produces barycentric coordinate for corner of triangle to be smoothly interpolated over face of triangle.
 // This requires WebGL 2 because gl_VertexID.
@@ -21,7 +72,17 @@ const computeBarycentric = `
 
 const computeEdgePresent = `
   v_edgePresent = vec3(1.0);
-  v_edgePresent[vertIndex] = u_allEdgesVisible || 0.0 != decodeUInt24(a_edge) ? 2.0 : 0.0;
+
+  bool edgePresent = false;
+  vec2 on0, on1, odir;
+  if (u_allEdgesVisible || !sampleEdgeOctEncodedNormals(decodeUInt24(a_edge), on0, on1, odir)) {
+    edgePresent = u_allEdgesVisible;
+  } else {
+    // ###TODO check the normals for edge visibility/width.
+    edgePresent = true;
+  }
+
+  v_edgePresent[vertIndex] = edgePresent ? 2.0 : 0.0;
 `;
 
 // Fragment shader draws in the line color for fragments close to the edge of the triangle.
@@ -46,6 +107,8 @@ const applyWiremesh = `
   return vec4(color, baseColor.a);
 `;
 
+const scratchLutParams = new Float32Array(2);
+
 /** Adds to a mesh shader logic to produce an overlaid wiremesh.
  * @internal
  */
@@ -53,7 +116,37 @@ export function addWiremesh(builder: ProgramBuilder): void {
   if (!System.instance.isWebGL2)
     return;
 
+  builder.vert.addGlobal("g_edge_step", VariableType.Vec2);
+  builder.vert.addGlobal("g_edge_center", VariableType.Vec2);
+  builder.vert.addInitializer(initializeLut);
+
+  builder.vert.addUniform("u_edgeLUT", VariableType.Sampler2D, (prog) => {
+    prog.addGraphicUniform("u_edgeLUT", (uniform, params) => {
+      const surf = params.geometry.asSurface;
+      const texture = surf?.edges?.lut.texture;
+      if (texture)
+        texture.bindSampler(uniform, TextureUnit.EdgeLUT);
+      else
+        System.instance.ensureSamplerBound(uniform, TextureUnit.EdgeLUT);
+    });
+  });
+
   builder.vert.addFunction(decodeUint24);
+  builder.vert.addFunction(computeLUTCoords);
+  builder.vert.addFunction(sampleEdgeNormals);
+
+  builder.vert.addUniform("u_edgeLUTParams", VariableType.Vec2, (prog) => {
+    prog.addGraphicUniform("u_edgeLUTParams", (uniform, params) => {
+      const surf = params.geometry.asSurface;
+      const lut = surf?.edges?.lut;
+      if (lut) {
+        scratchLutParams[0] = lut.texture.width;
+        scratchLutParams[1] = lut.texture.height;
+        uniform.setUniform2fv(scratchLutParams);
+      }
+    });
+  });
+
   builder.vert.addUniform("u_allEdgesVisible", VariableType.Boolean, (prog) => {
     prog.addGraphicUniform("u_allEdgesVisible", (uniform, params) => {
       uniform.setUniform1i(params.target.currentViewFlags.wiremesh ? /* ###TODO 1 */ 0 : 0);

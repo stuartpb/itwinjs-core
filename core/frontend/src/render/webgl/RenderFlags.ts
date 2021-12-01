@@ -92,7 +92,7 @@ export enum TextureUnit {
   RealityMeshThematicGradient = WebGLRenderingContext.TEXTURE11,
 
   // Lookup table for edges, used only if WebGL 2 is available.
-  EdgeTable = WebGLRenderingContext.TEXTURE12
+  EdgeLUT = WebGLRenderingContext.TEXTURE12
 }
 
 /**

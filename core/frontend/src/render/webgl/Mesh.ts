@@ -448,9 +448,9 @@ interface BarycentricEdges {
 
 /** @internal */
 export class SurfaceGeometry extends MeshGeometry {
+  public readonly edges?: BarycentricEdges;
   private readonly _buffers: BuffersContainer;
   private readonly _indices: BufferHandle;
-  private readonly _edges?: BarycentricEdges;
 
   public get lutBuffers() { return this._buffers; }
 
@@ -472,20 +472,20 @@ export class SurfaceGeometry extends MeshGeometry {
   public get isDisposed(): boolean {
     return this._buffers.isDisposed
       && this._indices.isDisposed
-      && (!this._edges || (this._edges.indices.isDisposed && this._edges.lut.isDisposed));
+      && (!this.edges || (this.edges.indices.isDisposed && this.edges.lut.isDisposed));
   }
 
   public dispose() {
     dispose(this._buffers);
     dispose(this._indices);
-    dispose(this._edges?.indices);
-    dispose(this._edges?.lut);
+    dispose(this.edges?.indices);
+    dispose(this.edges?.lut);
   }
 
   public collectStatistics(stats: RenderMemory.Statistics): void {
     stats.addSurface(this._indices.bytesUsed);
-    if (this._edges)
-      stats.addVisibleEdges(this._edges.indices.bytesUsed + this._edges.lut.bytesUsed);
+    if (this.edges)
+      stats.addVisibleEdges(this.edges.indices.bytesUsed + this.edges.lut.bytesUsed);
   }
 
   public get isLit() { return SurfaceType.Lit === this.surfaceType || SurfaceType.TexturedLit === this.surfaceType; }
@@ -700,7 +700,7 @@ export class SurfaceGeometry extends MeshGeometry {
     const attrEdges = AttributeMap.findAttribute("a_edge", TechniqueId.Surface, false);
     assert(undefined !== attrEdges);
     this._buffers.addBuffer(edges.indices, [BufferParameters.create(attrEdges.location, 3, GL.DataType.UnsignedByte, false, 0, 0, false)]);
-    this._edges = edges;
+    this.edges = edges;
   }
 
   private wantTextures(target: Target, surfaceTextureExists: boolean): boolean {
