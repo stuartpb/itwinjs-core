@@ -13,7 +13,7 @@ import { DisplayParams } from "../DisplayParams";
 import { Triangle, TriangleKey, TriangleList, TriangleSet } from "../Primitives";
 import { StrokesPrimitivePointLists } from "../Strokes";
 import { VertexKey, VertexKeyProps, VertexMap } from "../VertexKey";
-import { Mesh } from "./MeshPrimitives";
+import { EdgeMap, EdgeMapEntry, Mesh } from "./MeshPrimitives";
 
 // Describes a vertex along with the index of the source vertex in the source PolyfaceVisitor.
 type VertexKeyPropsWithIndex = VertexKeyProps & { sourceIndex: number };
@@ -489,7 +489,7 @@ function buildEdgeTable(mesh: Mesh, polyface: MeshBuilderPolyface): void {
       visible = Math.abs(edge.face0.normal.dotProduct(edge.face1.normal)) < maxPlanarDot;
 
     if (visible) {
-      function markVisible(triangles: TriangleList, face: Face) {
+      function markVisible(triangles: TriangleList, face: Face, edgeMap: EdgeMap, otherFace?: Face) {
         triangles.getTriangle(face.triangleIndex, triangle);
         for (let i = 0; i < 3; i++)
           match[i] = face.edge.indices[0] === triangle.indices[i] || face.edge.indices[1] === triangle.indices[i];
@@ -499,13 +499,17 @@ function buildEdgeTable(mesh: Mesh, polyface: MeshBuilderPolyface): void {
           oppositeIndexIndex = match[1] ? 2 : 1;
 
         const index = face.triangleIndex * 3 + oppositeIndexIndex;
-        assert(!triangles.oppositeEdgeVisibility[index])
-        triangles.oppositeEdgeVisibility[index] = true;
+        assert(0 === triangles.oppositeEdgeIndices[index]);
+
+        const direction = 0; // ###TODO
+        const entry = new EdgeMapEntry(OctEncodedNormal.encode(face.normal), otherFace ? OctEncodedNormal.encode(otherFace.normal) : 0, direction);
+
+        triangles.oppositeEdgeIndices[index] = edgeMap.insert(entry);
       }
 
-      markVisible(mesh.triangles, edge.face0);
+      markVisible(mesh.triangles, edge.face0, mesh.edgeMap, edge.face1);
       if (edge.face1)
-        markVisible(mesh.triangles, edge.face1);
+        markVisible(mesh.triangles, edge.face1, mesh.edgeMap, edge.face0);
     }
   }
 }

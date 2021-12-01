@@ -747,15 +747,21 @@ function buildEdgeTable(args: MeshArgs, surfaceIndices: VertexIndices): EdgeTabl
   return { indices: edgeIndices };
 }
 
+const scratchUint32Array = new Uint32Array(1);
+const scratchUint8Array = new Uint8Array(scratchUint32Array.buffer);
+
 function convertEdgeTable(args: MeshArgs): EdgeTable | undefined {
-  if (!args.oppositeEdgeVisibility)
+  if (!args.oppositeEdgeIndices || !args.edgeMap || args.edgeMap.length <= 1)
     return undefined;
 
-  assert(args.oppositeEdgeVisibility.length === args.vertIndices?.length);
-  const indices = new Uint8Array(args.oppositeEdgeVisibility.length * 3);
-  for (let i = 0; i < args.oppositeEdgeVisibility.length; i++)
-    if (args.oppositeEdgeVisibility[i])
-      indices[i * 3] = 1;
+  assert(args.oppositeEdgeIndices.length === args.vertIndices?.length);
+  const indices = new Uint8Array(args.oppositeEdgeIndices.length * 3);
+  for (let i = 0; i < args.oppositeEdgeIndices.length; i++) {
+    scratchUint32Array[0] = args.oppositeEdgeIndices[i];
+    indices[i * 3 + 0] = scratchUint8Array[0];
+    indices[i * 3 + 1] = scratchUint8Array[1];
+    indices[i * 3 + 2] = scratchUint8Array[2];
+  }
 
   return { indices };
 }
@@ -806,7 +812,7 @@ export class MeshParams {
     const genEdgeTable = false;
     if (genEdgeTable) {
       edgeTable = buildEdgeTable(args, surfaceIndices)
-    } else if (args.oppositeEdgeVisibility) {
+    } else if (args.oppositeEdgeIndices) {
       edgeTable = convertEdgeTable(args);
     } else {
       edges = convertEdges(args);

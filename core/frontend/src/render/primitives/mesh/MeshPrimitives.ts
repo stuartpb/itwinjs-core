@@ -6,7 +6,7 @@
  * @module Rendering
  */
 
-import { assert } from "@itwin/core-bentley";
+import { assert, IndexMap } from "@itwin/core-bentley";
 import { AuxChannel, AuxChannelData, Point2d, Range3d } from "@itwin/core-geometry";
 import {
   ColorIndex, EdgeArgs, Feature, FeatureIndex, FeatureIndexType, FeatureTable, FillFlags, LinePixels, MeshEdges, MeshPolyline, MeshPolylineList,
@@ -113,7 +113,8 @@ export class MeshArgsEdges {
 export class MeshArgs {
   public edges = new MeshArgsEdges();
   public vertIndices?: number[];
-  public oppositeEdgeVisibility?: boolean[];
+  public oppositeEdgeIndices?: number[];
+  public edgeMap?: EdgeMap;
   public points?: QPoint3dList;
   public normals?: OctEncodedNormal[];
   public textureUv?: Point2d[];
@@ -132,7 +133,7 @@ export class MeshArgs {
   public clear() {
     this.edges.clear();
     this.vertIndices = undefined;
-    this.oppositeEdgeVisibility = undefined;
+    this.oppositeEdgeIndices = this.edgeMap = undefined;
     this.points = undefined;
     this.normals = undefined;
     this.textureUv = undefined;
@@ -154,7 +155,8 @@ export class MeshArgs {
 
     this.vertIndices = mesh.triangles.indices;
     this.points = mesh.points;
-    this.oppositeEdgeVisibility = mesh.triangles.oppositeEdgeVisibility;
+    this.oppositeEdgeIndices = mesh.triangles.oppositeEdgeIndices;
+    this.edgeMap = mesh.edgeMap;
 
     if (!mesh.displayParams.ignoreLighting && 0 < mesh.normals.length)
       this.normals = mesh.normals;
@@ -198,6 +200,38 @@ export class MeshArgs {
   }
 }
 
+export class EdgeMapEntry {
+  public readonly normal0: number;
+  public readonly normal1: number;
+  public readonly direction: number;
+
+  public constructor(n0: number, n1: number, dir: number) {
+    this.normal0 = n0 < n1 ? n0 : n1;
+    this.normal1 = n0 < n1 ? n1 : n0;
+    this.direction = dir;
+  }
+}
+
+function compareEdgeMapEntries(a: EdgeMapEntry, b: EdgeMapEntry): number {
+  let d = a.normal0 - b.normal0;
+  if (0 === d) {
+    d = a.normal1 - b.normal1;
+    if (0 === d)
+      d = a.direction - b.direction;
+  }
+
+  return d;
+}
+
+export class EdgeMap extends IndexMap<EdgeMapEntry> {
+  public constructor() {
+    super(compareEdgeMapEntries);
+
+    // Index zero means "no edge".
+    this.insert({ normal0: -1, normal1: -1, direction: -1 });
+  }
+}
+
 /** @internal */
 export class MeshGraphicArgs {
   public polylineArgs = new PolylineArgs();
@@ -220,6 +254,7 @@ export class Mesh {
   public readonly hasBakedLighting: boolean;
   public readonly isVolumeClassifier: boolean;
   public displayParams: DisplayParams;
+  public readonly edgeMap = new EdgeMap();
   private _auxChannels?: AuxChannel[];
 
   private constructor(props: Mesh.Props) {
