@@ -461,8 +461,8 @@ function buildEdgeTable(mesh: Mesh, polyface: MeshBuilderPolyface): void {
       const jNext = (j + 1) % 3;
       const meshEdge = new MeshEdge(triangle.indices[j], triangle.indices[jNext]);
       const polyfaceEdge = new MeshEdge(polyfaceIndices[j], polyfaceIndices[jNext]);
-      const p0 = j < jNext ? polyfacePoints[j] : polyfacePoints[jNext];
-      const p1 = j < jNext ? polyfacePoints[jNext] : polyfacePoints[j];
+      const p0 = polyfaceIndices[j] < polyfaceIndices[jNext] ? polyfacePoints[j] : polyfacePoints[jNext];
+      const p1 = polyfaceIndices[j] < polyfaceIndices[jNext] ? polyfacePoints[jNext] : polyfacePoints[j];
       const dir = Vector3d.createStartEnd(p0, p1, direction);
       dir.normalizeInPlace();
       const face = new Face(triangleIndex, normal, meshEdge);
