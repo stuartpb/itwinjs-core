@@ -5,7 +5,7 @@
 import { assert } from "@itwin/core-bentley";
 import { Box, Cone, Point3d, Range3d, Sphere, Transform } from "@itwin/core-geometry";
 import { ColorDef, RenderMode, SkyBox } from "@itwin/core-common";
-import { DecorateContext, GraphicBranch, GraphicBuilder, GraphicType, IModelApp, IModelConnection, StandardViewId, Viewport } from "@itwin/core-frontend";
+import { DecorateContext, GraphicBranch, GraphicBuilder, GraphicType, IModelApp, IModelConnection, RenderMemory, StandardViewId, Viewport } from "@itwin/core-frontend";
 import { Viewer } from "./Viewer";
 
 class GeometryDecorator {
@@ -29,6 +29,8 @@ class GeometryDecorator {
     const colors = [ColorDef.blue, ColorDef.red, ColorDef.green];
     let colorIndex = 0;
     const branch = new GraphicBranch();
+    const bytesUsed = [];
+    let totalBytesUsed = 0;
     for (const [key, value] of this._decorators) {
       const builder = context.createGraphicBuilder(GraphicType.Scene, undefined, key);
 
@@ -38,11 +40,20 @@ class GeometryDecorator {
 
       builder.setSymbology(color, color, 1);
       value(builder);
-      branch.add(builder.finish());
+
+      const gf = builder.finish();
+      const stats = new RenderMemory.Statistics();
+      gf.collectStatistics(stats);
+      bytesUsed.push(stats.totalBytes);
+      totalBytesUsed += stats.totalBytes;
+
+      branch.add(gf);
     }
 
     const graphic = context.createGraphicBranch(branch, Transform.createIdentity());
     context.addDecoration(GraphicType.Scene, graphic);
+
+    console.log(`Total ${totalBytesUsed} (${bytesUsed.join()})`);
   }
 
   private addShape(ox: number): void {
