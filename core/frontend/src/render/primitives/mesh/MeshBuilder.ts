@@ -414,7 +414,7 @@ function buildEdgeTable(mesh: Mesh, polyface: MeshBuilderPolyface): void {
   class Edge {
     public face1?: Face;
 
-    public constructor(public visible: boolean, public face0: Face) { }
+    public constructor(public visible: boolean, public face0: Face, public direction: number) { }
 
     public addFace(visible: boolean, face: Face) {
       assert(undefined === this.face1);
@@ -431,6 +431,7 @@ function buildEdgeTable(mesh: Mesh, polyface: MeshBuilderPolyface): void {
   // separate index array.
   const edgeMap = new Dictionary<MeshEdge, Edge>((lhs, rhs) => lhs.compareTo(rhs));
   const triangle = new  Triangle();
+  const direction = new Vector3d();
   const polyfacePoints = [new Point3d(), new Point3d(), new Point3d()];
   const polyfaceIndices = [0, 0, 0];
 
@@ -460,8 +461,12 @@ function buildEdgeTable(mesh: Mesh, polyface: MeshBuilderPolyface): void {
       const jNext = (j + 1) % 3;
       const meshEdge = new MeshEdge(triangle.indices[j], triangle.indices[jNext]);
       const polyfaceEdge = new MeshEdge(polyfaceIndices[j], polyfaceIndices[jNext]);
+      const p0 = j < jNext ? polyfacePoints[j] : polyfacePoints[jNext];
+      const p1 = j < jNext ? polyfacePoints[jNext] : polyfacePoints[j];
+      const dir = Vector3d.createStartEnd(p0, p1, direction);
+      dir.normalizeInPlace();
       const face = new Face(triangleIndex, normal, meshEdge);
-      const edge = new Edge(triangle.isEdgeVisible(j), face);
+      const edge = new Edge(triangle.isEdgeVisible(j), face, OctEncodedNormal.encode(dir));
 
       const findOrInsert = edgeMap.findOrInsert(polyfaceEdge, edge);
       if (!findOrInsert.inserted)
@@ -501,8 +506,7 @@ function buildEdgeTable(mesh: Mesh, polyface: MeshBuilderPolyface): void {
         const index = face.triangleIndex * 3 + oppositeIndexIndex;
         assert(0 === triangles.oppositeEdgeIndices[index]);
 
-        const direction = 0; // ###TODO
-        const entry = new EdgeMapEntry(OctEncodedNormal.encode(face.normal), otherFace ? OctEncodedNormal.encode(otherFace.normal) : 0, direction);
+        const entry = new EdgeMapEntry(OctEncodedNormal.encode(face.normal), otherFace ? OctEncodedNormal.encode(otherFace.normal) : 0, edge.direction);
 
         triangles.oppositeEdgeIndices[index] = edgeMap.insert(entry);
       }
