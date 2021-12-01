@@ -78,8 +78,32 @@ const computeEdgePresent = `
   if (u_allEdgesVisible || !sampleEdgeOctEncodedNormals(decodeUInt24(a_edge), on0, on1, odir)) {
     edgePresent = u_allEdgesVisible;
   } else {
-    // ###TODO check the normals for edge visibility/width.
+    // If only one face, first normal will be encoded as zero and edge is always displayed (and at double width).
+    // ###TODO double-width edges...
     edgePresent = true;
+    if (0.0 != on0.x || 0.0 != on0.y) {
+      // ###TODO Need to reserve a bit in a_edge to indicate whether this edge is a silhouette.
+      // For now, treat all edges as silhouettes.
+      vec3 n0 = MAT_NORM * octDecodeNormal(on0);
+      vec3 n1 = MAT_NORM * octDecodeNormal(on1);
+
+      if (kFrustumType_Perspective != u_frustum.z) {
+        float perpTol = 4.75e-6;
+        if (n0.z * n1.z > perpTol)
+          edgePresent = false;
+      } else {
+        float perpTol = 2.5e-4;
+
+        // ###TODO we need the midpoint of the edge, not the position of the opposite vertex...
+        vec4 viewPos = MAT_MV * rawPosition;
+        vec3 toEye = normalize(viewPos.xyz);
+        float dot0 = dot(n0, toEye);
+        float dot1 = dot(n1, toEye);
+        if (dot0 * dot1 > perpTol) {
+          edgePresent = false;
+        }
+      }
+    }
   }
 
   v_edgePresent[vertIndex] = edgePresent ? 2.0 : 0.0;
@@ -88,7 +112,7 @@ const computeEdgePresent = `
 // Fragment shader draws in the line color for fragments close to the edge of the triangle.
 // Vertex shader requires WebGL 2 which includes the functionality of the GL_OES_standard_derivatives extension.
 const applyWiremesh = `
-  const float lineWidth = 1.0;
+  const float lineWidth = 4.0;
   const vec3 lineColor = vec3(0.0);
   vec3 delta = fwidth(v_barycentric);
   vec3 factor = smoothstep(vec3(0.0), delta * lineWidth, v_barycentric);
