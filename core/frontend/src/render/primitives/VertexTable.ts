@@ -696,7 +696,8 @@ function convertEdges(meshArgs: MeshArgs): EdgeParams | undefined {
 
 export interface EdgeTableProps {
   indices: Uint8Array;
-  edges: Uint16Array;
+  edges: Uint8Array;
+  numEdges: number;
   width: number;
   height: number;
 }
@@ -715,13 +716,15 @@ export class EdgeTable {
    * If the edge only has one face, the other normal will be encoded as 0.
    * Note: [[indices]] into this lookup table are one-based.
    */
-  public readonly edges: Uint16Array;
+  public readonly edges: Uint8Array;
+  public readonly numEdges: number;
   public readonly width: number;
   public readonly height: number;
 
   public constructor(props: EdgeTableProps) {
     this.indices = props.indices;
     this.edges = props.edges;
+    this.numEdges = props.numEdges;
     this.width = props.width;
     this.height = props.height;
   }
@@ -731,7 +734,8 @@ export class EdgeTable {
     const dimensions = computeDimensions(Math.floor((indices.length + 1) / 2), 3, 0);
     const props: EdgeTableProps = {
       indices: new Uint8Array(3 * indices.length),
-      edges: new Uint16Array(dimensions.width * dimensions.height * 2),
+      edges: new Uint8Array(dimensions.width * dimensions.height * 2),
+      numEdges: edgeMap.length - 1,
       width: dimensions.width,
       height: dimensions.height,
     };
@@ -743,13 +747,15 @@ export class EdgeTable {
       props.indices[i * 3 + 2] = scratchUint8Array[2];
     }
 
+    // NB: The zeroeth entry is a placeholder - indices are one-based.
     const edges = edgeMap.toArray();
-    for (let i = 0; i < edges.length; i++) {
+    const edges16 = new Uint16Array(props.edges.buffer);
+    for (let i = 1; i < edges.length; i++) {
       const edge = edges[i];
-      const index = 3 * i;
-      props.edges[index + 0] = edge.normal0;
-      props.edges[index + 1] = edge.normal1;
-      props.edges[index + 2] = edge.direction;
+      const index = 3 * (i - 1);
+      edges16[index + 0] = edge.normal0;
+      edges16[index + 1] = edge.normal1;
+      edges16[index + 2] = edge.direction;
     }
 
     return new this(props);

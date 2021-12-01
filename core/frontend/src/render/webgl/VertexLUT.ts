@@ -9,7 +9,7 @@
 import { dispose } from "@itwin/core-bentley";
 import { QParams2d, QParams3d } from "@itwin/core-common";
 import { AuxChannel, AuxChannelTable, AuxDisplacementChannel, AuxParamChannel } from "../primitives/AuxChannelTable";
-import { VertexTable } from "../primitives/VertexTable";
+import { EdgeTable, VertexTable } from "../primitives/VertexTable";
 import { ColorInfo } from "./ColorInfo";
 import { WebGLDisposable } from "./Disposable";
 import { qorigin3dToArray, qparams2dToArray, qscale3dToArray } from "./AttributeBuffers";
@@ -62,6 +62,33 @@ export class AuxChannelLUT implements WebGLDisposable {
   public static create(table: AuxChannelTable): AuxChannelLUT | undefined {
     const texture = TextureHandle.createForData(table.width, table.height, table.data);
     return undefined !== texture ? new AuxChannelLUT(texture, table) : undefined;
+  }
+}
+
+export class EdgeLUT implements WebGLDisposable {
+  public readonly texture: TextureHandle;
+  public readonly numEdges: number;
+
+  private constructor(texture: TextureHandle, numEdges: number) {
+    this.texture = texture;
+    this.numEdges = numEdges;
+  }
+
+  public dispose(): void {
+    dispose(this.texture);
+  }
+
+  public static create(table: EdgeTable): EdgeLUT | undefined {
+    const texture = TextureHandle.createForData(table.width, table.height, table.edges);
+    return texture ? new EdgeLUT(texture, table.numEdges) : undefined;
+  }
+
+  public get bytesUsed(): number {
+    return this.texture.bytesUsed;
+  }
+
+  public get isDisposed(): boolean {
+    return this.texture.isDisposed;
   }
 }
 
