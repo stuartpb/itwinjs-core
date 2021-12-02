@@ -730,11 +730,13 @@ export class EdgeTable {
   }
 
   public static buildFrom(indices: number[], edgeMap: EdgeMap): EdgeTable {
-    const dimensions = computeDimensions(edgeMap.length, 2, 0);
+    // The zeroeth entry is a placeholder.
+    const numEdges = edgeMap.length - 1;
+    const dimensions = computeDimensions(numEdges, 2, 0);
     const props: EdgeTableProps = {
       indices: new Uint8Array(3 * indices.length),
       edges: new Uint8Array(dimensions.width * dimensions.height * 4),
-      numEdges: edgeMap.length - 1,
+      numEdges,
       width: dimensions.width,
       height: dimensions.height,
     };
