@@ -730,8 +730,7 @@ export class EdgeTable {
   }
 
   public static buildFrom(indices: number[], edgeMap: EdgeMap): EdgeTable {
-    // 6 bytes per edge = 1.5 RGBA per edge - request twice as many for half as many indices.
-    const dimensions = computeDimensions(Math.floor((edgeMap.length) / 2), 3, 0);
+    const dimensions = computeDimensions(edgeMap.length, 2, 0);
     const props: EdgeTableProps = {
       indices: new Uint8Array(3 * indices.length),
       edges: new Uint8Array(dimensions.width * dimensions.height * 4),
@@ -752,7 +751,7 @@ export class EdgeTable {
     const edges16 = new Uint16Array(props.edges.buffer);
     for (let i = 1; i < edges.length; i++) {
       const edge = edges[i];
-      const index = 3 * (i - 1);
+      const index = 4 * (i - 1);
       edges16[index + 0] = edge.normal0;
       edges16[index + 1] = edge.normal1;
       edges16[index + 2] = edge.direction;
