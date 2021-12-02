@@ -21,9 +21,9 @@ bool sampleEdgeOctEncodedNormals(float edgeIndex, out vec2 n0, out vec2 n1, out 
   }
 
   vec2 tc = compute_edge_coords(edgeIndex - 1.0);
-  vec4 s0 = TEXTURE(u_edgeLUT, tc.xy);
+  vec4 s0 = floor(TEXTURE(u_edgeLUT, tc) * 255.0 + 0.25);
   tc.x += g_edge_stepX;
-  vec4 s1 = TEXTURE(u_edgeLUT, tc.xy);
+  vec4 s1 = floor(TEXTURE(u_edgeLUT, tc) * 255.0 + 0.25);
   n0 = s0.xy;
   n1 = s0.zw;
   dir = s1.xy;
@@ -84,7 +84,7 @@ const computeEdgePresent = `
 // Fragment shader draws in the line color for fragments close to the edge of the triangle.
 // Vertex shader requires WebGL 2 which includes the functionality of the GL_OES_standard_derivatives extension.
 const applyWiremesh = `
-  const float lineWidth = 4.0;
+  const float lineWidth = 2.0;
   const vec3 lineColor = vec3(0.0);
   vec3 delta = fwidth(v_barycentric);
   vec3 factor = smoothstep(vec3(0.0), delta * lineWidth, v_barycentric);
