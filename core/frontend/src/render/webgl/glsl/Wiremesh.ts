@@ -44,6 +44,7 @@ const computeBarycentric = `
 
 const computeEdgePresent = `
   v_edgePresent = vec3(1.0);
+  v_edgeDouble = vec3(1.0);
 
   bool edgePresent = false;
   vec2 on0, on1, odir;
@@ -79,23 +80,40 @@ const computeEdgePresent = `
   }
 
   v_edgePresent[vertIndex] = edgePresent ? 2.0 : 0.0;
+
+  // ###TODO only double if only one face is visible.
+  v_edgeDouble[vertIndex] = edgePresent ? 2.0 : 0.0;
 `;
 
 // Fragment shader draws in the line color for fragments close to the edge of the triangle.
 // Vertex shader requires WebGL 2 which includes the functionality of the GL_OES_standard_derivatives extension.
 const applyWiremesh = `
-  const float lineWidth = 2.0;
+  const float lineWidth = 1.0;
   const vec3 lineColor = vec3(0.0);
   vec3 delta = fwidth(v_barycentric);
   vec3 factor = smoothstep(vec3(0.0), delta * lineWidth, v_barycentric);
 
+  int index = -1;
   float r = 1.0;
-  if (v_edgePresent.x > 1.0)
+  if (v_edgePresent.x > 1.0) {
+    index = 0;
     r = factor.x;
-  if (v_edgePresent.y > 1.0)
-    r = min(r, factor.y);
-  if (v_edgePresent.z > 1.0)
-    r = min(r, factor.z);
+  }
+
+  if (v_edgePresent.y > 1.0 && factor.y < r) {
+    r = factor.y;
+    index = 1;
+  }
+
+  if (v_edgePresent.z > 1.0 && factor.z < r) {
+    r = factor.z;
+    index = 2;
+  }
+
+  if (index >= 0 && v_edgeDouble[index] > 1.0) {
+    factor = smoothstep(vec3(0.0), delta * lineWidth * 2.0, v_barycentric);
+    r = factor[index];
+  }
 
   bool colorCode = true;
   vec3 color = mix(lineColor, colorCode ? v_barycentric : baseColor.rgb, r);
@@ -148,6 +166,7 @@ export function addWiremesh(builder: ProgramBuilder): void {
 
   builder.addInlineComputedVarying("v_barycentric", VariableType.Vec3, computeBarycentric);
   builder.addInlineComputedVarying("v_edgePresent", VariableType.Vec3, computeEdgePresent);
+  builder.addVarying("v_edgeDouble", VariableType.Vec3);
 
   builder.frag.set(FragmentShaderComponent.ApplyWiremesh, applyWiremesh);
 }
