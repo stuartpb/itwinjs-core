@@ -3,7 +3,7 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 import { assert } from "@itwin/core-bentley";
-import { Box, Cone, Point3d, Range3d, Sphere, Transform } from "@itwin/core-geometry";
+import { Box, Cone, LineString3d, Point3d, PolyfaceBuilder, Range3d, Sphere, Transform } from "@itwin/core-geometry";
 import { ColorDef, RenderMode, SkyBox } from "@itwin/core-common";
 import { DecorateContext, GraphicBranch, GraphicBuilder, GraphicType, IModelApp, IModelConnection, RenderMemory, StandardViewId, Viewport } from "@itwin/core-frontend";
 import { Viewer } from "./Viewer";
@@ -16,10 +16,11 @@ class GeometryDecorator {
   public constructor(viewport: Viewport) {
     this._iModel = viewport.iModel;
 
-    this.addSphere(0);
-    this.addBox(2);
-    this.addCone(4);
-    this.addShape(6);
+    //this.addSphere(0);
+    //this.addBox(2);
+    //this.addCone(4);
+    //this.addShape(6);
+    this.addPolyface(8);
   }
 
   public decorate(context: DecorateContext): void {
@@ -54,6 +55,12 @@ class GeometryDecorator {
     context.addDecoration(GraphicType.Scene, graphic);
 
     console.log(`Total ${totalBytesUsed} (${bytesUsed.join()})`);
+  }
+
+  private addPolyface(ox: number): void {
+    const pfb = PolyfaceBuilder.create();
+    pfb.addTriangleFan(new Point3d(ox, 0, 1), LineString3d.create(new Point3d(ox + 1, 1, 1), new Point3d(ox + 1, 0, 1), new Point3d(ox, 0, 0)), false);
+    this._decorators.set(this._iModel.transientIds.next, (builder) => builder.addPolyface(pfb.claimPolyface(), true));
   }
 
   private addShape(ox: number): void {
