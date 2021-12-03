@@ -48,10 +48,13 @@
     "@itwin/core-frontend": "rc",
     "@itwin/core-geometry": "rc",
     "@itwin/core-mobile": "rc",
+    "@itwin/core-orbitgt": "rc",
     "@itwin/core-quantity": "rc",
     "@itwin/electron-authorization": "^0.5.0",
     "@itwin/hypermodeling-frontend": "rc",
+    "@itwin/presentation-common": "rc",
     "@itwin/reality-data-client": "^0.2.2",
+    "@itwin/webgl-compatibility": "rc",
     "body-parser": "^1.18.2"
   },
   "devDependencies": {
