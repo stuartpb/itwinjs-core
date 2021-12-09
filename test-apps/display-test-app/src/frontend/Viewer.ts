@@ -25,6 +25,7 @@ import { ViewAttributesPanel } from "./ViewAttributes";
 import { ViewList, ViewPicker } from "./ViewPicker";
 import { Window } from "./Window";
 import { openIModel } from "./openIModel";
+import { EarthCamDebugPanel } from "./EarthCamPanel";
 
 // cspell:ignore savedata topdiv savedview viewtop
 
@@ -352,6 +353,12 @@ export class Viewer extends Window {
       iconUnicode: "\ue90a", // "isolate"
       createDropDown: async (container: HTMLElement) => new FeatureOverridesPanel(this.viewport, container),
       tooltip: "Override feature symbology",
+    });
+
+    this.toolBar.addDropDown({
+      iconUnicode: "\u1F4F", // "camera"
+      createDropDown: async (container: HTMLElement) => new EarthCamDebugPanel(this.viewport, container),
+      tooltip: "EarthCam Stuff",
     });
 
     this.updateTitle();
