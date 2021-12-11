@@ -6,22 +6,24 @@ import * as chai from "chai";
 import * as fs from "fs";
 import { Base64 } from "js-base64";
 import * as path from "path";
-import { AccessToken, Guid, GuidString, Id64, Id64String, Logger } from "@itwin/core-bentley";
-import { Project as ITwin } from "@itwin/projects-client";
+import type { AccessToken, GuidString, Id64String} from "@itwin/core-bentley";
+import { Guid, Id64, Logger } from "@itwin/core-bentley";
+import type { Project as ITwin } from "@itwin/projects-client";
+import type { IModelBankClient, IModelBankFileSystemITwinClient,
+  IModelCloudEnvironment, LockLevel, LockType, Thumbnail} from "@bentley/imodelhub-client";
 import {
-  Briefcase, BriefcaseQuery, ChangeSet, ChangeSetQuery, CodeState, ECJsonTypeMap, HubCode, IModelBankClient, IModelBankFileSystemITwinClient,
-  IModelCloudEnvironment, IModelHubClient, IModelQuery, LargeThumbnail, Lock, LockLevel, LockType, MultiCode, MultiLock, SmallThumbnail, Thumbnail,
+  Briefcase, BriefcaseQuery, ChangeSet, ChangeSetQuery, CodeState, ECJsonTypeMap, HubCode, IModelHubClient, IModelQuery, LargeThumbnail, Lock, MultiCode, MultiLock, SmallThumbnail,
   Version, VersionQuery, WsgError, WSStatus,
 } from "@bentley/imodelhub-client";
-import { ProgressInfo } from "@bentley/itwin-client";
-import { TestUserCredentials } from "@itwin/oidc-signin-tool";
+import type { ProgressInfo } from "@bentley/itwin-client";
+import type { TestUserCredentials } from "@itwin/oidc-signin-tool";
 import { RequestType, ResponseBuilder, ScopeType } from "../ResponseBuilder";
 import { TestConfig } from "../TestConfig";
 import { createFileHandler } from "./FileHandler";
 import { getIModelBankCloudEnv } from "./IModelBankCloudEnv";
 import { TestIModelHubCloudEnv } from "./IModelHubCloudEnv";
 import { assetsPath } from "./TestConstants";
-import { TestIModelHubOidcAuthorizationClient } from "../TestIModelHubOidcAuthorizationClient";
+import type { TestIModelHubOidcAuthorizationClient } from "../TestIModelHubOidcAuthorizationClient";
 
 const loggingCategory = "backend-itwin-client.TestUtils";
 

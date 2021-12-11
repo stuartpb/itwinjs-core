@@ -5,10 +5,11 @@
 import { expect } from "chai";
 import { CheckpointConnection } from "@itwin/core-frontend";
 import { IModelHubClient, IModelQuery } from "@bentley/imodelhub-client";
-import { Project as ITwin, ProjectsAccessClient, ProjectsSearchableProperty } from "@itwin/projects-client";
-import { IModelData } from "../../common/Settings";
+import type { Project as ITwin} from "@itwin/projects-client";
+import { ProjectsAccessClient, ProjectsSearchableProperty } from "@itwin/projects-client";
+import type { IModelData } from "../../common/Settings";
 import { IModelVersion } from "@itwin/core-common";
-import { AccessToken } from "@itwin/core-bentley";
+import type { AccessToken } from "@itwin/core-bentley";
 
 export class IModelSession {
 

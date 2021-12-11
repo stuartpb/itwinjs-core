@@ -7,19 +7,24 @@
  */
 
 import * as fs from "fs";
-import * as https from "https";
+import type * as https from "https";
 import { Base64 } from "js-base64";
 import * as os from "os";
 import * as path from "path";
-import { Transform, TransformCallback } from "stream";
-import {
-  CancelRequest, DownloadFailed, FileHandler, ProgressCallback, ProgressInfo, request, RequestOptions, SasUrlExpired, UserCancelledError,
+import type { TransformCallback } from "stream";
+import { Transform } from "stream";
+import type {
+  CancelRequest, FileHandler, ProgressCallback, ProgressInfo, RequestOptions} from "@bentley/itwin-client";
+import { DownloadFailed, request, SasUrlExpired, UserCancelledError,
 } from "@bentley/itwin-client";
-import { AccessToken, Logger } from "@itwin/core-bentley";
+import type { AccessToken} from "@itwin/core-bentley";
+import { Logger } from "@itwin/core-bentley";
 import { ArgumentCheck } from "../imodelhub/Errors";
 import { IModelHubClientLoggerCategory } from "../IModelHubClientLoggerCategories";
-import { AzCopy, InitEventArgs, ProgressEventArgs, StringEventArgs } from "./AzCopy";
-import { BlobDownloader, ConfigData, ProgressData } from "./BlobDownloader";
+import type { InitEventArgs, ProgressEventArgs, StringEventArgs } from "./AzCopy";
+import { AzCopy } from "./AzCopy";
+import type { ConfigData, ProgressData } from "./BlobDownloader";
+import { BlobDownloader } from "./BlobDownloader";
 
 const loggerCategory: string = IModelHubClientLoggerCategory.FileHandlers;
 

@@ -5,16 +5,18 @@
 // cSpell:ignore Modeless WMTS
 
 import * as React from "react";
-import { Input, LabeledInput, ProgressLinear, Radio, Select, SelectOption } from "@itwin/itwinui-react";
+import type { SelectOption } from "@itwin/itwinui-react";
+import { Input, LabeledInput, ProgressLinear, Radio, Select } from "@itwin/itwinui-react";
 import { Dialog, Icon, InputStatus } from "@itwin/core-react";
 import { ModalDialogManager } from "@itwin/appui-react";
 import { MapLayersUiItemsProvider } from "../MapLayersUiItemsProvider";
-import { MapTypesOptions } from "../Interfaces";
+import type { MapTypesOptions } from "../Interfaces";
+import type { ScreenViewport} from "@itwin/core-frontend";
 import {
   IModelApp, MapLayerImageryProviderStatus, MapLayerSource,
-  MapLayerSourceStatus, NotifyMessageDetails, OutputMessagePriority, ScreenViewport,
+  MapLayerSourceStatus, NotifyMessageDetails, OutputMessagePriority,
 } from "@itwin/core-frontend";
-import { MapLayerProps } from "@itwin/core-common";
+import type { MapLayerProps } from "@itwin/core-common";
 import "./MapUrlDialog.scss";
 import { DialogButtonType, SpecialKey } from "@itwin/appui-abstract";
 import { MapLayerPreferences } from "../../MapLayerPreferences";

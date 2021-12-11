@@ -8,14 +8,15 @@
 
 import "./ViewAttributes.scss";
 import * as React from "react";
-import { ViewFlagProps, ViewFlags } from "@itwin/core-common";
+import type { ViewFlagProps} from "@itwin/core-common";
+import { ViewFlags } from "@itwin/core-common";
 import { IModelApp } from "@itwin/core-frontend";
 import { Dialog, FooterPopup, TitleBar } from "@itwin/appui-layout-react";
 import { Checkbox } from "@itwin/itwinui-react";
-import { StatusBarFieldId } from "../statusbar/StatusBarWidgetControl";
+import type { StatusBarFieldId } from "../statusbar/StatusBarWidgetControl";
 import { UiFramework } from "../UiFramework";
 import { Indicator } from "./Indicator";
-import { StatusFieldProps } from "./StatusFieldProps";
+import type { StatusFieldProps } from "./StatusFieldProps";
 
 interface ViewAttributesStatusFieldState {
   viewFlags: ViewFlagProps;

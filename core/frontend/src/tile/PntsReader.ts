@@ -6,14 +6,16 @@
  * @module Tiles
  */
 
-import { assert, ByteStream, Id64String, utf8ToString } from "@itwin/core-bentley";
+import type { ByteStream, Id64String} from "@itwin/core-bentley";
+import { assert, utf8ToString } from "@itwin/core-bentley";
 import { Point3d, Vector3d } from "@itwin/core-geometry";
-import { BatchType, ElementAlignedBox3d, Feature, FeatureTable, PackedFeatureTable, PntsHeader, QParams3d, Quantization } from "@itwin/core-common";
-import { IModelConnection } from "../IModelConnection";
+import type { ElementAlignedBox3d} from "@itwin/core-common";
+import { BatchType, Feature, FeatureTable, PackedFeatureTable, PntsHeader, QParams3d, Quantization } from "@itwin/core-common";
+import type { IModelConnection } from "../IModelConnection";
 import { Mesh } from "../render/primitives/mesh/MeshPrimitives";
 import { PointCloudArgs } from "../render/primitives/PointCloudPrimitive";
-import { RenderGraphic } from "../render/RenderGraphic";
-import { RenderSystem } from "../render/RenderSystem";
+import type { RenderGraphic } from "../render/RenderGraphic";
+import type { RenderSystem } from "../render/RenderSystem";
 
 /** Deserialize a point cloud tile and return it as a RenderGraphic.
  * @internal

@@ -6,8 +6,9 @@
  * @module Views
  */
 
-import { MapSubLayerProps } from "@itwin/core-common";
-import { request, RequestBasicCredentials, RequestOptions } from "@bentley/itwin-client";
+import type { MapSubLayerProps } from "@itwin/core-common";
+import type { RequestBasicCredentials, RequestOptions } from "@bentley/itwin-client";
+import { request } from "@bentley/itwin-client";
 import WMS from "wms-capabilities";
 import { MapCartoRectangle, WmsUtilities } from "../internal";
 

@@ -5,11 +5,12 @@
 /** @module Views */
 
 import { assert } from "@itwin/core-bentley";
-import { MapLayerKey, MapLayerSettings, MapSubLayerProps } from "@itwin/core-common";
+import type { MapLayerKey, MapLayerSettings, MapSubLayerProps } from "@itwin/core-common";
 import { IModelApp } from "../../IModelApp";
-import { IModelConnection } from "../../IModelConnection";
-import { ImageryMapLayerTreeReference, internalMapLayerImageryFormats, MapLayerImageryProvider, MapLayerSourceStatus, MapLayerTileTreeReference } from "../internal";
-import { RequestBasicCredentials } from "@bentley/itwin-client";
+import type { IModelConnection } from "../../IModelConnection";
+import type { ImageryMapLayerTreeReference, MapLayerImageryProvider, MapLayerTileTreeReference } from "../internal";
+import { internalMapLayerImageryFormats, MapLayerSourceStatus } from "../internal";
+import type { RequestBasicCredentials } from "@bentley/itwin-client";
 
 /** @internal */
 export class MapLayerFormat {

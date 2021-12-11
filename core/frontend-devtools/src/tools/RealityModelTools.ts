@@ -7,8 +7,10 @@
  * @module Tools
  */
 
-import { FeatureAppearance, FeatureAppearanceProps, RgbColorProps } from "@itwin/core-common";
-import { getCesiumAssetUrl, IModelApp, NotifyMessageDetails, OutputMessagePriority, Tool, Viewport } from "@itwin/core-frontend";
+import type { FeatureAppearanceProps, RgbColorProps } from "@itwin/core-common";
+import { FeatureAppearance } from "@itwin/core-common";
+import type { Viewport } from "@itwin/core-frontend";
+import { getCesiumAssetUrl, IModelApp, NotifyMessageDetails, OutputMessagePriority, Tool } from "@itwin/core-frontend";
 import { copyStringToClipboard } from "../ClipboardUtilities";
 import { parseBoolean } from "./parseBoolean";
 import { parseToggle } from "./parseToggle";

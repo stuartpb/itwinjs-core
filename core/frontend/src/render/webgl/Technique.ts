@@ -7,10 +7,11 @@
  */
 
 import { assert, dispose, using } from "@itwin/core-bentley";
-import { WebGLContext } from "@itwin/webgl-compatibility";
-import { ClippingProgram, createClippingProgram } from "./ClippingProgram";
-import { WebGLDisposable } from "./Disposable";
-import { DrawCommands, DrawParams } from "./DrawCommand";
+import type { WebGLContext } from "@itwin/webgl-compatibility";
+import type { ClippingProgram} from "./ClippingProgram";
+import { createClippingProgram } from "./ClippingProgram";
+import type { WebGLDisposable } from "./Disposable";
+import type { DrawCommands, DrawParams } from "./DrawCommand";
 import { createAmbientOcclusionProgram } from "./glsl/AmbientOcclusion";
 import { createBlurProgram } from "./glsl/Blur";
 import { createClearPickAndColorProgram } from "./glsl/ClearPickAndColor";
@@ -42,10 +43,12 @@ import { createSurfaceBuilder, createSurfaceHiliter } from "./glsl/Surface";
 import { addTranslucency } from "./glsl/Translucency";
 import { addModelViewMatrix } from "./glsl/Vertex";
 import { RenderPass } from "./RenderFlags";
-import { ProgramBuilder, VariableType, VertexShaderComponent } from "./ShaderBuilder";
-import { CompileStatus, ShaderProgram, ShaderProgramExecutor } from "./ShaderProgram";
+import type { ProgramBuilder} from "./ShaderBuilder";
+import { VariableType, VertexShaderComponent } from "./ShaderBuilder";
+import type { ShaderProgram} from "./ShaderProgram";
+import { CompileStatus, ShaderProgramExecutor } from "./ShaderProgram";
 import { System } from "./System";
-import { Target } from "./Target";
+import type { Target } from "./Target";
 import {
   FeatureMode, IsAnimated, IsClassified, IsEdgeTestNeeded, IsInstanced, IsShadowable, IsThematic, IsWiremesh, TechniqueFlags,
 } from "./TechniqueFlags";

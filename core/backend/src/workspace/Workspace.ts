@@ -11,11 +11,12 @@ import * as fs from "fs-extra";
 import { dirname, extname, join } from "path";
 import { NativeLibrary } from "@bentley/imodeljs-native";
 import { BeEvent, DbResult, OpenMode } from "@itwin/core-bentley";
-import { IModelError, LocalDirName, LocalFileName } from "@itwin/core-common";
+import type { LocalDirName, LocalFileName } from "@itwin/core-common";
+import { IModelError } from "@itwin/core-common";
 import { IModelJsFs } from "../IModelJsFs";
 import { SQLiteDb } from "../SQLiteDb";
-import { SqliteStatement } from "../SqliteStatement";
-import { Settings, SettingsPriority } from "./Settings";
+import type { SqliteStatement } from "../SqliteStatement";
+import type { Settings, SettingsPriority } from "./Settings";
 import { CloudSqlite } from "./CloudSqlite";
 
 /** The names of Settings used by Workspace

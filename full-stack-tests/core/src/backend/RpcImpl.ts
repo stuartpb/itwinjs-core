@@ -3,11 +3,13 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 import * as nock from "nock";
-import { IModelBankClient } from "@bentley/imodelhub-client";
+import type { IModelBankClient } from "@bentley/imodelhub-client";
 import { IModelDb, IModelHost, IModelJsFs, NativeHost } from "@itwin/core-backend";
 import { V1CheckpointManager } from "@itwin/core-backend/lib/cjs/CheckpointManager";
-import { IModelRpcProps, RpcInterface, RpcManager } from "@itwin/core-common";
-import { CloudEnvProps, TestRpcInterface } from "../common/RpcInterfaces";
+import type { IModelRpcProps} from "@itwin/core-common";
+import { RpcInterface, RpcManager } from "@itwin/core-common";
+import type { CloudEnvProps} from "../common/RpcInterfaces";
+import { TestRpcInterface } from "../common/RpcInterfaces";
 import { CloudEnv } from "./cloudEnv";
 
 export class TestRpcImpl extends RpcInterface implements TestRpcInterface {

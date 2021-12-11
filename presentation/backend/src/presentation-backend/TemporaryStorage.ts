@@ -6,7 +6,7 @@
  * @module Core
  */
 
-import { IDisposable } from "@itwin/core-bentley";
+import type { IDisposable } from "@itwin/core-bentley";
 
 /**
  * Configuration properties for [[TemporaryStorage]].

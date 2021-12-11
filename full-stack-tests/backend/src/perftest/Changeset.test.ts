@@ -6,16 +6,20 @@
 import { assert } from "chai";
 import * as fs from "fs-extra";
 import * as path from "path";
-import { AccessToken, GuidString, Id64, Id64String, Logger, LogLevel, OpenMode } from "@itwin/core-bentley";
-import { ChangesetProps, ChangesetType, Code, ColorDef, GeometryStreamProps, IModel, IModelVersion, SubCategoryAppearance } from "@itwin/core-common";
+import type { AccessToken, GuidString, Id64String} from "@itwin/core-bentley";
+import { Id64, Logger, LogLevel, OpenMode } from "@itwin/core-bentley";
+import type { ChangesetProps, GeometryStreamProps} from "@itwin/core-common";
+import { ChangesetType, Code, ColorDef, IModel, IModelVersion, SubCategoryAppearance } from "@itwin/core-common";
 import { Arc3d, IModelJson as GeomJson, Point3d } from "@itwin/core-geometry";
 import { TestUsers, TestUtility } from "@itwin/oidc-signin-tool";
 import { Reporter } from "@itwin/perf-tools";
-import { BriefcaseManager, DictionaryModel, Element, IModelDb, IModelHost, IModelJsNative, SpatialCategory, StandaloneDb } from "@itwin/core-backend";
+import type { DictionaryModel, Element, IModelDb, IModelJsNative} from "@itwin/core-backend";
+import { BriefcaseManager, IModelHost, SpatialCategory, StandaloneDb } from "@itwin/core-backend";
 import { HubWrappers, IModelTestUtils, KnownTestLocations, RevisionUtility } from "@itwin/core-backend/lib/cjs/test/index";
 import { HubUtility } from "../HubUtility";
 import { PerfTestUtility } from "./PerfTestUtils";
-import { ChangeSet, ChangeSetQuery, ChangesType, CheckpointQuery, IModelHubClient, VersionQuery } from "@bentley/imodelhub-client";
+import type { ChangeSet} from "@bentley/imodelhub-client";
+import { ChangeSetQuery, ChangesType, CheckpointQuery, IModelHubClient, VersionQuery } from "@bentley/imodelhub-client";
 import { IModelHubBackend } from "@bentley/imodelhub-client/lib/cjs/imodelhub-node";
 
 /* eslint-disable @typescript-eslint/naming-convention */

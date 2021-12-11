@@ -6,20 +6,24 @@
  * @module Tiles
  */
 
+import type { Id64Array} from "@itwin/core-bentley";
 import {
-  assert, BeDuration, BeEvent, BentleyStatus, BeTimePoint, Id64Array, IModelStatus, ProcessDetector,
+  assert, BeDuration, BeEvent, BentleyStatus, BeTimePoint, IModelStatus, ProcessDetector,
 } from "@itwin/core-bentley";
+import type { ElementGraphicsRequestProps,
+  IModelTileTreeProps, TileVersionInfo} from "@itwin/core-common";
 import {
-  BackendError, CloudStorageTileCache, defaultTileOptions, ElementGraphicsRequestProps, getMaximumMajorTileFormatVersion, IModelError, IModelTileRpcInterface,
-  IModelTileTreeProps, RpcOperation, RpcResponseCacheControl, ServerTimeoutError, TileContentSource, TileVersionInfo,
+  BackendError, CloudStorageTileCache, defaultTileOptions, getMaximumMajorTileFormatVersion, IModelError, IModelTileRpcInterface, RpcOperation, RpcResponseCacheControl, ServerTimeoutError, TileContentSource,
 } from "@itwin/core-common";
 import { IModelApp } from "../IModelApp";
 import { IpcApp } from "../IpcApp";
 import { IModelConnection } from "../IModelConnection";
-import { Viewport } from "../Viewport";
-import { ReadonlyViewportSet, UniqueViewportSets } from "../ViewportSet";
+import type { Viewport } from "../Viewport";
+import type { ReadonlyViewportSet} from "../ViewportSet";
+import { UniqueViewportSets } from "../ViewportSet";
+import type { IModelTileTree, Tile, TileTree, TileTreeOwner, TileUsageMarker} from "./internal";
 import {
-  DisclosedTileTreeSet, IModelTileTree, LRUTileList, Tile, TileLoadStatus, TileRequest, TileRequestChannels, TileTree, TileTreeOwner, TileUsageMarker,
+  DisclosedTileTreeSet, LRUTileList, TileLoadStatus, TileRequest, TileRequestChannels,
 } from "./internal";
 
 /** Details about any tiles not handled by [[TileAdmin]]. At this time, that means OrbitGT point cloud tiles.

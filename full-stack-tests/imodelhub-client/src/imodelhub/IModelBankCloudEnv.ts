@@ -5,17 +5,18 @@
 import * as child_process from "child_process";
 import * as fs from "fs";
 import * as fsextra from "fs-extra";
-import * as http from "http";
+import type * as http from "http";
 import * as https from "https";
 import * as path from "path";
 import { Logger } from "@itwin/core-bentley";
-import { IModelBankClient, IModelBankFileSystemITwinClient, IModelCloudEnvironment } from "@bentley/imodelhub-client";
+import type { IModelCloudEnvironment } from "@bentley/imodelhub-client";
+import { IModelBankClient, IModelBankFileSystemITwinClient } from "@bentley/imodelhub-client";
 import { IModelBankBasicAuthorizationClient } from "@bentley/imodelhub-client/lib/cjs/imodelbank/IModelBankBasicAuthorizationClient";
 import { IModelBankDummyAuthorizationClient } from "@bentley/imodelhub-client/lib/cjs/imodelbank/IModelBankDummyAuthorizationClient";
 import { workDir } from "./TestConstants";
 import { createIModelBankFileHandler } from "./FileHandler";
 import { TestIModelHubOidcAuthorizationClient } from "../TestIModelHubOidcAuthorizationClient";
-import { AuthorizationClient } from "@itwin/core-common";
+import type { AuthorizationClient } from "@itwin/core-common";
 
 // To run tests with imodel-bank integration:
 // set IMJS_TEST_IMODEL_BANK to true to run tests with imodel-bank. Then either:

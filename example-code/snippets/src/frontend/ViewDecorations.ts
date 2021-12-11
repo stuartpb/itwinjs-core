@@ -3,10 +3,13 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 import { Logger } from "@itwin/core-bentley";
-import { AngleSweep, Arc3d, Point2d, Point3d, XAndY, XYAndZ } from "@itwin/core-geometry";
-import { AxisAlignedBox3d, ColorByName, ColorDef, NpcCenter } from "@itwin/core-common";
+import type { XAndY, XYAndZ } from "@itwin/core-geometry";
+import { AngleSweep, Arc3d, Point2d, Point3d } from "@itwin/core-geometry";
+import type { AxisAlignedBox3d} from "@itwin/core-common";
+import { ColorByName, ColorDef, NpcCenter } from "@itwin/core-common";
+import type { BeButtonEvent, Cluster, DecorateContext, HitDetail, MarkerImage} from "@itwin/core-frontend";
 import {
-  BeButton, BeButtonEvent, Cluster, DecorateContext, GraphicType, HitDetail, imageElementFromUrl, IModelApp, Marker, MarkerImage, MarkerSet,
+  BeButton, GraphicType, imageElementFromUrl, IModelApp, Marker, MarkerSet,
   MessageBoxIconType, MessageBoxType,
 } from "@itwin/core-frontend";
 

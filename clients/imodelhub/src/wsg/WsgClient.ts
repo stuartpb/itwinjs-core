@@ -5,13 +5,16 @@
 
 import deepAssign from "deep-assign";
 import { once } from "lodash";
-import { AccessToken, GetMetaDataFunction, HttpStatus, Logger } from "@itwin/core-bentley";
+import type { AccessToken, GetMetaDataFunction} from "@itwin/core-bentley";
+import { HttpStatus, Logger } from "@itwin/core-bentley";
+import type { RequestOptions, RequestQueryOptions,
+  RequestTimeoutOptions, Response} from "@bentley/itwin-client";
 import {
-  Client, DefaultRequestOptionsProvider, request, RequestGlobalOptions, RequestOptions, RequestQueryOptions,
-  RequestTimeoutOptions, Response, ResponseError,
+  Client, DefaultRequestOptionsProvider, request, RequestGlobalOptions, ResponseError,
 } from "@bentley/itwin-client";
 import { ChunkedQueryContext } from "./ChunkedQueryContext";
-import { ECJsonTypeMap, WsgInstance } from "./ECJsonTypeMap";
+import type { WsgInstance } from "./ECJsonTypeMap";
+import { ECJsonTypeMap } from "./ECJsonTypeMap";
 import { WsgClientLoggerCategory } from "./WsgLoggerCategory";
 
 const loggerCategory: string = WsgClientLoggerCategory.Client;

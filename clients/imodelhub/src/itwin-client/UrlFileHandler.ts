@@ -11,9 +11,9 @@ import * as http from "http";
 import * as https from "https";
 import * as path from "path";
 import { URL } from "url";
-import { CancelRequest, FileHandler, ProgressCallback } from "@bentley/itwin-client";
+import type { CancelRequest, FileHandler, ProgressCallback } from "@bentley/itwin-client";
 import { downloadFileAtomic } from "./downloadFileAtomic";
-import { AccessToken } from "@itwin/core-bentley";
+import type { AccessToken } from "@itwin/core-bentley";
 
 /**
  * Provides methods to upload and download files from the Internet

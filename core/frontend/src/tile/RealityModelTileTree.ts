@@ -6,31 +6,35 @@
  * @module Utils
  */
 
+import type { Id64String} from "@itwin/core-bentley";
 import {
-  assert, compareBooleans, compareNumbers, compareStringsOrUndefined, CompressedId64Set, Id64String,
+  assert, compareBooleans, compareNumbers, compareStringsOrUndefined, CompressedId64Set,
 } from "@itwin/core-bentley";
-import {
-  Cartographic, DefaultSupportedTypes, GeoCoordStatus, PlanarClipMaskPriority, PlanarClipMaskSettings,
-  RealityDataProvider,
+import type { PlanarClipMaskSettings,
   RealityDataSourceKey,
-  SpatialClassifiers, ViewFlagOverrides,
+  SpatialClassifiers, ViewFlagOverrides} from "@itwin/core-common";
+import {
+  Cartographic, DefaultSupportedTypes, GeoCoordStatus, PlanarClipMaskPriority,
+  RealityDataProvider,
 } from "@itwin/core-common";
-import { Angle, Constant, Ellipsoid, Matrix3d, Point3d, Range3d, Ray3d, Transform, TransformProps, Vector3d, XYZ } from "@itwin/core-geometry";
+import type { TransformProps, XYZ } from "@itwin/core-geometry";
+import { Angle, Constant, Ellipsoid, Matrix3d, Point3d, Range3d, Ray3d, Transform, Vector3d } from "@itwin/core-geometry";
 import { calculateEcefToDbTransformAtLocation } from "../BackgroundMapGeometry";
-import { DisplayStyleState } from "../DisplayStyleState";
-import { HitDetail } from "../HitDetail";
+import type { DisplayStyleState } from "../DisplayStyleState";
+import type { HitDetail } from "../HitDetail";
 import { IModelApp } from "../IModelApp";
-import { IModelConnection } from "../IModelConnection";
+import type { IModelConnection } from "../IModelConnection";
 import { PlanarClipMaskState } from "../PlanarClipMaskState";
 import { RealityDataSource } from "../RealityDataSource";
-import { RenderMemory } from "../render/RenderMemory";
-import { SceneContext } from "../ViewContext";
-import { ScreenViewport } from "../Viewport";
-import { ViewState } from "../ViewState";
+import type { RenderMemory } from "../render/RenderMemory";
+import type { SceneContext } from "../ViewContext";
+import type { ScreenViewport } from "../Viewport";
+import type { ViewState } from "../ViewState";
+import type { DisclosedTileTreeSet, RealityTile, RealityTileParams, RealityTileTreeParams, SpatialClassifierTileTreeReference, Tile, TileDrawArgs, TileRequest, TileTree,
+  TileTreeOwner, TileTreeSupplier} from "./internal";
 import {
-  BatchedTileIdMap, CesiumIonAssetProvider, createClassifierTileTreeReference, createDefaultViewFlagOverrides, DisclosedTileTreeSet, getGcsConverterAvailable, RealityTile, RealityTileLoader, RealityTileParams,
-  RealityTileTree, RealityTileTreeParams, SpatialClassifierTileTreeReference, Tile, TileDrawArgs, TileLoadPriority, TileRequest, TileTree,
-  TileTreeOwner, TileTreeReference, TileTreeSupplier,
+  BatchedTileIdMap, CesiumIonAssetProvider, createClassifierTileTreeReference, createDefaultViewFlagOverrides, getGcsConverterAvailable, RealityTileLoader,
+  RealityTileTree, TileLoadPriority, TileTreeReference,
 } from "./internal";
 
 function getUrl(content: any) {

@@ -3,9 +3,11 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 import * as chai from "chai";
-import { AccessToken, Guid, GuidString, Id64, Id64String, IModelHubStatus } from "@itwin/core-bentley";
+import type { AccessToken, GuidString, Id64String} from "@itwin/core-bentley";
+import { Guid, Id64, IModelHubStatus } from "@itwin/core-bentley";
+import type { Briefcase, ChangeSet, IModelClient} from "@bentley/imodelhub-client";
 import {
-  AggregateResponseError, Briefcase, ChangeSet, ConflictingLocksError, IModelClient, IModelHubClientError, Lock, LockLevel, LockQuery, LockType,
+  AggregateResponseError, ConflictingLocksError, IModelHubClientError, Lock, LockLevel, LockQuery, LockType,
 } from "@bentley/imodelhub-client";
 import { TestUsers } from "@itwin/oidc-signin-tool";
 import { ResponseBuilder } from "../ResponseBuilder";

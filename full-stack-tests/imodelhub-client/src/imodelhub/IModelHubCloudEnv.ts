@@ -3,9 +3,10 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 
-import { AccessToken } from "@itwin/core-bentley";
-import { Project as ITwin, ProjectsAccessClient, ProjectsSearchableProperty } from "@itwin/projects-client";
-import { IModelCloudEnvironment, ITwinManagerClient } from "@bentley/imodelhub-client";
+import type { AccessToken } from "@itwin/core-bentley";
+import type { Project as ITwin} from "@itwin/projects-client";
+import { ProjectsAccessClient, ProjectsSearchableProperty } from "@itwin/projects-client";
+import type { IModelCloudEnvironment, ITwinManagerClient } from "@bentley/imodelhub-client";
 import { TestIModelHubOidcAuthorizationClient } from "../TestIModelHubOidcAuthorizationClient";
 import { getIModelHubClient } from "./TestUtils";
 

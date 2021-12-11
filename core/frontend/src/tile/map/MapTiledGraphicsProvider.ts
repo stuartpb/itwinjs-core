@@ -6,11 +6,13 @@
  * @module Tiles
  */
 
-import { Id64String } from "@itwin/core-bentley";
-import { MapImagerySettings, MapLayerSettings } from "@itwin/core-common";
-import { Viewport } from "../../Viewport";
-import { ViewState } from "../../ViewState";
-import { MapLayerImageryProvider, MapTileTreeReference, TiledGraphicsProvider, TileTreeReference } from "../internal";
+import type { Id64String } from "@itwin/core-bentley";
+import type { MapImagerySettings} from "@itwin/core-common";
+import { MapLayerSettings } from "@itwin/core-common";
+import type { Viewport } from "../../Viewport";
+import type { ViewState } from "../../ViewState";
+import type { MapLayerImageryProvider, TiledGraphicsProvider, TileTreeReference } from "../internal";
+import { MapTileTreeReference } from "../internal";
 
 /** @internal */
 export class MapTiledGraphicsProvider implements TiledGraphicsProvider {

@@ -6,9 +6,11 @@ import { expect } from "chai";
 import {
   ColorDef, FeatureAppearance, GraphicParams, ImageBuffer, ImageBufferFormat, RenderMaterial, RenderMode, RenderTexture, TextureMapping,
 } from "@itwin/core-common";
-import { DecorateContext, FeatureSymbology, GraphicType, IModelApp, RenderGraphicOwner, SnapshotConnection, Viewport } from "@itwin/core-frontend";
+import type { DecorateContext, FeatureSymbology, RenderGraphicOwner, Viewport } from "@itwin/core-frontend";
+import { GraphicType, IModelApp, SnapshotConnection } from "@itwin/core-frontend";
 import { Point3d } from "@itwin/core-geometry";
-import { testOnScreenViewport, TestViewport } from "../TestViewport";
+import type { TestViewport } from "../TestViewport";
+import { testOnScreenViewport } from "../TestViewport";
 import { TestUtility } from "../TestUtility";
 
 interface GraphicOptions {

@@ -4,7 +4,8 @@
 *--------------------------------------------------------------------------------------------*/
 import { assert } from "chai";
 import { IModelTestUtils } from "@itwin/core-backend/lib/cjs/test";
-import { BlobDaemon, BlobDaemonCommandArg } from "@bentley/imodeljs-native";
+import type { BlobDaemonCommandArg } from "@bentley/imodeljs-native";
+import { BlobDaemon } from "@bentley/imodeljs-native";
 import { Guid } from "@itwin/core-bentley";
 
 // Default account and key for azurite

@@ -3,8 +3,9 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 import * as chai from "chai";
-import { AccessToken, GuidString } from "@itwin/core-bentley";
-import { IModelClient, Thumbnail, ThumbnailQuery, ThumbnailSize, Version } from "@bentley/imodelhub-client";
+import type { AccessToken, GuidString } from "@itwin/core-bentley";
+import type { IModelClient, Thumbnail, ThumbnailSize, Version } from "@bentley/imodelhub-client";
+import { ThumbnailQuery } from "@bentley/imodelhub-client";
 import { TestUsers } from "@itwin/oidc-signin-tool";
 import { RequestType, ResponseBuilder, ScopeType } from "../ResponseBuilder";
 import { TestConfig } from "../TestConfig";

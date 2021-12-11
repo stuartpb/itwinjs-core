@@ -7,11 +7,12 @@
  */
 
 import deepAssign from "deep-assign";
-import { AccessToken, BentleyError, GuidString, IModelHubStatus, Logger } from "@itwin/core-bentley";
-import { FileHandler, ProgressCallback } from "@bentley/itwin-client";
+import type { AccessToken, GuidString} from "@itwin/core-bentley";
+import { BentleyError, IModelHubStatus, Logger } from "@itwin/core-bentley";
+import type { FileHandler, ProgressCallback } from "@bentley/itwin-client";
 import { ECJsonTypeMap, WsgInstance } from "../wsg/ECJsonTypeMap";
 import { IModelHubClientLoggerCategory } from "../IModelHubClientLoggerCategories";
-import { IModelBaseHandler } from "./BaseHandler";
+import type { IModelBaseHandler } from "./BaseHandler";
 import { ArgumentCheck, IModelHubClientError, IModelHubError } from "./Errors";
 import { addSelectFileAccessKey, InstanceIdQuery } from "./HubQuery";
 

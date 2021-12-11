@@ -3,11 +3,14 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 import * as chai from "chai";
-import { AccessToken, Guid, GuidString } from "@itwin/core-bentley";
-import {
-  Briefcase, ChangeSet, IModelClient, Thumbnail, ThumbnailQuery, ThumbnailSize, Version, VersionQuery,
+import type { AccessToken, GuidString } from "@itwin/core-bentley";
+import { Guid } from "@itwin/core-bentley";
+import type {
+  Briefcase, ChangeSet, IModelClient, Thumbnail, ThumbnailSize, Version} from "@bentley/imodelhub-client";
+import { ThumbnailQuery, VersionQuery,
 } from "@bentley/imodelhub-client";
-import { RequestGlobalOptions, RequestTimeoutOptions } from "@bentley/itwin-client";
+import type { RequestTimeoutOptions } from "@bentley/itwin-client";
+import { RequestGlobalOptions } from "@bentley/itwin-client";
 import { TestUsers } from "@itwin/oidc-signin-tool";
 import { RequestType, ResponseBuilder, ScopeType } from "../ResponseBuilder";
 import { TestConfig } from "../TestConfig";

@@ -3,8 +3,10 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 
-import { AccessToken, Guid, GuidString } from "@itwin/core-bentley";
-import { ChangeSet, IModelHubClient, Version, VersionQuery } from "@bentley/imodelhub-client";
+import type { AccessToken, GuidString } from "@itwin/core-bentley";
+import { Guid } from "@itwin/core-bentley";
+import type { ChangeSet, Version} from "@bentley/imodelhub-client";
+import { IModelHubClient, VersionQuery } from "@bentley/imodelhub-client";
 
 const imodelHubClient: IModelHubClient = new IModelHubClient();
 const accessToken: AccessToken = "";

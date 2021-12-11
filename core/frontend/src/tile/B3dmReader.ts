@@ -6,13 +6,17 @@
  * @module Tiles
  */
 
-import { ByteStream, Id64String, JsonUtils } from "@itwin/core-bentley";
-import { Point3d, Transform, Vector3d } from "@itwin/core-geometry";
-import { B3dmHeader, BatchType, ColorDef, ElementAlignedBox3d, Feature, FeatureTable, GltfBufferData, GltfDataType, TileReadStatus } from "@itwin/core-common";
-import { IModelConnection } from "../IModelConnection";
-import { Mesh } from "../render/primitives/mesh/MeshPrimitives";
-import { RenderSystem } from "../render/RenderSystem";
-import { BatchedTileIdMap, GltfReader, GltfReaderProps, GltfReaderResult, ShouldAbortReadGltf } from "./internal";
+import type { ByteStream, Id64String} from "@itwin/core-bentley";
+import { JsonUtils } from "@itwin/core-bentley";
+import type { Point3d} from "@itwin/core-geometry";
+import { Transform, Vector3d } from "@itwin/core-geometry";
+import type { ElementAlignedBox3d, GltfBufferData} from "@itwin/core-common";
+import { B3dmHeader, BatchType, ColorDef, Feature, FeatureTable, GltfDataType, TileReadStatus } from "@itwin/core-common";
+import type { IModelConnection } from "../IModelConnection";
+import type { Mesh } from "../render/primitives/mesh/MeshPrimitives";
+import type { RenderSystem } from "../render/RenderSystem";
+import type { BatchedTileIdMap, GltfReaderResult, ShouldAbortReadGltf } from "./internal";
+import { GltfReader, GltfReaderProps } from "./internal";
 
 /**
  * Deserializes a tile in [b3dm](https://github.com/AnalyticalGraphicsInc/3d-tiles/tree/master/specification/TileFormats/Batched3DModel) format.

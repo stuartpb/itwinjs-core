@@ -5,9 +5,12 @@
 /** @packageDocumentation
  * @module Tiles
  */
-import { getJson, request, RequestOptions } from "@bentley/itwin-client";
-import { AccessToken, BentleyStatus, GuidString, Logger } from "@itwin/core-bentley";
-import { IModelError, OrbitGtBlobProps, RealityData, RealityDataFormat, RealityDataProvider, RealityDataSourceKey, RealityDataSourceProps } from "@itwin/core-common";
+import type { RequestOptions } from "@bentley/itwin-client";
+import { getJson, request } from "@bentley/itwin-client";
+import type { AccessToken, GuidString} from "@itwin/core-bentley";
+import { BentleyStatus, Logger } from "@itwin/core-bentley";
+import type { OrbitGtBlobProps, RealityData, RealityDataSourceProps } from "@itwin/core-common";
+import { IModelError, RealityDataFormat, RealityDataProvider, RealityDataSourceKey } from "@itwin/core-common";
 import { FrontendLoggerCategory } from "./FrontendLoggerCategory";
 import { IModelApp } from "./IModelApp";
 import { CesiumIonAssetProvider, ContextShareProvider, getCesiumAccessTokenAndEndpointUrl, getCesiumOSMBuildingsUrl } from "./tile/internal";

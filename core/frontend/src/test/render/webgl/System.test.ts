@@ -3,14 +3,15 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 import { expect } from "chai";
-import { Gradient, ImageSource, ImageSourceFormat, RenderTexture } from "@itwin/core-common";
-import { Capabilities, WebGLContext } from "@itwin/webgl-compatibility";
+import type { RenderTexture } from "@itwin/core-common";
+import { Gradient, ImageSource, ImageSourceFormat } from "@itwin/core-common";
+import type { Capabilities, WebGLContext } from "@itwin/webgl-compatibility";
 import { IModelApp } from "../../../IModelApp";
-import { IModelConnection } from "../../../IModelConnection";
+import type { IModelConnection } from "../../../IModelConnection";
 import { MockRender } from "../../../render/MockRender";
 import { RenderSystem } from "../../../render/RenderSystem";
 import { TextureTransparency } from "../../../render/RenderTexture";
-import { TileAdmin } from "../../../tile/internal";
+import type { TileAdmin } from "../../../tile/internal";
 import { System } from "../../../render/webgl/System";
 
 function _createCanvas(): HTMLCanvasElement | undefined {

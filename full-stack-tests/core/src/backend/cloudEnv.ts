@@ -2,7 +2,7 @@
 * Copyright (c) Bentley Systems, Incorporated. All rights reserved.
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
-import { IModelCloudEnvironment } from "@bentley/imodelhub-client";
+import type { IModelCloudEnvironment } from "@bentley/imodelhub-client";
 import { getIModelBankCloudEnv } from "./IModelBankBackendCloudEnv";
 import { IModelHubBackendCloudEnv } from "./IModelHubBackendCloudEnv";
 

@@ -6,9 +6,9 @@
  * @module Tiles
  */
 
-import { MapLayerSettings } from "@itwin/core-common";
+import type { MapLayerSettings } from "@itwin/core-common";
 import { IModelApp } from "../../../IModelApp";
-import { ScreenViewport } from "../../../Viewport";
+import type { ScreenViewport } from "../../../Viewport";
 import { MapLayerImageryProvider } from "../../internal";
 
 /** Base class imagery map layer formats.  Subclasses should override formatId and [[MapLayerFormat.createImageryProvider]].

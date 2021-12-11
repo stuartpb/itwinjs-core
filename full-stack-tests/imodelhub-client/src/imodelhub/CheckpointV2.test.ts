@@ -5,9 +5,10 @@
 
 import * as chai from "chai";
 import * as fs from "fs";
-import { AccessToken, GuidString } from "@itwin/core-bentley";
-import {
-  Briefcase, ChangeSet, CheckpointV2, CheckpointV2ErrorId, CheckpointV2Query, CheckpointV2State, IModelClient,
+import type { AccessToken, GuidString } from "@itwin/core-bentley";
+import type {
+  Briefcase, ChangeSet, IModelClient} from "@bentley/imodelhub-client";
+import { CheckpointV2, CheckpointV2ErrorId, CheckpointV2Query, CheckpointV2State,
 } from "@bentley/imodelhub-client";
 import { TestUsers } from "@itwin/oidc-signin-tool";
 import { RequestType, ResponseBuilder, ScopeType } from "../ResponseBuilder";

@@ -2,9 +2,11 @@
 * Copyright (c) Bentley Systems, Incorporated. All rights reserved.
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
-import { AccessToken, GuidString, Id64, Logger } from "@itwin/core-bentley";
+import type { AccessToken, GuidString} from "@itwin/core-bentley";
+import { Id64, Logger } from "@itwin/core-bentley";
+import type { Briefcase, IModelClient} from "@bentley/imodelhub-client";
 import {
-  AuthenticationError, Briefcase, CodeQuery, CodeState, HubCode, IModelClient, Lock, LockLevel, LockQuery, LockType,
+  AuthenticationError, CodeQuery, CodeState, HubCode, Lock, LockLevel, LockQuery, LockType,
 } from "@bentley/imodelhub-client";
 import { ResponseError } from "@bentley/itwin-client";
 import { TestConfig } from "../TestConfig";

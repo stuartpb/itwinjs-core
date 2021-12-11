@@ -6,12 +6,14 @@
  * @module iModelHubClient
  */
 
-import { AccessToken, GuidString, Logger } from "@itwin/core-bentley";
-import { DownloadFailed, FileHandler, ProgressCallback, ProgressInfo, RequestQueryOptions, SasUrlExpired } from "@bentley/itwin-client";
+import type { AccessToken, GuidString} from "@itwin/core-bentley";
+import { Logger } from "@itwin/core-bentley";
+import type { FileHandler, ProgressCallback, ProgressInfo, RequestQueryOptions} from "@bentley/itwin-client";
+import { DownloadFailed, SasUrlExpired } from "@bentley/itwin-client";
 import { ECJsonTypeMap, WsgInstance } from "../wsg/ECJsonTypeMap";
 import { ChunkedQueryContext } from "../wsg/ChunkedQueryContext";
 import { IModelHubClientLoggerCategory } from "../IModelHubClientLoggerCategories";
-import { IModelBaseHandler } from "./BaseHandler";
+import type { IModelBaseHandler } from "./BaseHandler";
 import { ArgumentCheck, IModelHubClientError } from "./Errors";
 import { addSelectApplicationData, addSelectFileAccessKey, StringIdQuery } from "./HubQuery";
 

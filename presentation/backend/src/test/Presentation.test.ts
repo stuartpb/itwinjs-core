@@ -9,10 +9,11 @@ import * as moq from "typemoq";
 import { IModelHost, IpcHost } from "@itwin/core-backend";
 import { RpcManager } from "@itwin/core-common";
 import { PresentationError } from "@itwin/presentation-common";
-import { MultiManagerPresentationProps, Presentation } from "../presentation-backend/Presentation";
+import type { MultiManagerPresentationProps} from "../presentation-backend/Presentation";
+import { Presentation } from "../presentation-backend/Presentation";
 import { PresentationIpcHandler } from "../presentation-backend/PresentationIpcHandler";
 import { PresentationManager } from "../presentation-backend/PresentationManager";
-import { TemporaryStorage } from "../presentation-backend/TemporaryStorage";
+import type { TemporaryStorage } from "../presentation-backend/TemporaryStorage";
 
 describe("Presentation", () => {
 

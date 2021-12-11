@@ -8,14 +8,16 @@
 
 import { assert, ByteStream } from "@itwin/core-bentley";
 import { Point3d, Transform } from "@itwin/core-geometry";
-import { BatchType, CompositeTileHeader, TileFormat, ViewFlagOverrides } from "@itwin/core-common";
+import type { ViewFlagOverrides } from "@itwin/core-common";
+import { BatchType, CompositeTileHeader, TileFormat } from "@itwin/core-common";
 import { IModelApp } from "../IModelApp";
 import { GraphicBranch } from "../render/GraphicBranch";
-import { RenderSystem } from "../render/RenderSystem";
-import { Viewport } from "../Viewport";
+import type { RenderSystem } from "../render/RenderSystem";
+import type { Viewport } from "../Viewport";
+import type { BatchedTileIdMap, GltfReader, RealityTile, Tile, TileContent,
+  TileDrawArgs, TileLoadPriority, TileRequest, TileRequestChannel} from "./internal";
 import {
-  B3dmReader, BatchedTileIdMap, createDefaultViewFlagOverrides, GltfReader, I3dmReader, readPointCloudTileContent, RealityTile, Tile, TileContent,
-  TileDrawArgs, TileLoadPriority, TileRequest, TileRequestChannel,
+  B3dmReader, createDefaultViewFlagOverrides, I3dmReader, readPointCloudTileContent,
 } from "./internal";
 
 const defaultViewFlagOverrides = createDefaultViewFlagOverrides({});

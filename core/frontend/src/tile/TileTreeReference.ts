@@ -7,15 +7,18 @@
  */
 
 import { BeTimePoint } from "@itwin/core-bentley";
-import { Matrix4d, Range1d, Range3d, Transform } from "@itwin/core-geometry";
-import { ElementAlignedBox3d, FeatureAppearanceProvider, FrustumPlanes, HiddenLine, PlanarClipMaskPriority, ViewFlagOverrides } from "@itwin/core-common";
-import { HitDetail } from "../HitDetail";
-import { FeatureSymbology } from "../render/FeatureSymbology";
-import { RenderClipVolume } from "../render/RenderClipVolume";
-import { RenderMemory } from "../render/RenderMemory";
-import { DecorateContext, SceneContext } from "../ViewContext";
-import { ScreenViewport } from "../Viewport";
-import { DisclosedTileTreeSet, TileDrawArgs, TileTree, TileTreeLoadStatus, TileTreeOwner } from "./internal";
+import type { Matrix4d, Range1d, Transform } from "@itwin/core-geometry";
+import { Range3d } from "@itwin/core-geometry";
+import type { ElementAlignedBox3d, FeatureAppearanceProvider, FrustumPlanes, HiddenLine, ViewFlagOverrides } from "@itwin/core-common";
+import { PlanarClipMaskPriority } from "@itwin/core-common";
+import type { HitDetail } from "../HitDetail";
+import type { FeatureSymbology } from "../render/FeatureSymbology";
+import type { RenderClipVolume } from "../render/RenderClipVolume";
+import type { RenderMemory } from "../render/RenderMemory";
+import type { DecorateContext, SceneContext } from "../ViewContext";
+import type { ScreenViewport } from "../Viewport";
+import type { DisclosedTileTreeSet, TileTree, TileTreeOwner } from "./internal";
+import { TileDrawArgs, TileTreeLoadStatus } from "./internal";
 
 /** Describes the type of graphics produced by a [[TileTreeReference]].
  * @public

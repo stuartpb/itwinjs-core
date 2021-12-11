@@ -4,11 +4,12 @@
 *--------------------------------------------------------------------------------------------*/
 
 import { expect } from "chai";
-import { Mutable } from "@itwin/core-bentley";
-import { SnapshotDb } from "../../IModelDb";
+import type { Mutable } from "@itwin/core-bentley";
+import type { SnapshotDb } from "../../IModelDb";
 import { IModelHost } from "../../IModelHost";
 import { SettingsPriority } from "../../workspace/Settings";
-import { SettingsGroupSpec, SettingSpec, SettingsSpecRegistry } from "../../workspace/SettingsSpecRegistry";
+import type { SettingsGroupSpec, SettingSpec} from "../../workspace/SettingsSpecRegistry";
+import { SettingsSpecRegistry } from "../../workspace/SettingsSpecRegistry";
 import { IModelTestUtils } from "../IModelTestUtils";
 
 describe("Settings", () => {

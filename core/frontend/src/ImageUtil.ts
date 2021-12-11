@@ -8,7 +8,8 @@
 
 import { ProcessDetector } from "@itwin/core-bentley";
 import { Point2d } from "@itwin/core-geometry";
-import { ImageBuffer, ImageBufferFormat, ImageSource, ImageSourceFormat } from "@itwin/core-common";
+import type { ImageSource} from "@itwin/core-common";
+import { ImageBuffer, ImageBufferFormat, ImageSourceFormat } from "@itwin/core-common";
 import { ViewRect } from "./ViewRect";
 
 interface Rgba {

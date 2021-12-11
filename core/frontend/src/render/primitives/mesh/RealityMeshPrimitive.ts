@@ -6,9 +6,9 @@
  * @module Rendering
  */
 
-import { QParams2d, QParams3d, RenderTexture } from "@itwin/core-common";
-import { GltfMeshData } from "../../../tile/internal";
-import { RenderMemory } from "../../RenderMemory";
+import type { QParams2d, QParams3d, RenderTexture } from "@itwin/core-common";
+import type { GltfMeshData } from "../../../tile/internal";
+import type { RenderMemory } from "../../RenderMemory";
 import { Mesh } from "./MeshPrimitives";
 
 export interface RealityMeshProps {

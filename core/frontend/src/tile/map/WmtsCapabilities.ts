@@ -7,7 +7,8 @@
  */
 
 import { Point2d, Range2d } from "@itwin/core-geometry";
-import { request, RequestBasicCredentials, RequestOptions } from "@bentley/itwin-client";
+import type { RequestBasicCredentials, RequestOptions } from "@bentley/itwin-client";
+import { request } from "@bentley/itwin-client";
 import { xml2json } from "xml-js";
 import { MapCartoRectangle, WmsUtilities } from "../internal"; // WmsUtilities needed for getBaseUrl
 

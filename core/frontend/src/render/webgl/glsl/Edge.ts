@@ -7,8 +7,10 @@
  */
 
 import { AttributeMap } from "../AttributeMap";
-import { ProgramBuilder, ShaderBuilderFlags, VariableType, VertexShaderBuilder, VertexShaderComponent } from "../ShaderBuilder";
-import { IsAnimated, IsInstanced, IsThematic } from "../TechniqueFlags";
+import type { VertexShaderBuilder} from "../ShaderBuilder";
+import { ProgramBuilder, ShaderBuilderFlags, VariableType, VertexShaderComponent } from "../ShaderBuilder";
+import type { IsAnimated} from "../TechniqueFlags";
+import { IsInstanced, IsThematic } from "../TechniqueFlags";
 import { TechniqueId } from "../TechniqueId";
 import { addAnimation } from "./Animation";
 import { addColor } from "./Color";

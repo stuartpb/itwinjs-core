@@ -6,11 +6,12 @@
  * @module Effects
  */
 
-import { Id64String } from "@itwin/core-bentley";
+import type { Id64String } from "@itwin/core-bentley";
 import { Point3d, Range1d, Vector3d } from "@itwin/core-geometry";
-import { RenderTexture } from "@itwin/core-common";
-import {
-  DecorateContext, GraphicType, HitDetail, imageElementFromUrl, IModelApp, IModelConnection, ParticleCollectionBuilder, ParticleProps, TextureTransparency, Tool,
+import type { RenderTexture } from "@itwin/core-common";
+import type {
+  DecorateContext, HitDetail, IModelConnection, ParticleProps} from "@itwin/core-frontend";
+import { GraphicType, imageElementFromUrl, IModelApp, ParticleCollectionBuilder, TextureTransparency, Tool,
 } from "@itwin/core-frontend";
 import { randomFloat, randomFloatInRange, randomIntegerInRange, randomPositionInRange } from "./Random";
 

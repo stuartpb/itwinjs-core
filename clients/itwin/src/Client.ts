@@ -5,10 +5,12 @@
 /** @packageDocumentation
  * @module iTwinServiceClients
  */
-import { AccessToken, Logger } from "@itwin/core-bentley";
+import type { AccessToken} from "@itwin/core-bentley";
+import { Logger } from "@itwin/core-bentley";
 import * as deepAssign from "deep-assign";
 import { ITwinClientLoggerCategory } from "./ITwinClientLoggerCategory";
-import { request, RequestOptions } from "./Request";
+import type { RequestOptions } from "./Request";
+import { request } from "./Request";
 
 const loggerCategory: string = ITwinClientLoggerCategory.Clients;
 

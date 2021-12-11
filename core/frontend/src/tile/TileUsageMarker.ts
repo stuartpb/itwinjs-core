@@ -8,7 +8,7 @@
 
 import { BeTimePoint } from "@itwin/core-bentley";
 import { IModelApp } from "../IModelApp";
-import { Viewport } from "../Viewport";
+import type { Viewport } from "../Viewport";
 
 /** A marker associated with a [[Tile]] to track usage of that tile by any number of viewports.
  * The marker tracks:

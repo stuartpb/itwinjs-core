@@ -2,7 +2,8 @@
 * Copyright (c) Bentley Systems, Incorporated. All rights reserved.
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
-import { request, RequestOptions } from "@bentley/itwin-client";
+import type { RequestOptions } from "@bentley/itwin-client";
+import { request } from "@bentley/itwin-client";
 
 /** @packageDocumentation
  * @module Tiles

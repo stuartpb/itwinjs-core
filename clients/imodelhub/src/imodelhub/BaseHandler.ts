@@ -5,11 +5,13 @@
 /** @packageDocumentation
  * @module iModelHubClient
  */
-import { AccessToken } from "@itwin/core-bentley";
-import { FileHandler, RequestGlobalOptions, RequestOptions, RequestQueryOptions } from "@bentley/itwin-client";
-import { ChunkedQueryContext } from "../wsg/ChunkedQueryContext";
-import { WsgInstance } from "../wsg/ECJsonTypeMap";
-import { DefaultWsgRequestOptionsProvider, HttpRequestOptions, WsgClient, WsgRequestOptions } from "../wsg/WsgClient";
+import type { AccessToken } from "@itwin/core-bentley";
+import type { FileHandler, RequestOptions, RequestQueryOptions } from "@bentley/itwin-client";
+import { RequestGlobalOptions } from "@bentley/itwin-client";
+import type { ChunkedQueryContext } from "../wsg/ChunkedQueryContext";
+import type { WsgInstance } from "../wsg/ECJsonTypeMap";
+import type { HttpRequestOptions, WsgRequestOptions } from "../wsg/WsgClient";
+import { DefaultWsgRequestOptionsProvider, WsgClient } from "../wsg/WsgClient";
 import { CustomRequestOptions } from "./CustomRequestOptions";
 import { IModelHubError } from "./Errors";
 

@@ -6,8 +6,8 @@
  * @module Rendering
  */
 
-import { Gradient, ImageBuffer, ImageSource, RenderTexture } from "@itwin/core-common";
-import { IModelConnection } from "../IModelConnection";
+import type { Gradient, ImageBuffer, ImageSource, RenderTexture } from "@itwin/core-common";
+import type { IModelConnection } from "../IModelConnection";
 
 /** Describes the type of transparency in the pixels of a [[TextureImage]].
  * Each pixel can be classified as either 100% opaque, 100% transparent, or semi-transparent ("translucent").

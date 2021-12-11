@@ -3,7 +3,7 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 
-import { IModelBankClient } from "@bentley/imodelhub-client";
+import type { IModelBankClient } from "@bentley/imodelhub-client";
 import { readdirSync } from "fs";
 import Mocha from "mocha";
 import { join } from "path";

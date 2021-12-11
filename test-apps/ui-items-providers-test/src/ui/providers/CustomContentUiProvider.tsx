@@ -3,9 +3,10 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 
+import type {
+  BackstageItem, UiItemsProvider} from "@itwin/appui-abstract";
 import {
-  BackstageItem,
-  BackstageItemUtilities, UiItemsManager, UiItemsProvider,
+  BackstageItemUtilities, UiItemsManager,
 } from "@itwin/appui-abstract";
 import { UiItemsProvidersTest } from "../../ui-items-providers-test";
 import { CustomFrontstage } from "../frontstages/CustomContent";

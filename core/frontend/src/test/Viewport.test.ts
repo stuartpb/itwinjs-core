@@ -6,7 +6,7 @@
 import { expect } from "chai";
 import { UnexpectedErrors } from "@itwin/core-bentley";
 import { AnalysisStyle } from "@itwin/core-common";
-import { ScreenViewport } from "../Viewport";
+import type { ScreenViewport } from "../Viewport";
 import { IModelApp } from "../IModelApp";
 import { openBlankViewport } from "./openBlankViewport";
 

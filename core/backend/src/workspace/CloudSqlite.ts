@@ -6,10 +6,12 @@
  * @module Workspace
  */
 
-import { BlobCacheProps, BlobContainerProps, BlobDaemon, BlobDaemonCommandArg, DaemonProps } from "@bentley/imodeljs-native";
+import type { BlobCacheProps, BlobContainerProps, BlobDaemonCommandArg, DaemonProps } from "@bentley/imodeljs-native";
+import { BlobDaemon } from "@bentley/imodeljs-native";
 import { BriefcaseStatus, DbResult } from "@itwin/core-bentley";
-import { IModelError, LocalFileName } from "@itwin/core-common";
-import { ChildProcess } from "child_process";
+import type { LocalFileName } from "@itwin/core-common";
+import { IModelError } from "@itwin/core-common";
+import type { ChildProcess } from "child_process";
 import { IModelHost } from "../IModelHost";
 
 /** @beta */

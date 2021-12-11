@@ -3,9 +3,12 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 
-import { ServiceAuthorizationClient, ServiceAuthorizationClientConfiguration } from "@itwin/service-authorization";
-import { AccessToken, Guid, GuidString, Logger } from "@itwin/core-bentley";
-import { EventSAS, EventSubscription, IModelHubClient, IModelHubEvent } from "@bentley/imodelhub-client";
+import type { ServiceAuthorizationClientConfiguration } from "@itwin/service-authorization";
+import { ServiceAuthorizationClient } from "@itwin/service-authorization";
+import type { AccessToken, GuidString} from "@itwin/core-bentley";
+import { Guid, Logger } from "@itwin/core-bentley";
+import type { EventSAS, EventSubscription, IModelHubEvent } from "@bentley/imodelhub-client";
+import { IModelHubClient } from "@bentley/imodelhub-client";
 
 if (process.env.IMJS_AGENT_TEST_CLIENT_ID === undefined)
   throw new Error("Could not find IMJS_AGENT_TEST_CLIENT_ID");

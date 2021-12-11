@@ -11,9 +11,9 @@ import { connect } from "react-redux";
 import { SnapMode } from "@itwin/core-frontend";
 import { FooterPopup, FooterPopupContentType, SnapMode as NZ_SnapMode, Snap, SnapModePanel } from "@itwin/appui-layout-react";
 import { ConfigurableUiActions } from "../configurableui/state";
-import { StatusBarFieldId } from "../statusbar/StatusBarWidgetControl";
+import type { StatusBarFieldId } from "../statusbar/StatusBarWidgetControl";
 import { UiFramework } from "../UiFramework";
-import { StatusFieldProps } from "./StatusFieldProps";
+import type { StatusFieldProps } from "./StatusFieldProps";
 
 // cSpell:ignore multione
 /** Defines properties supported by the SnapMode Field Component.

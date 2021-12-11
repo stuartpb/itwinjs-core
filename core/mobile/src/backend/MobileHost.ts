@@ -4,16 +4,21 @@
 *--------------------------------------------------------------------------------------------*/
 
 import { BeEvent, BriefcaseStatus } from "@itwin/core-bentley";
-import { IModelHost, IpcHandler, IpcHost, NativeHost, NativeHostOpts } from "@itwin/core-backend";
+import type { NativeHostOpts } from "@itwin/core-backend";
+import { IModelHost, IpcHandler, IpcHost, NativeHost } from "@itwin/core-backend";
+import type { RpcInterfaceDefinition} from "@itwin/core-common";
 import {
-  IModelReadRpcInterface, IModelTileRpcInterface, InternetConnectivityStatus, RpcInterfaceDefinition,
+  IModelReadRpcInterface, IModelTileRpcInterface, InternetConnectivityStatus,
   SnapshotIModelRpcInterface,
 } from "@itwin/core-common";
-import { CancelRequest, DownloadFailed, ProgressCallback, UserCancelledError } from "@bentley/itwin-client";
+import type { CancelRequest, ProgressCallback} from "@bentley/itwin-client";
+import { DownloadFailed, UserCancelledError } from "@bentley/itwin-client";
 import { PresentationRpcInterface } from "@itwin/presentation-common";
-import { BatteryState, DeviceEvents, mobileAppChannel, MobileAppFunctions, Orientation } from "../common/MobileAppProps";
+import type { BatteryState, DeviceEvents, MobileAppFunctions, Orientation } from "../common/MobileAppProps";
+import { mobileAppChannel } from "../common/MobileAppProps";
 import { MobileRpcManager } from "../common/MobileRpcManager";
-import { MobileAppAuthorizationConfiguration, MobileAuthorizationBackend } from "./MobileAuthorizationBackend";
+import type { MobileAppAuthorizationConfiguration} from "./MobileAuthorizationBackend";
+import { MobileAuthorizationBackend } from "./MobileAuthorizationBackend";
 import { setupMobileRpc } from "./MobileRpcServer";
 
 /** @beta */

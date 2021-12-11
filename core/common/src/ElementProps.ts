@@ -6,15 +6,16 @@
  * @module Entities
  */
 
-import { GuidString, Id64, Id64String } from "@itwin/core-bentley";
-import {
+import type { GuidString, Id64String } from "@itwin/core-bentley";
+import { Id64 } from "@itwin/core-bentley";
+import type {
   AngleProps, ClipVectorProps, LowAndHighXY, LowAndHighXYZ, TransformProps, XYProps, XYZProps, YawPitchRollProps,
 } from "@itwin/core-geometry";
-import { CodeProps } from "./Code";
-import { EntityProps } from "./EntityProps";
-import { GeometryStreamProps } from "./geometry/GeometryStream";
+import type { CodeProps } from "./Code";
+import type { EntityProps } from "./EntityProps";
+import type { GeometryStreamProps } from "./geometry/GeometryStream";
 import { IModelError, IModelStatus } from "./IModelError";
-import { SubCategoryAppearance } from "./SubCategoryAppearance";
+import type { SubCategoryAppearance } from "./SubCategoryAppearance";
 
 /** Properties of a NavigationProperty.
  * @public

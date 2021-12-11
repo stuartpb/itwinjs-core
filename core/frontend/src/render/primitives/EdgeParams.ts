@@ -6,8 +6,8 @@
  * @module Rendering
  */
 
-import { LinePixels, MeshEdge, OctEncodedNormalPair, PolylineData } from "@itwin/core-common";
-import { MeshArgs } from "./mesh/MeshPrimitives";
+import type { LinePixels, MeshEdge, OctEncodedNormalPair, PolylineData } from "@itwin/core-common";
+import type { MeshArgs } from "./mesh/MeshPrimitives";
 import { VertexIndices } from "./VertexTable";
 import { TesselatedPolyline, wantJointTriangles } from "./PolylineParams";
 

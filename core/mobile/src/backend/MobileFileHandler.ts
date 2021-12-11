@@ -7,11 +7,13 @@
  */
 
 import * as fs from "fs";
-import * as https from "https";
+import type * as https from "https";
 import * as path from "path";
-import { AccessToken, Logger } from "@itwin/core-bentley";
-import {
-  CancelRequest, DownloadFailed, FileHandler, ProgressCallback, ProgressInfo, request, RequestOptions, SasUrlExpired,
+import type { AccessToken} from "@itwin/core-bentley";
+import { Logger } from "@itwin/core-bentley";
+import type {
+  CancelRequest, FileHandler, ProgressCallback, ProgressInfo, RequestOptions} from "@bentley/itwin-client";
+import { DownloadFailed, request, SasUrlExpired,
   UserCancelledError,
 } from "@bentley/itwin-client";
 import { MobileHost } from "./MobileHost";

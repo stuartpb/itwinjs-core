@@ -4,9 +4,11 @@
 *--------------------------------------------------------------------------------------------*/
 
 import * as path from "path";
-import { IModelJsNative, NativeLoggerCategory } from "@bentley/imodeljs-native";
+import type { IModelJsNative} from "@bentley/imodeljs-native";
+import { NativeLoggerCategory } from "@bentley/imodeljs-native";
 import { ITwinClientLoggerCategory } from "@bentley/itwin-client";
-import { BentleyLoggerCategory, IDisposable, Logger, LogLevel } from "@itwin/core-bentley";
+import type { IDisposable} from "@itwin/core-bentley";
+import { BentleyLoggerCategory, Logger, LogLevel } from "@itwin/core-bentley";
 import { BackendLoggerCategory } from "../BackendLoggerCategory";
 import { IModelHost, IModelHostConfiguration } from "../IModelHost";
 

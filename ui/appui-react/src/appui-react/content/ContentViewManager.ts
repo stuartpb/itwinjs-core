@@ -6,11 +6,11 @@
  * @module ContentView
  */
 
-import * as React from "react";
+import type * as React from "react";
 import { UiEvent } from "@itwin/appui-abstract";
 import { FrontstageManager } from "../frontstage/FrontstageManager";
 import { ViewUtilities } from "../utils/ViewUtilities";
-import { ContentControl } from "./ContentControl";
+import type { ContentControl } from "./ContentControl";
 import { ContentLayoutManager } from "./ContentLayoutManager";
 import { IModelApp } from "@itwin/core-frontend";
 

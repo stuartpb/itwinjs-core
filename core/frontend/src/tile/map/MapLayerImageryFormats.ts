@@ -6,9 +6,14 @@
  * @module Tiles
  */
 
-import { MapLayerSettings, MapSubLayerProps } from "@itwin/core-common";
-import { RequestBasicCredentials } from "@bentley/itwin-client";
-import { IModelConnection } from "../../IModelConnection";
+import type { MapLayerSettings, MapSubLayerProps } from "@itwin/core-common";
+import type { RequestBasicCredentials } from "@bentley/itwin-client";
+import type { IModelConnection } from "../../IModelConnection";
+import type {
+  MapLayerImageryProvider,
+  MapLayerSourceValidation,
+  MapLayerTileTreeReference,
+  WmtsCapability} from "../internal";
 import {
   ArcGISMapLayerImageryProvider,
   ArcGisUtilities,
@@ -17,15 +22,11 @@ import {
   ImageryMapLayerTreeReference,
   MapBoxLayerImageryProvider,
   MapLayerFormat,
-  MapLayerImageryProvider,
   MapLayerSourceStatus,
-  MapLayerSourceValidation,
-  MapLayerTileTreeReference,
   TileUrlImageryProvider,
   WmsCapabilities,
   WmsMapLayerImageryProvider,
   WmtsCapabilities,
-  WmtsCapability,
   WmtsMapLayerImageryProvider,
 } from "../internal";
 

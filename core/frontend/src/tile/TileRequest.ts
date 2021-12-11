@@ -9,9 +9,9 @@
 import { assert, base64StringToUint8Array, IModelStatus } from "@itwin/core-bentley";
 import { ImageSource } from "@itwin/core-common";
 import { IModelApp } from "../IModelApp";
-import { Viewport } from "../Viewport";
-import { ReadonlyViewportSet } from "../ViewportSet";
-import { Tile, TileContent, TileRequestChannel, TileTree } from "./internal";
+import type { Viewport } from "../Viewport";
+import type { ReadonlyViewportSet } from "../ViewportSet";
+import type { Tile, TileContent, TileRequestChannel, TileTree } from "./internal";
 
 /** Represents a pending or active request to load the contents of a [[Tile]]. The request coordinates with the [[Tile.requestContent]] to obtain the raw content and
  * [[Tile.readContent]] to convert the result into a [[RenderGraphic]]. TileRequests are created internally as needed; it is never necessary or useful for external code to create them.

@@ -3,12 +3,14 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 import * as chai from "chai";
-import { AccessToken, Guid } from "@itwin/core-bentley";
+import type { AccessToken} from "@itwin/core-bentley";
+import { Guid } from "@itwin/core-bentley";
+import type { GlobalEventType, HubIModel,
+  IModelClient, IModelHubGlobalEvent} from "@bentley/imodelhub-client";
 import {
-  ChangeSetCreatedEvent, GetEventOperationType, GlobalCheckpointCreatedEvent, GlobalCheckpointV2CreatedEvent, GlobalEventSAS, GlobalEventSubscription, GlobalEventType, HardiModelDeleteEvent, HubIModel,
-  IModelClient, IModelCreatedEvent, IModelHubGlobalEvent, NamedVersionCreatedEvent, SoftiModelDeleteEvent,
+  ChangeSetCreatedEvent, GetEventOperationType, GlobalCheckpointCreatedEvent, GlobalCheckpointV2CreatedEvent, GlobalEventSAS, GlobalEventSubscription, HardiModelDeleteEvent, IModelCreatedEvent, NamedVersionCreatedEvent, SoftiModelDeleteEvent,
 } from "@bentley/imodelhub-client";
-import { TestUserCredentials } from "@itwin/oidc-signin-tool";
+import type { TestUserCredentials } from "@itwin/oidc-signin-tool";
 import { RequestType, ResponseBuilder, ScopeType } from "../ResponseBuilder";
 import { TestConfig } from "../TestConfig";
 import * as utils from "./TestUtils";

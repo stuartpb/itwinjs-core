@@ -8,10 +8,11 @@ import { expect } from "chai";
 import chaiAsPromised = require("chai-as-promised");
 chai.use(chaiAsPromised);
 
-import { IModelConnection } from "@itwin/core-frontend";
+import type { IModelConnection } from "@itwin/core-frontend";
 import { ECSchemaRpcInterface } from "@itwin/ecschema-rpcinterface-common";
 import { TestContext } from "./setup/TestContext";
-import { SchemaKey, SchemaKeyProps, SchemaProps } from "@itwin/ecschema-metadata";
+import type { SchemaKeyProps, SchemaProps } from "@itwin/ecschema-metadata";
+import { SchemaKey } from "@itwin/ecschema-metadata";
 
 describe("Schema RPC Interface", () => {
 

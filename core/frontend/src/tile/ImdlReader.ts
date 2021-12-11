@@ -6,29 +6,36 @@
  * @module Tiles
  */
 
-import { assert, ByteStream, Id64String, JsonUtils } from "@itwin/core-bentley";
-import { ClipVector, ClipVectorProps, Point2d, Point3d, Range2d, Range3d, Range3dProps, Transform, TransformProps, XYProps, XYZProps } from "@itwin/core-geometry";
-import {
-  BatchType, ColorDef, ColorDefProps, ElementAlignedBox3d, FeatureIndexType, FeatureTableHeader, FillFlags, Gradient, ImageSource, ImdlHeader, LinePixels,
+import type { Id64String} from "@itwin/core-bentley";
+import { assert, ByteStream, JsonUtils } from "@itwin/core-bentley";
+import type { ClipVectorProps, Range3dProps, TransformProps, XYProps, XYZProps } from "@itwin/core-geometry";
+import { ClipVector, Point2d, Point3d, Range2d, Range3d, Transform } from "@itwin/core-geometry";
+import type {
+  BatchType, ColorDefProps, ElementAlignedBox3d, FeatureIndexType} from "@itwin/core-common";
+import { ColorDef, FeatureTableHeader, FillFlags, Gradient, ImageSource, ImdlHeader, LinePixels,
   PackedFeatureTable, PolylineTypeFlags, QParams2d, QParams3d, readTileContentDescription, RenderMaterial, RenderTexture, TextureMapping,
   TileReadError, TileReadStatus,
 } from "@itwin/core-common";
 import { IModelApp } from "../IModelApp";
-import { IModelConnection } from "../IModelConnection";
+import type { IModelConnection } from "../IModelConnection";
 import { AnimationNodeId, GraphicBranch } from "../render/GraphicBranch";
-import { InstancedGraphicParams } from "../render/InstancedGraphicParams";
-import { AuxChannelTable, AuxChannelTableProps } from "../render/primitives/AuxChannelTable";
+import type { InstancedGraphicParams } from "../render/InstancedGraphicParams";
+import type { AuxChannelTableProps } from "../render/primitives/AuxChannelTable";
+import { AuxChannelTable } from "../render/primitives/AuxChannelTable";
 import { DisplayParams } from "../render/primitives/DisplayParams";
 import { Mesh } from "../render/primitives/mesh/MeshPrimitives";
-import { createSurfaceMaterial, isValidSurfaceType, SurfaceMaterial, SurfaceParams, SurfaceType } from "../render/primitives/SurfaceParams";
-import { EdgeParams, SegmentEdgeParams, SilhouetteParams } from "../render/primitives/EdgeParams";
+import type { SurfaceMaterial, SurfaceParams} from "../render/primitives/SurfaceParams";
+import { createSurfaceMaterial, isValidSurfaceType, SurfaceType } from "../render/primitives/SurfaceParams";
+import type { EdgeParams, SegmentEdgeParams, SilhouetteParams } from "../render/primitives/EdgeParams";
 import { MeshParams, VertexIndices, VertexTable } from "../render/primitives/VertexTable";
 import { PointStringParams } from "../render/primitives/PointStringParams";
-import { PolylineParams, TesselatedPolyline } from "../render/primitives/PolylineParams";
-import { RenderGraphic } from "../render/RenderGraphic";
-import { RenderGeometry, RenderSystem } from "../render/RenderSystem";
-import { BatchOptions } from "../render/GraphicBuilder";
-import { GltfReader, GltfReaderProps, IModelTileContent, ShouldAbortReadGltf } from "./internal";
+import type { TesselatedPolyline } from "../render/primitives/PolylineParams";
+import { PolylineParams } from "../render/primitives/PolylineParams";
+import type { RenderGraphic } from "../render/RenderGraphic";
+import type { RenderGeometry, RenderSystem } from "../render/RenderSystem";
+import type { BatchOptions } from "../render/GraphicBuilder";
+import type { IModelTileContent, ShouldAbortReadGltf } from "./internal";
+import { GltfReader, GltfReaderProps } from "./internal";
 
 /* eslint-disable no-restricted-syntax */
 

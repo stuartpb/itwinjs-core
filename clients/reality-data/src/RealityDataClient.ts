@@ -7,10 +7,13 @@
  * @module RealityData
  */
 
-import { getJson, request, RequestOptions, RequestQueryOptions } from "@bentley/itwin-client";
-import { AccessToken, Guid, GuidString } from "@itwin/core-bentley";
-import { CartographicRange, ContextRealityModelProps, OrbitGtBlobProps } from "@itwin/core-common";
-import { IModelConnection, SpatialModelState } from "@itwin/core-frontend";
+import type { RequestOptions, RequestQueryOptions } from "@bentley/itwin-client";
+import { getJson, request } from "@bentley/itwin-client";
+import type { AccessToken, GuidString } from "@itwin/core-bentley";
+import { Guid } from "@itwin/core-bentley";
+import type { CartographicRange, ContextRealityModelProps, OrbitGtBlobProps } from "@itwin/core-common";
+import type { IModelConnection} from "@itwin/core-frontend";
+import { SpatialModelState } from "@itwin/core-frontend";
 import { Angle } from "@itwin/core-geometry";
 import { ECJsonTypeMap, WsgInstance } from "./wsg/ECJsonTypeMap";
 import { WsgClient } from "./wsg/WsgClient";

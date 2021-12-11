@@ -9,8 +9,9 @@ import * as sinon from "sinon";
 import { SnapMode } from "@itwin/core-frontend";
 import { WidgetState } from "@itwin/appui-abstract";
 import { FooterPopup } from "@itwin/appui-layout-react";
-import {
-  ConfigurableCreateInfo, ConfigurableUiControlType, SnapModeField, StatusBar, StatusBarWidgetControl, StatusBarWidgetControlArgs, UiFramework,
+import type {
+  ConfigurableCreateInfo, StatusBarWidgetControlArgs} from "../../appui-react";
+import { ConfigurableUiControlType, SnapModeField, StatusBar, StatusBarWidgetControl, UiFramework,
   WidgetDef,
 } from "../../appui-react";
 import TestUtils, { mount } from "../TestUtils";

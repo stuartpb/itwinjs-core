@@ -4,13 +4,14 @@
 *--------------------------------------------------------------------------------------------*/
 
 import * as React from "react";
-import {
+import type {
   AbstractWidgetProps, BackstageItem,
-  BackstageItemUtilities, BadgeType,
-  CommonToolbarItem, ConditionalBooleanValue, IconSpecUtilities,
+  CommonToolbarItem, UiItemsProvider} from "@itwin/appui-abstract";
+import {
+  BackstageItemUtilities, BadgeType, ConditionalBooleanValue, IconSpecUtilities,
   StagePanelLocation, StagePanelSection,
   ToolbarItemUtilities, ToolbarOrientation, ToolbarUsage,
-  UiItemsManager, UiItemsProvider, WidgetState,
+  UiItemsManager, WidgetState,
 } from "@itwin/appui-abstract";
 import { StateManager, SyncUiEventDispatcher } from "@itwin/appui-react";
 import { IModelApp, NotifyMessageDetails, OutputMessagePriority, OutputMessageType } from "@itwin/core-frontend";

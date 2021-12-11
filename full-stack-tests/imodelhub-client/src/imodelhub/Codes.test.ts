@@ -3,9 +3,11 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 import * as chai from "chai";
-import { AccessToken, GuidString, Id64, IModelHubStatus } from "@itwin/core-bentley";
+import type { AccessToken, GuidString} from "@itwin/core-bentley";
+import { Id64, IModelHubStatus } from "@itwin/core-bentley";
+import type { IModelClient} from "@bentley/imodelhub-client";
 import {
-  AggregateResponseError, CodeQuery, CodeSequence, CodeSequenceType, CodeState, ConflictingCodesError, HubCode, IModelClient, IModelHubClientError,
+  AggregateResponseError, CodeQuery, CodeSequence, CodeSequenceType, CodeState, ConflictingCodesError, HubCode, IModelHubClientError,
 } from "@bentley/imodelhub-client";
 import { TestUsers } from "@itwin/oidc-signin-tool";
 import { ResponseBuilder } from "../ResponseBuilder";
