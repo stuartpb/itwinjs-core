@@ -15,6 +15,7 @@
     "extract-api": "betools extract-api --entry=itwin-client",
     "docs": "betools docs --includes=../../generated-docs/extract --json=../../generated-docs/clients/itwin-client/file.json --tsIndexFile=itwin-client.ts --onlyJson",
     "lint": "eslint -f visualstudio \"./src/**/*.ts\" 1>&2",
+    "lint:fix": "npm run -s lint -- --fix",
     "test": "mocha",
     "cover": "nyc npm -s test"
   },

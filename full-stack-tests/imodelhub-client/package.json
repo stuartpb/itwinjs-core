@@ -19,6 +19,7 @@
     "cover:itwin-client": "nyc --nycrc-path=itwin-client.nycrc npm -s test",
     "docs": "",
     "lint": "eslint -f visualstudio \"./src/**/*.ts\" 1>&2",
+    "lint:fix": "npm run -s lint -- --fix",
     "pretest": "npm run -s copy:test-assets",
     "test": "npm run -s pretest && mocha --no-config --enableMocks --grep=\"#integration\" --invert",
     "test:integration": "npm run -s pretest && mocha --no-config --grep=\"#unit\" --invert",

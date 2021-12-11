@@ -19,6 +19,7 @@
     "extract-api": "betools extract-api --entry=reality-data-client",
     "docs": "betools docs --includes=../../generated-docs/extract --json=../../generated-docs/clients/reality-data-client/file.json --tsIndexFile=reality-data-client.ts --onlyJson",
     "lint": "eslint -f visualstudio \"./src/**/*.ts\" 1>&2",
+    "lint:fix": "npm run -s lint -- --fix",
     "webpackTests": "webpack --config ./src/test/utils/webpack.config.js 1>&2",
     "test": "",
     "test:integration": "npm run -s webpackTests && npm run -s test:integration:chrome",
