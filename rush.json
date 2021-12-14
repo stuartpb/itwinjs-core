@@ -31,7 +31,7 @@
     "sampleEmail": "mrexample@users.noreply.github.com"
   },
   "repository": {
-    "url": "https://github.com/imodeljs/imodeljs"
+    "url": "https://github.com/iTwin/itwinjs-core"
   },
   "projects": [
     {
@@ -63,13 +63,6 @@
       "versionPolicyName": "prerelease-monorepo-lockStep"
     },
     {
-      "packageName": "@bentley/product-settings-client",
-      "projectFolder": "clients/product-settings",
-      "reviewCategory": "common",
-      "shouldPublish": true,
-      "versionPolicyName": "prerelease-monorepo-lockStep"
-    },
-    {
       "packageName": "@bentley/reality-data-client",
       "projectFolder": "clients/reality-data",
       "reviewCategory": "common",
@@ -77,8 +70,8 @@
       "versionPolicyName": "prerelease-monorepo-lockStep"
     },
     {
-      "packageName": "@bentley/telemetry-client",
-      "projectFolder": "clients/telemetry",
+      "packageName": "@itwin/core-telemetry",
+      "projectFolder": "core/telemetry",
       "reviewCategory": "common",
       "shouldPublish": true,
       "versionPolicyName": "prerelease-monorepo-lockStep"
@@ -364,6 +357,13 @@
       "versionPolicyName": "prerelease-monorepo-lockStep"
     },
     {
+      "packageName": "@itwin/workspace-editor",
+      "projectFolder": "utils/workspace-editor",
+      "reviewCategory": "backend",
+      "shouldPublish": true,
+      "versionPolicyName": "prerelease-monorepo-lockStep"
+    },
+    {
       "packageName": "@itwin/ecschema-rpcinterface-common",
       "projectFolder": "core/ecschema-rpc/common",
       "reviewCategory": "common",
@@ -394,13 +394,6 @@
     {
       "packageName": "@itwin/perf-tools",
       "projectFolder": "tools/perf-tools",
-      "reviewCategory": "tools",
-      "shouldPublish": true,
-      "versionPolicyName": "prerelease-monorepo-lockStep"
-    },
-    {
-      "packageName": "@itwin/oidc-signin-tool",
-      "projectFolder": "tools/oidc-signin-tool",
       "reviewCategory": "tools",
       "shouldPublish": true,
       "versionPolicyName": "prerelease-monorepo-lockStep"
@@ -462,8 +455,8 @@
       "shouldPublish": false
     },
     {
-      "packageName": "@itwin/ui-test-extension",
-      "projectFolder": "test-apps/ui-test-extension",
+      "packageName": "@itwin/ui-items-providers-test",
+      "projectFolder": "test-apps/ui-items-providers-test",
       "reviewCategory": "internal",
       "shouldPublish": false
     },

@@ -39,6 +39,7 @@ beta;BaseLayerSettings
 beta;BaseMapLayerProps 
 beta;BaseMapLayerSettings 
 public;BaseReaderOptions
+public;BasicPlanarClipMaskArgs
 public;BatchType
 internal;class BentleyCloudRpcConfiguration 
 internal;BentleyCloudRpcManager 
@@ -119,7 +120,7 @@ public;CommonLoggerCategory
 internal;compareIModelTileTreeIds(lhs: IModelTileTreeId, rhs: IModelTileTreeId): number
 internal;CompositeTileHeader 
 internal;computeChildTileProps(parent: TileMetadata, idProvider: ContentIdProvider, root: TileTreeMetadata):
-internal;computeTileChordTolerance(tile: TileMetadata, is3d: boolean): number
+internal;computeTileChordTolerance(tile: TileMetadata, is3d: boolean, tileScreenSize: number): number
 alpha;ContentFlags
 internal;class ContentIdProvider
 public;ContextRealityModel
@@ -151,7 +152,9 @@ internal;DbResponse
 internal;DbResponseKind
 internal;DbResponseStatus
 beta;DbRuntimeStats
+internal;DbValueFormat
 internal;DecorationGeometryProps
+beta;DefaultSupportedTypes
 internal;defaultTileOptions: TileOptions
 public;DefinitionElementProps 
 public;DeletedElementGeometryChange
@@ -183,6 +186,7 @@ beta;ECSqlReader
 public;ECSqlSystemProperty
 public;ECSqlValueType
 internal;EdgeArgs
+alpha;EdgeType
 internal;EditingScopeNotifications
 public;ElementAlignedBox2d = Range2d
 public;ElementAlignedBox3d = Range3d
@@ -200,6 +204,7 @@ public;ElementGraphicsRequestProps = PersistentGraphicsRequestProps | DynamicGra
 public;ElementIdsAndRangesProps
 public;ElementLoadOptions
 public;ElementLoadProps 
+public;ElementPlanarClipMaskArgs 
 public;ElementProps 
 public;EmphasizeElementsProps
 public;EmptyLocalization 
@@ -209,6 +214,8 @@ beta;EntityMetaData
 beta;EntityMetaDataProps
 public;EntityProps
 public;EntityQueryParams
+public;Environment
+public;EnvironmentProperties = NonFunctionPropertiesOf
 public;EnvironmentProps
 public;ExtantElementGeometryChange
 public;ExternalSourceAspectProps 
@@ -216,7 +223,7 @@ beta;ExternalSourceAttachmentProps
 beta;ExternalSourceAttachmentRole
 beta;ExternalSourceProps 
 public;Feature
-public;FeatureAppearance 
+public;FeatureAppearance
 public;FeatureAppearanceProps
 public;FeatureAppearanceProvider
 public;FeatureAppearanceProvider
@@ -237,6 +244,8 @@ public;FontMapProps
 public;FontProps
 public;FontType
 internal;FormDataCommon
+public;FresnelSettings
+public;FresnelSettingsProps
 public;Frustum
 internal;FrustumPlanes
 internal;FrustumPlanes
@@ -255,6 +264,8 @@ public;GeodeticTransform
 public;GeodeticTransformMethod = "None" | "Geocentric" | "PositionalVector" | "GridFiles" | "MultipleRegression" | "Undefined"
 public;GeodeticTransformProps
 public;GeographicCRS 
+beta;GeographicCRSInterpretRequestProps
+beta;GeographicCRSInterpretResponseProps
 public;GeographicCRSProps
 public;GeometricElement2dProps 
 public;GeometricElement3dProps 
@@ -303,6 +314,7 @@ public;GridFileTransform
 public;GridFileTransformProps
 public;GridOrientationType
 public;GroundPlane
+public;GroundPlaneProperties = NonFunctionPropertiesOf
 public;GroundPlaneProps
 public;Helmert2DWithZOffset 
 public;Helmert2DWithZOffsetProps
@@ -368,6 +380,7 @@ internal;class IpcWebSocket
 internal;IpcWebSocketBackend 
 internal;IpcWebSocketFrontend 
 internal;IpcWebSocketMessage
+internal;IpcWebSocketMessage
 internal;IpcWebSocketMessageType
 internal;class IpcWebSocketTransport
 internal;isKnownTileFormat(format: number): boolean
@@ -415,11 +428,11 @@ public;ModelGeometryChanges
 public;ModelGeometryChangesProps
 public;ModelIdAndGeometryGuid
 public;ModelLoadProps
+public;ModelPlanarClipMaskArgs 
 public;ModelProps 
 public;ModelQueryParams 
 public;ModelSelectorProps 
 public;MonochromeMode
-beta;NativeAppAuthorizationConfiguration
 internal;nativeAppChannel = "nativeApp"
 internal;NativeAppFunctions
 internal;NativeAppNotifications
@@ -454,6 +467,11 @@ public;OpenDbKey
 internal;OPERATION: unique symbol
 alpha;OrbitGtBlobProps
 beta;OverriddenBy
+public;OverrideElementAppearanceOptions 
+public;OverrideFeatureAppearanceArgs = OverrideElementAppearanceOptions | OverrideModelAppearanceOptions | OverrideSubCategoryAppearanceOptions
+public;OverrideFeatureAppearanceOptions
+public;OverrideModelAppearanceOptions 
+public;OverrideSubCategoryAppearanceOptions 
 internal;PackedFeature
 internal;PackedFeatureTable
 internal;parseTileTreeIdAndContentId(treeId: string, contentId: string):
@@ -486,6 +504,7 @@ public;PositionalVectorTransform
 public;PositionalVectorTransformProps
 internal;PrimaryTileTreeId
 beta;PrimitiveTypeCode
+public;PriorityPlanarClipMaskArgs 
 beta;ProfileOptions
 public;Projection 
 public;ProjectionMethod = "None" | "TransverseMercator" | "SouthOrientedTransverseMercator" | "TransverseMercatorWisconsin" | "TransverseMercatorMinnesota" | "TransverseMercatorAffine" | "MercatorStandardParallel" | "Mercator" | "UniversalTransverseMercator" | "LambertConformalConicTwoParallels" | "LambertConformalConicBelgium" | "LambertConformalConicAffine" | "LambertConformalConicWisconsin" | "LambertConformalConicMinnesota" | "LambertConformalConicMichigan" | "LambertConformalConicOneParallel" | "AlbersEqualArea" | "NewZealandNationalGrid" | "ObliqueMercator1" | "ObliqueMercator2" | "TransverseMercatorOSTN97" | "TransverseMercatorOSTN02" | "TransverseMercatorOSTN15" | "Krovak" | "KrovakModified" | "ObliqueCylindricalSwiss" | "TransverseMercatorDenmarkSystem34" | "TransverseMercatorDenmarkSystem3499" | "TransverseMercatorDenmarkSystem3401" | "Cassini" | "Sinusoidal" | "VanDerGrinten" | "Bonne" | "Mollweide" | "EckertIV" | "EckertVI" | "GoodeHomolosine" | "Robinson" | "PlateCarree" | "MillerCylindrical" | "WinkelTripel" | "AzimuthalEqualArea" | "ObliqueStereographic" | "RectifiedSkewOrthomorphicCentered" | "RectifiedSkewOrthomorphicOrigin" | "ObliqueCylindricalHungary" | "Orthographic" | "AmericanPolyconic" | "LambertEquidistantAzimuthal" | "ObliqueMercatorMinnesota"
@@ -512,14 +531,19 @@ beta;QueryPropertyMetaData
 public;QueryQuota
 public;QueryRowFormat
 beta;QueryRowProxy
+beta;QueryStats
 beta;QueryValueType = any
 public;Rank
 internal;ReadableFormData 
 internal;readTileContentDescription(stream: ByteStream, sizeMultiplier: number | undefined, is2d: boolean, options: TileOptions, isVolumeClassifier: boolean): TileContentDescription
-alpha;RealityDataFormat
-alpha;RealityDataProvider
-alpha;RealityDataSourceKey
-alpha;RealityDataSourceProps
+beta;RealityData
+beta;RealityDataAccess
+beta;RealityDataFormat
+beta;RealityDataFormat
+beta;RealityDataProvider
+beta;RealityDataSourceKey
+beta;RealityDataSourceKey
+beta;RealityDataSourceProps
 internal;REGISTRY: unique symbol
 public;RelatedElement 
 public;RelatedElementProps
@@ -615,10 +639,17 @@ beta;SheetBorderTemplateProps
 public;SheetProps 
 beta;SheetTemplateProps 
 internal;SilhouetteEdgeArgs 
-public;SkyBoxImageProps
+public;SkyBox
+public;SkyBoxImageProps = SkySphereImageProps | SkyCubeImageProps |
 public;SkyBoxImageType
 public;SkyBoxProps
+public;SkyCube 
+public;SkyCubeImageProps
 public;SkyCubeProps
+public;SkyGradient
+public;SkyGradientProperties = NonFunctionPropertiesOf
+public;SkySphere 
+public;SkySphereImageProps
 internal;SnapRequestProps
 internal;SnapResponseProps
 internal;class SnapshotIModelRpcInterface 
@@ -642,6 +673,7 @@ beta;StorageValue = string | number | boolean | undefined | Uint8Array
 public;SubCategoryAppearance
 public;SubCategoryAppearance
 public;SubCategoryOverride
+public;SubCategoryPlanarClipMaskArgs 
 public;SubCategoryProps 
 public;SubjectProps 
 beta;SubLayerId = string | number
@@ -656,6 +688,7 @@ public;TextString
 public;TextStringPrimitive
 public;TextStringProps
 public;TextureData
+public;TextureImageSpec = Id64String | string
 public;TextureLoadProps
 public;TextureMapping
 public;TextureMapping

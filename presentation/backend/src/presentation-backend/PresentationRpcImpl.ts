@@ -10,14 +10,14 @@ import { IModelDb } from "@itwin/core-backend";
 import { Id64String, Logger } from "@itwin/core-bentley";
 import { IModelRpcProps } from "@itwin/core-common";
 import {
-  ContentDescriptorRpcRequestOptions, ContentRpcRequestOptions, ContentSourcesRpcRequestOptions, ContentSourcesRpcResult, DescriptorJSON,
-  DiagnosticsOptions, DiagnosticsScopeLogs, DisplayLabelRpcRequestOptions, DisplayLabelsRpcRequestOptions, DisplayValueGroup, DisplayValueGroupJSON,
-  DistinctValuesRpcRequestOptions, ElementProperties, ElementPropertiesRpcRequestOptions, ElementPropertiesRpcResult,
-  FilterByInstancePathsHierarchyRpcRequestOptions, FilterByTextHierarchyRpcRequestOptions, HierarchyRpcRequestOptions, InstanceKey, isSingleElementPropertiesRequestOptions, ItemJSON, KeySet,
-  KeySetJSON, LabelDefinition, LabelDefinitionJSON, MultiElementPropertiesRpcRequestOptions, Node, NodeJSON, NodeKey, NodeKeyJSON, NodePathElement,
-  NodePathElementJSON, Paged, PagedResponse, PageOptions, PresentationError, PresentationRpcInterface, PresentationRpcResponse, PresentationStatus,
-  Ruleset, RulesetVariable, RulesetVariableJSON, SelectClassInfo, SelectionScope, SelectionScopeRpcRequestOptions,
-  SingleElementPropertiesRpcRequestOptions,
+  ContentDescriptorRpcRequestOptions, ContentFlags, ContentInstanceKeysRpcRequestOptions, ContentRpcRequestOptions, ContentSourcesRpcRequestOptions,
+  ContentSourcesRpcResult, DescriptorJSON, DiagnosticsOptions, DiagnosticsScopeLogs, DisplayLabelRpcRequestOptions, DisplayLabelsRpcRequestOptions,
+  DisplayValueGroup, DisplayValueGroupJSON, DistinctValuesRpcRequestOptions, ElementProperties,
+  FilterByInstancePathsHierarchyRpcRequestOptions, FilterByTextHierarchyRpcRequestOptions, HierarchyRpcRequestOptions,
+  InstanceKey, ItemJSON, KeySet, KeySetJSON, LabelDefinition, LabelDefinitionJSON,
+  Node, NodeJSON, NodeKey, NodeKeyJSON, NodePathElement, NodePathElementJSON, Paged, PagedResponse,
+  PageOptions, PresentationError, PresentationRpcInterface, PresentationRpcResponse, PresentationStatus, Ruleset, RulesetVariable,
+  RulesetVariableJSON, SelectClassInfo, SelectionScope, SelectionScopeRpcRequestOptions, SingleElementPropertiesRpcRequestOptions,
 } from "@itwin/presentation-common";
 import { PresentationBackendLoggerCategory } from "./BackendLoggerCategory";
 import { Presentation } from "./Presentation";
@@ -27,6 +27,8 @@ type ContentGetter<TResult = any, TOptions = any> = (requestOptions: TOptions) =
 
 /** @internal */
 export const MAX_ALLOWED_PAGE_SIZE = 1000;
+/** @internal */
+export const MAX_ALLOWED_KEYS_PAGE_SIZE = 10000;
 
 /**
  * The backend implementation of PresentationRpcInterface. All it's basically
@@ -240,13 +242,8 @@ export class PresentationRpcImpl extends PresentationRpcInterface {
     return this.successResponse(content.result ? content.result.contentSet : { total: 0, items: [] });
   }
 
-  public override async getElementProperties(token: IModelRpcProps, requestOptions: SingleElementPropertiesRpcRequestOptions): PresentationRpcResponse<ElementProperties | undefined>;
-  public override async getElementProperties(token: IModelRpcProps, requestOptions: MultiElementPropertiesRpcRequestOptions): PresentationRpcResponse<PagedResponse<ElementProperties>>;
-  public override async getElementProperties(token: IModelRpcProps, requestOptions: ElementPropertiesRpcRequestOptions): PresentationRpcResponse<ElementPropertiesRpcResult> {
+  public override async getElementProperties(token: IModelRpcProps, requestOptions: SingleElementPropertiesRpcRequestOptions): PresentationRpcResponse<ElementProperties | undefined> {
     return this.makeRequest(token, "getElementProperties", { ...requestOptions }, async (options) => {
-      if (!isSingleElementPropertiesRequestOptions(options)) {
-        options = enforceValidPageSize(options);
-      }
       return this.getManager(requestOptions.clientId).getElementProperties(options);
     });
   }
@@ -261,6 +258,33 @@ export class PresentationRpcImpl extends PresentationRpcInterface {
       return {
         ...response,
         items: response.items.map(DisplayValueGroup.toJSON),
+      };
+    });
+  }
+
+  public override async getContentInstanceKeys(token: IModelRpcProps, requestOptions: ContentInstanceKeysRpcRequestOptions): PresentationRpcResponse<{ total: number, items: KeySetJSON }> {
+    return this.makeRequest(token, "getContentInstanceKeys", requestOptions, async (options) => {
+      const { displayType, ...optionsNoDisplayType } = options;
+      options = enforceValidPageSize({
+        ...optionsNoDisplayType,
+        keys: KeySet.fromJSON(optionsNoDisplayType.keys),
+        descriptor: {
+          displayType,
+          contentFlags: ContentFlags.KeysOnly,
+        },
+      }, MAX_ALLOWED_KEYS_PAGE_SIZE);
+
+      const [size, content] = await Promise.all([
+        this.getManager(requestOptions.clientId).getContentSetSize(options),
+        this.getManager(requestOptions.clientId).getContent(options),
+      ]);
+
+      if (size === 0 || !content)
+        return { total: 0, items: new KeySet().toJSON() };
+
+      return {
+        total: size,
+        items: content.contentSet.reduce((keys, item) => keys.add(item.primaryKeys), new KeySet()).toJSON(),
       };
     });
   }
@@ -299,16 +323,16 @@ export class PresentationRpcImpl extends PresentationRpcInterface {
   }
 }
 
-const enforceValidPageSize = <TOptions extends Paged<object>>(requestOptions: TOptions): TOptions & { paging: PageOptions } => {
-  const validPageSize = getValidPageSize(requestOptions.paging?.size);
+const enforceValidPageSize = <TOptions extends Paged<object>>(requestOptions: TOptions, maxPageSize = MAX_ALLOWED_PAGE_SIZE): TOptions & { paging: PageOptions } => {
+  const validPageSize = getValidPageSize(requestOptions.paging?.size, maxPageSize);
   if (!requestOptions.paging || requestOptions.paging.size !== validPageSize)
     return { ...requestOptions, paging: { ...requestOptions.paging, size: validPageSize } };
   return requestOptions as (TOptions & { paging: PageOptions });
 };
 
-const getValidPageSize = (size: number | undefined) => {
+const getValidPageSize = (size: number | undefined, maxPageSize: number) => {
   const requestedSize = size ?? 0;
-  return (requestedSize === 0 || requestedSize > MAX_ALLOWED_PAGE_SIZE) ? MAX_ALLOWED_PAGE_SIZE : requestedSize;
+  return (requestedSize === 0 || requestedSize > maxPageSize) ? maxPageSize : requestedSize;
 };
 
 const nodeKeyFromJson = (json: NodeKeyJSON | undefined): NodeKey | undefined => {

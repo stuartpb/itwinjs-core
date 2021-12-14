@@ -12,6 +12,7 @@ import {
 import { BackstageManager, ToolbarHelper } from "@itwin/appui-react";
 import { FloatingLayoutInfo, LayoutControls, LayoutInfo } from "../appui/widgets/LayoutWidget";
 import { AppTools } from "./ToolSpecifications";
+import { FrontstageUi2 } from "../appui/frontstages/FrontstageUi2";
 
 export class AppUi2StageItemsProvider implements UiItemsProvider {
   public static providerId = "sampleApp:ui2-stage-widget-provider";
@@ -110,7 +111,7 @@ export class AppUi2StageItemsProvider implements UiItemsProvider {
           id: "RightStart2",
           label: "Start2",
           canPopout: true,
-          defaultState: WidgetState.Open,
+          defaultState: WidgetState.Hidden,
           getWidgetContent: () => <h2>Right Start2 widget</h2>,
           isFloatingStateSupported: true,
         }
@@ -248,7 +249,7 @@ export class AppUi2StageItemsProvider implements UiItemsProvider {
   }
 
   public provideWidgets(stageId: string, _stageUsage: string, location: StagePanelLocation, section?: StagePanelSection | undefined): ReadonlyArray<AbstractWidgetProps> {
-    const allowedStages = ["Ui2"];
+    const allowedStages = [FrontstageUi2.stageId];
     if (allowedStages.includes(stageId)) {
       switch (location) {
         case StagePanelLocation.Left:
@@ -266,7 +267,7 @@ export class AppUi2StageItemsProvider implements UiItemsProvider {
   }
 
   public provideToolbarButtonItems(stageId: string, _stageUsage: string, toolbarUsage: ToolbarUsage, toolbarOrientation: ToolbarOrientation): CommonToolbarItem[] {
-    const allowedStages = ["Ui2"];
+    const allowedStages = [FrontstageUi2.stageId];
     if (allowedStages.includes(stageId)) {
       if (toolbarUsage === ToolbarUsage.ContentManipulation && toolbarOrientation === ToolbarOrientation.Horizontal) {
         const items: CommonToolbarItem[] = [];

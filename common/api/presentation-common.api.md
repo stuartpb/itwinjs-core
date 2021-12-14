@@ -274,9 +274,20 @@ export enum ContentFlags {
     ShowLabels = 4
 }
 
+// @alpha
+export interface ContentInstanceKeysRequestOptions<TIModel, TKeySet, TRulesetVariable = RulesetVariable> extends Paged<RequestOptionsWithRuleset<TIModel, TRulesetVariable>> {
+    displayType?: string;
+    keys: TKeySet;
+}
+
+// @alpha
+export type ContentInstanceKeysRpcRequestOptions = PresentationRpcRequestOptions<ContentInstanceKeysRequestOptions<never, KeySetJSON, RulesetVariableJSON>>;
+
 // @public
 export interface ContentInstancesOfSpecificClassesSpecification extends ContentSpecificationBase {
     classes: MultiSchemaClassesSpecification | MultiSchemaClassesSpecification[];
+    excludedClasses?: MultiSchemaClassesSpecification | MultiSchemaClassesSpecification[];
+    // @deprecated
     handleInstancesPolymorphically?: boolean;
     handlePropertiesPolymorphically?: boolean;
     instanceFilter?: string;
@@ -349,6 +360,7 @@ export type ContentSpecification = ContentInstancesOfSpecificClassesSpecificatio
 
 // @public
 export interface ContentSpecificationBase extends ContentModifiersList {
+    onlyIfNotHandled?: boolean;
     priority?: number;
     relatedInstances?: RelatedInstanceSpecification[];
     showImages?: boolean;
@@ -762,12 +774,6 @@ export type ElementPropertiesPropertyValueType = "primitive" | "array" | "struct
 
 // @beta
 export type ElementPropertiesRequestOptions<TIModel> = SingleElementPropertiesRequestOptions<TIModel> | MultiElementPropertiesRequestOptions<TIModel>;
-
-// @beta
-export type ElementPropertiesRpcRequestOptions = PresentationRpcRequestOptions<ElementPropertiesRequestOptions<never>>;
-
-// @beta
-export type ElementPropertiesRpcResult = ElementProperties | PagedResponse<ElementProperties> | undefined;
 
 // @beta
 export interface ElementPropertiesStructArrayPropertyItem extends ElementPropertiesArrayPropertyItemBase {
@@ -1253,8 +1259,10 @@ export enum InstanceLabelOverrideValueSpecificationType {
 
 // @public
 export interface InstanceNodesOfSpecificClassesSpecification extends ChildNodeSpecificationBase, DefaultGroupingPropertiesContainer {
+    // @deprecated
     arePolymorphic?: boolean;
     classes: MultiSchemaClassesSpecification | MultiSchemaClassesSpecification[];
+    excludedClasses?: MultiSchemaClassesSpecification | MultiSchemaClassesSpecification[];
     instanceFilter?: string;
     specType: ChildNodeSpecificationTypes.InstanceNodesOfSpecificClasses;
 }
@@ -1479,15 +1487,13 @@ export type LabelRawValue = string | number | boolean | LabelCompositeValue;
 export type LabelRawValueJSON = string | number | boolean | LabelCompositeValueJSON;
 
 // @beta
-export interface MultiElementPropertiesRequestOptions<TIModel> extends Paged<RequestOptions<TIModel>> {
+export interface MultiElementPropertiesRequestOptions<TIModel> extends RequestOptions<TIModel> {
     elementClasses?: string[];
 }
 
-// @beta
-export type MultiElementPropertiesRpcRequestOptions = PresentationRpcRequestOptions<MultiElementPropertiesRequestOptions<never>>;
-
 // @public
 export interface MultiSchemaClassesSpecification {
+    arePolymorphic?: boolean;
     classNames: string[];
     schemaName: string;
 }
@@ -1878,6 +1884,11 @@ export class PresentationRpcInterface extends RpcInterface {
     computeSelection(_token: IModelRpcProps, _options: SelectionScopeRpcRequestOptions, _ids: Id64String[], _scopeId: string): PresentationRpcResponse<KeySetJSON>;
     // (undocumented)
     getContentDescriptor(_token: IModelRpcProps, _options: ContentDescriptorRpcRequestOptions): PresentationRpcResponse<DescriptorJSON | undefined>;
+    // @alpha (undocumented)
+    getContentInstanceKeys(_token: IModelRpcProps, _options: ContentInstanceKeysRpcRequestOptions): PresentationRpcResponse<{
+        total: number;
+        items: KeySetJSON;
+    }>;
     // (undocumented)
     getContentSetSize(_token: IModelRpcProps, _options: ContentRpcRequestOptions): PresentationRpcResponse<number>;
     // @beta (undocumented)
@@ -1886,8 +1897,6 @@ export class PresentationRpcInterface extends RpcInterface {
     getDisplayLabelDefinition(_token: IModelRpcProps, _options: DisplayLabelRpcRequestOptions): PresentationRpcResponse<LabelDefinitionJSON>;
     // @beta (undocumented)
     getElementProperties(_token: IModelRpcProps, _options: SingleElementPropertiesRpcRequestOptions): PresentationRpcResponse<ElementProperties | undefined>;
-    // @alpha (undocumented)
-    getElementProperties(_token: IModelRpcProps, _options: MultiElementPropertiesRpcRequestOptions): PresentationRpcResponse<PagedResponse<ElementProperties>>;
     // (undocumented)
     getFilteredNodePaths(_token: IModelRpcProps, _options: FilterByTextHierarchyRpcRequestOptions): PresentationRpcResponse<NodePathElementJSON[]>;
     // (undocumented)
@@ -2411,6 +2420,11 @@ export class RpcRequestsHandler implements IDisposable {
     // (undocumented)
     getContentDescriptor(options: ContentDescriptorRequestOptions<IModelRpcProps, KeySetJSON, RulesetVariableJSON>): Promise<DescriptorJSON | undefined>;
     // (undocumented)
+    getContentInstanceKeys(options: ContentInstanceKeysRequestOptions<IModelRpcProps, KeySetJSON, RulesetVariableJSON>): Promise<{
+        total: number;
+        items: KeySetJSON;
+    }>;
+    // (undocumented)
     getContentSetSize(options: ContentRequestOptions<IModelRpcProps, DescriptorOverrides, KeySetJSON, RulesetVariableJSON>): Promise<number>;
     // (undocumented)
     getContentSources(options: ContentSourcesRequestOptions<IModelRpcProps>): Promise<ContentSourcesRpcResult>;
@@ -2418,8 +2432,6 @@ export class RpcRequestsHandler implements IDisposable {
     getDisplayLabelDefinition(options: DisplayLabelRequestOptions<IModelRpcProps, InstanceKeyJSON>): Promise<LabelDefinitionJSON>;
     // (undocumented)
     getElementProperties(options: SingleElementPropertiesRequestOptions<IModelRpcProps>): Promise<ElementProperties | undefined>;
-    // (undocumented)
-    getElementProperties(options: MultiElementPropertiesRequestOptions<IModelRpcProps>): Promise<PagedResponse<ElementProperties>>;
     // (undocumented)
     getFilteredNodePaths(options: FilterByTextHierarchyRequestOptions<IModelRpcProps, RulesetVariableJSON>): Promise<NodePathElementJSON[]>;
     // (undocumented)
@@ -2610,7 +2622,6 @@ export interface SelectedNodeInstancesSpecification extends ContentSpecification
     acceptableClassNames?: string[];
     acceptablePolymorphically?: boolean;
     acceptableSchemaName?: string;
-    onlyIfNotHandled?: boolean;
     specType: ContentSpecificationTypes.SelectedNodeInstances;
 }
 

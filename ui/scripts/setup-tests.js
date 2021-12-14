@@ -10,6 +10,7 @@ const path = require("path");
 require('jsdom-global')();
 window.Date = Date;
 document.elementFromPoint = () => null;
+window.HTMLElement.prototype.scrollIntoView = () => { };
 
 // Fill in more missing functions left out by jsdom or mocha
 performance = window.performance;
@@ -78,7 +79,6 @@ enzyme.configure({
 });
 chaiJestSnapshot.addSerializer(require("enzyme-to-json/serializer"));
 
-
 // setup chai
 chai.should();
 chai.use(chaiAsPromised);
@@ -112,7 +112,7 @@ beforeEach(function () {
   }
 
   // set up snapshot name
-  const sourceFilePath = currentTest.file.replace(path.join("lib", "test"), path.join("src", "test")).replace(/\.(jsx?|tsx?)$/, "");
+  const sourceFilePath = currentTest.file.replace(path.join("lib", "cjs", "test"), path.join("src", "test")).replace(/\.(jsx?|tsx?)$/, "");
   const snapPath = sourceFilePath + ".snap";
   chaiJestSnapshot.setFilename(snapPath);
   chaiJestSnapshot.setTestName(currentTest.fullTitle());

@@ -18,7 +18,7 @@ export function areEqualPossiblyUndefined<T, U>(t: T | undefined, u: U | undefin
 export function asInstanceOf<T>(obj: any, constructor: Constructor<T>): T | undefined;
 
 // @public
-export function assert(condition: boolean, msg?: string): asserts condition;
+export function assert(condition: boolean | (() => boolean), message?: string | (() => string)): asserts condition;
 
 // @public
 export type AsyncFunction = (...args: any) => Promise<any>;
@@ -173,6 +173,7 @@ export class ByteStream {
     get nextId64(): Id64String;
     get nextInt32(): number;
     get nextUint16(): number;
+    get nextUint24(): number;
     get nextUint32(): number;
     nextUint32s(numUint32s: number): Uint32Array;
     get nextUint8(): number;
@@ -686,8 +687,6 @@ export enum IModelHubStatus {
     // (undocumented)
     FailedToGetITwinPermissions = 102436,
     // (undocumented)
-    FailedToGetProductSettings = 102448,
-    // (undocumented)
     FileAlreadyExists = 102426,
     // (undocumented)
     FileDoesNotExist = 102425,
@@ -949,6 +948,144 @@ export function isIDisposable(obj: unknown): obj is IDisposable;
 // @public
 export function isInstanceOf<T>(obj: any, constructor: Constructor<T>): boolean;
 
+// @public (undocumented)
+export interface JSONSchema {
+    // (undocumented)
+    $comment?: string;
+    // (undocumented)
+    $id?: string;
+    // (undocumented)
+    $ref?: string;
+    // (undocumented)
+    $schema?: string;
+    // (undocumented)
+    additionalItems?: boolean | JSONSchema;
+    // (undocumented)
+    additionalProperties?: boolean | JSONSchema;
+    // (undocumented)
+    allOf?: JSONSchema[];
+    // (undocumented)
+    allowComments?: boolean;
+    // (undocumented)
+    allowTrailingCommas?: boolean;
+    // (undocumented)
+    anyOf?: JSONSchema[];
+    // (undocumented)
+    const?: any;
+    // (undocumented)
+    contains?: JSONSchema;
+    // (undocumented)
+    default?: JSONSchemaType;
+    // (undocumented)
+    defaultSnippets?: JSONSchemaSnippet[];
+    // (undocumented)
+    definitions?: JSONSchemaMap;
+    // (undocumented)
+    dependencies?: JSONSchemaMap | {
+        [prop: string]: string[];
+    };
+    // (undocumented)
+    deprecationMessage?: string;
+    // (undocumented)
+    description?: string;
+    // (undocumented)
+    doNotSuggest?: boolean;
+    // (undocumented)
+    else?: JSONSchema;
+    // (undocumented)
+    enum?: JSONSchemaType[];
+    // (undocumented)
+    enumDescriptions?: string[];
+    // (undocumented)
+    errorMessage?: string;
+    // (undocumented)
+    exclusiveMaximum?: boolean | number;
+    // (undocumented)
+    exclusiveMinimum?: boolean | number;
+    // (undocumented)
+    format?: string;
+    // (undocumented)
+    id?: string;
+    // (undocumented)
+    if?: JSONSchema;
+    // (undocumented)
+    items?: JSONSchema | JSONSchema[];
+    // (undocumented)
+    markdownDeprecationMessage?: string;
+    // (undocumented)
+    markdownDescription?: string;
+    // (undocumented)
+    markdownEnumDescriptions?: string[];
+    // (undocumented)
+    maximum?: number;
+    // (undocumented)
+    maxItems?: number;
+    // (undocumented)
+    maxLength?: number;
+    // (undocumented)
+    maxProperties?: number;
+    // (undocumented)
+    minimum?: number;
+    // (undocumented)
+    minItems?: number;
+    // (undocumented)
+    minLength?: number;
+    // (undocumented)
+    minProperties?: number;
+    // (undocumented)
+    multipleOf?: number;
+    // (undocumented)
+    not?: JSONSchema;
+    // (undocumented)
+    oneOf?: JSONSchema[];
+    // (undocumented)
+    pattern?: string;
+    // (undocumented)
+    patternErrorMessage?: string;
+    // (undocumented)
+    patternProperties?: JSONSchemaMap;
+    // (undocumented)
+    properties?: JSONSchemaMap;
+    // (undocumented)
+    propertyNames?: JSONSchema;
+    // (undocumented)
+    required?: string[];
+    // (undocumented)
+    suggestSortText?: string;
+    // (undocumented)
+    then?: JSONSchema;
+    // (undocumented)
+    title?: string;
+    // (undocumented)
+    type?: JSONSchemaTypeName | JSONSchemaTypeName[];
+    // (undocumented)
+    uniqueItems?: boolean;
+}
+
+// @public (undocumented)
+export interface JSONSchemaMap {
+    // (undocumented)
+    [name: string]: JSONSchema;
+}
+
+// @public (undocumented)
+export interface JSONSchemaSnippet {
+    // (undocumented)
+    body?: any;
+    // (undocumented)
+    bodyText?: string;
+    // (undocumented)
+    description?: string;
+    // (undocumented)
+    label?: string;
+}
+
+// @public (undocumented)
+export type JSONSchemaType = string | number | boolean | object | JSONSchemaType[];
+
+// @public (undocumented)
+export type JSONSchemaTypeName = "string" | "number" | "integer" | "boolean" | "null" | "array" | "object";
+
 // @public
 export namespace JsonUtils {
     export function asArray(json: any): any;
@@ -975,6 +1112,7 @@ export type LogFunction = (category: string, message: string, metaData: LoggingM
 export class Logger {
     static configureLevels(cfg: LoggerLevelsConfig): void;
     static getLevel(category: string): LogLevel | undefined;
+    static getMetaData(metaData?: LoggingMetaData): object;
     static initialize(logError?: LogFunction, logWarning?: LogFunction, logInfo?: LogFunction, logTrace?: LogFunction): void;
     static initializeToConsole(): void;
     static isEnabled(category: string, level: LogLevel): boolean;
@@ -1132,6 +1270,9 @@ export enum OpenMode {
     // (undocumented)
     ReadWrite = 2
 }
+
+// @public
+export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
 // @public
 export type OrderedComparator<T, U = T> = (lhs: T, rhs: U) => number;

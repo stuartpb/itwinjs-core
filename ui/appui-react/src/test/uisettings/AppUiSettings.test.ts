@@ -5,7 +5,7 @@
 import { expect } from "chai";
 import { storageMock, TestUtils } from "../TestUtils";
 import { UiFramework } from "../../appui-react/UiFramework";
-import { AppUiSettings } from "../../appui-react/uisettings/AppUiSettings";
+import { AppUiSettings, InitialAppUiSettings } from "../../appui-react/uistate/AppUiSettings";
 import { SYSTEM_PREFERRED_COLOR_THEME } from "../../appui-react/theme/ThemeManager";
 
 describe("AppUiSettings", () => {
@@ -28,7 +28,7 @@ describe("AppUiSettings", () => {
 
   it("should get/set settings", async () => {
     const uiSetting = new AppUiSettings({});
-    await uiSetting.loadUserSettings(UiFramework.getUiSettingsStorage());
+    await uiSetting.loadUserSettings(UiFramework.getUiStateStorage());
     const uiVersion = "2";
     const opacity = 0.5;
     const colorTheme = "dark";
@@ -47,7 +47,7 @@ describe("AppUiSettings", () => {
   });
 
   it("should used default settings", async () => {
-    const defaults = {
+    const defaults: InitialAppUiSettings = {
       colorTheme: SYSTEM_PREFERRED_COLOR_THEME,
       dragInteraction: false,
       frameworkVersion: "2",
@@ -55,7 +55,7 @@ describe("AppUiSettings", () => {
     };
 
     const uiSetting = new AppUiSettings(defaults);
-    await uiSetting.loadUserSettings(UiFramework.getUiSettingsStorage());
+    await uiSetting.loadUserSettings(UiFramework.getUiStateStorage());
     await TestUtils.flushAsyncOperations();
     expect(UiFramework.uiVersion).to.eql(defaults.frameworkVersion);
     expect(UiFramework.getWidgetOpacity()).to.eql(defaults.widgetOpacity);
