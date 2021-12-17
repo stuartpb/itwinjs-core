@@ -13,6 +13,7 @@ export class EarthCamDebugPanel extends ToolBarDropDown {
   private readonly _element: HTMLElement;
   private readonly _slider: Slider;
   private _index: number = 0;
+  private _clearBuffer = true;
   public intervalID: number = 0;
 
   public get decorator() { return ImageDecorator.getOrCreate(this._vp); }
@@ -50,13 +51,31 @@ export class EarthCamDebugPanel extends ToolBarDropDown {
       value: "Use Low Quality",
       handler: (btn) => {
         if (btn.value === "Use Low Quality") {
+          this.decorator.dispose();
           this.decorator.imageQuality = "medium";
           this._vp.invalidateDecorations();
           btn.value = "Use High Quality";
         } else {
+          this.decorator.dispose();
           this.decorator.imageQuality = undefined;
           this._vp.invalidateDecorations();
           btn.value = "Use Low Quality";
+        }
+      },
+      // inline?: boolean;
+      // tooltip?: string;
+    });
+    createButton({
+      id: "earthcam-buffer-btn",
+      parent: this._element,
+      value: "Use Buffer",
+      handler: (btn) => {
+        if (btn.value === "Use Buffer") {
+          this._clearBuffer = false;
+          btn.value = "Clear Buffer";
+        } else {
+          this._clearBuffer = true;
+          btn.value = "Use Buffer";
         }
       },
       // inline?: boolean;
@@ -108,7 +127,7 @@ export class EarthCamDebugPanel extends ToolBarDropDown {
     this._slider.slider.value = this._index.toString();
     const newData = EarthCamClient.imageProps[i];
     const props = convertImageDataToProps(newData);
-    this.decorator.setImage(props).then((didDisplay: boolean) => {
+    this.decorator.setImage(props, this._clearBuffer).then((didDisplay: boolean) => {
       if (!didDisplay) console.error("Failed to create texture from image props.");
     }).catch((err) => {
       console.error("Error During 'SetImage': ", err);
@@ -137,6 +156,7 @@ export class EarthCamDebugPanel extends ToolBarDropDown {
 
   public stopTimeline() {
     clearInterval(this.intervalID);
+    this.intervalID = 0;
   }
 }
 

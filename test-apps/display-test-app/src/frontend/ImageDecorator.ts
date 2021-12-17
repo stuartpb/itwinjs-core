@@ -101,6 +101,33 @@ class EarthCamImage {
   // }
 }
 
+/** Is a map of images using url as keys. Will also handle the textures insuring that no memory is leaked. */
+class EarthCamImageBuffer extends Map<string, EarthCamImage> {
+  /** Returns existing image or will create one if necessary. */
+  public getOrCreate(props: ImageProps): EarthCamImage {
+    let image = this.get(props.url);
+    if (image === undefined) {
+      image = new EarthCamImage(props);
+      this.set(props.url, image);
+    }
+    return image;
+  }
+  /** Disposed of the texture. */
+  public dispose() {
+    this.forEach((image) => image.disposeTexture());
+  }
+  /** Deletes all images and disposes of their textures. */
+  public override clear() {
+    this.dispose();
+    super.clear();
+  }
+  /** Deletes the image and disposes it's texture. */
+  public override delete(key: string): boolean {
+    this.get(key)?.disposeTexture();
+    return super.delete(key);
+  }
+}
+
 /** Fetches camera image from EarthCam API */
 const fetchCameraImage = async (url: string): Promise<HTMLImageElement> => {
   const img = new Image();
@@ -156,6 +183,7 @@ const gcdTwoNumbers = (x: number, y: number): number => {
 export class ImageDecorator implements Decorator {
   private static _imageDecorator?: ImageDecorator;
   private static _clipVolume?: RenderClipVolume;
+  private _imageBuffer = new EarthCamImageBuffer();
   private _image?: EarthCamImage;
   private _removeOnDispose?: () => void;
   private _removeOnClose?: () => void;
@@ -216,12 +244,25 @@ export class ImageDecorator implements Decorator {
     if (disposeOld) this.disposeTexture();
     // get the new image
     const props = this.argToProps(arg);
-    this._image = new EarthCamImage(props);
+    this._image = this._imageBuffer.getOrCreate(props);
     return this._image.populateTexture();
+  }
+
+  /** Buffers all images passed in.  Will return an array of indexes of any images that failed to buffer. */
+  public async bufferImages(images: ImageProps[]): Promise<number[]> {
+    const status = images
+      .map((arg) => this.argToProps(arg)) // convert data to props for storage
+      .map(async (image) => this._imageBuffer.getOrCreate(image).populateTexture());
+    const failedImages = (await Promise.allSettled(status))   // wait for all request to complete
+      .map((isSuccess, index) => isSuccess ? -1 : index)      // map to indexes of failed images
+      .filter((index) => index >= 0);                         // filter indexes of successful images
+    return failedImages;
   }
 
   /** Drop decorator and attempt to dispose of resources. */
   public dispose() {
+    this._imageBuffer.clear();
+
     const tryDisposeListener = (func?: () => void) => {
       if (func !== undefined) func();
       func = undefined;
