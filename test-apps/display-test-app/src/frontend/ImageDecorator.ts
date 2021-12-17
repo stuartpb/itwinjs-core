@@ -20,6 +20,30 @@ export enum PanoramaType {
   Cylinder,
 }
 
+export interface ImageData {
+  /** Date that a image was taken. */
+  date: string;
+  /** Time of the day that a image was taken. */
+  time: string;
+  /** Numeric time that the image was taken. */
+  unixTime: number;
+  /** Token to retrieve image from repository. */
+  token: string;
+  /** URL to image's repository. */
+  image: string;
+  /** Width in pixels of image. */
+  width: number;
+  /** Height in pixels of image. */
+  height: number;
+}
+
+export type ImageArg = ImageProps | ImageData;
+
+/** Coverts an ImageData Interface to ImageProps for preparing to render an Image. */
+export const convertImageDataToProps = (data: ImageData): ImageProps => {
+  return ({ url: data.image, size: { x: data.width, y: data.height } });
+};
+
 /** Defines an image being to be rendered in the viewport */
 export interface ImageProps {
   /** Path to where the image for the texture can be found. */
@@ -35,6 +59,8 @@ export interface ImageProps {
   panoramaArc?: Angle;
 }
 
+type ECImageQuality = "medium";
+
 /** A cached image that is being/has been loaded into the app */
 class EarthCamImage {
   public readonly url: string;
@@ -43,6 +69,7 @@ class EarthCamImage {
   public readonly arc?: Angle;
   public texture?: RenderTexture;
   public localPath?: string;
+  private _imgQuality?: ECImageQuality;
 
   constructor(props: ImageProps) {
     this.url = props.url;
@@ -53,10 +80,13 @@ class EarthCamImage {
   }
 
   /** Fetches the image from the URL and will create a texture for it. */
-  public async populateTexture(): Promise<boolean> {
-    if (this.texture !== undefined) return true; // texture is already allocated.
-    console.debug("fetching texture");
-    this.texture = await allocateTextureFromUrl(this.url, this.localPath);
+  public async populateTexture(imageQuality?: ECImageQuality): Promise<boolean> {
+    if (this.texture !== undefined && this._imgQuality === imageQuality) return true; // texture is already allocated.
+    // added quality parameter if specified
+    this.disposeTexture();  // make sure to clean up any textures at a different resolution.
+    const url = !imageQuality ? this.url : this.url.concat(`?Size:${imageQuality}`);
+    this._imgQuality = imageQuality;
+    this.texture = await allocateTextureFromUrl(url, this.localPath);
     return this.texture !== undefined;
   }
 
@@ -137,6 +167,7 @@ export class ImageDecorator implements Decorator {
   public static scaling: number = 100;
   public static origin: Point3d = new Point3d();
   public static panoramicRotationAngle: Angle = Angle.create360();
+  public imageQuality?: ECImageQuality;
   public transform: Transform = Transform.createIdentity();
 
   /** Returns a list of FireEmitter decorators that have been added using the ViewManager API. */
@@ -215,12 +246,14 @@ export class ImageDecorator implements Decorator {
 
   /** Called by the render loop and adds the fire particles graphics to the context. */
   public decorate(context: DecorateContext): void {
-    if (!this._image?.texture || !ImageDecorator._clipVolume)
+    // if (!this._image?.texture || !ImageDecorator._clipVolume)
+    if (!this._image?.texture)
       return;
     const imageSize = this._image.size;
     const texture = this._image.texture;
     const scaling = ImageDecorator.scaling;
-    const gdc = gcdTwoNumbers(imageSize.x, imageSize.y);
+    // const gdc = gcdTwoNumbers(imageSize.x, imageSize.y);
+    const gdc = imageSize.x;
     // we reduce the size as much as possible using greatest common denominators to have better control of the size and maintain aspect ratio.
     const size = { x: imageSize.x * scaling / gdc, y: imageSize.y * scaling / gdc };
 
