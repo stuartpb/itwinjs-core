@@ -459,6 +459,9 @@
     },
     "ChangeBackgroundColor": {
       "keyin": "fdt bgcolor"
+    },
+    "AddGltfDecoration": {
+      "keyin": "fdt gltf"
     }
   }
 }

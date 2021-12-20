@@ -5,21 +5,25 @@
 
 import { Transform } from "@itwin/core-geometry";
 import {
-  DecorateContext, GraphicBranch, GraphicType, IModelApp, readGltfGraphics, RenderGraphic, Tool,
+  BeButton, BeButtonEvent, DecorateContext, Decorator, EventHandled, GraphicBranch, GraphicType, HitDetail, IModelApp, readGltfGraphics, RenderGraphicOwner, Tool,
 } from "@itwin/core-frontend";
 
-class GltfDecoration {
-  private readonly _graphic: RenderGraphic;
+export class GltfDecoration implements Decorator {
+  public readonly useCachedDecorations = true;
+  private readonly _graphic: RenderGraphicOwner;
   private readonly _tooltip: string;
   private readonly _pickableId?: string;
 
-  public constructor(graphic: RenderGraphic, tooltip: string, pickableId?: string) {
+  public constructor(graphic: RenderGraphicOwner, tooltip: string, pickableId?: string) {
     this._graphic = graphic;
     this._tooltip = tooltip;
     this._pickableId = pickableId;
   }
 
-  public readonly useCachedDecorations = true;
+  public dispose(): void {
+    this._graphic.disposeGraphic();
+    IModelApp.viewManager.dropDecorator(this);
+  }
 
   public decorate(context: DecorateContext): void {
     if (context.viewport.view.isSpatialView())
@@ -33,34 +37,34 @@ class GltfDecoration {
   public async getDecorationToolTip() {
     return this._tooltip;
   }
+
+  public async onDecorationButtonEvent(_hit: HitDetail, ev: BeButtonEvent): Promise<EventHandled> {
+    if (BeButton.Data !== ev.button || !ev.isDoubleClick)
+      return EventHandled.No;
+
+    this.dispose();
+    return EventHandled.Yes;
+  }
 }
 
-/** Opens a file picker from which the user can select a glTF or glb file. Creates a decoration graphic from the glTF and
- * installs a decorator to display it at the center of the active viewport's iModel's project extents.
- */
 export class GltfDecorationTool extends Tool {
   public static override toolId = "AddGltfDecoration";
-  public static override get minArgs() { return 0; }
-  public static override get maxArgs() { return 0; }
+  public static override get minArgs() { return 1; }
+  public static override get maxArgs() { return 1; }
 
-  public override async run() {
+  public override async run(url?: string) {
     const iModel = IModelApp.viewManager.selectedView?.iModel;
-    if (!iModel)
+    if (!iModel || "string" !== typeof url)
       return false;
 
     // Allow the user to select a glTF file.
     try {
-      const [handle] = await (window as any).showOpenFilePicker({
-        types: [
-          {
-            description: "glTF",
-            accept: { "model/*": [".gltf", ".glb"] },
-          },
-        ],
-      });
+      const response = await fetch(new Request(url));
+      if (!response.ok)
+        return false;
 
-      const file = await handle.getFile();
-      const buffer = await file.arrayBuffer() as ArrayBuffer;
+      const blob = await response.blob();
+      const buffer = await blob.arrayBuffer();
 
       // Convert the glTF into a RenderGraphic.
       const id = iModel.transientIds.next;
@@ -87,18 +91,19 @@ export class GltfDecorationTool extends Tool {
       const graphicOwner = IModelApp.renderSystem.createGraphicOwner(graphic);
 
       // Install the decorator.
-      const decorator = new GltfDecoration(graphicOwner, file.name, id);
+      const decorator = new GltfDecoration(graphicOwner, url, id);
       IModelApp.viewManager.addDecorator(decorator);
 
       // Once the iModel is closed, dispose of the graphic and uninstall the decorator.
-      iModel.onClose.addOnce(() => {
-        graphicOwner.disposeGraphic();
-        IModelApp.viewManager.dropDecorator(decorator);
-      });
+      iModel.onClose.addOnce(() => decorator.dispose());
 
       return true;
     } catch (_) {
       return false;
     }
+  }
+
+  public override parseAndRun(...args: string[]): Promise<boolean> {
+    return this.run(args[0]);
   }
 }
