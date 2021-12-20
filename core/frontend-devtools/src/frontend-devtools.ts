@@ -22,6 +22,7 @@ export * from "./tools/ClipTools";
 export * from "./tools/DisplayStyleTools";
 export * from "./tools/EmphasizeElementsTool";
 export * from "./tools/FrustumDecoration";
+export * from "./tools/GltfDecoration";
 export * from "./tools/InspectElementTool";
 export * from "./tools/MapLayerTool";
 export * from "./tools/MeasureTileLoadTime";

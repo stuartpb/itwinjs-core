@@ -8,7 +8,7 @@ import { createButton, createTextBox, deserializeViewState, serializeViewState }
 import { IModelConnection, Viewport, ViewState } from "@itwin/core-frontend";
 import { DtaRpcInterface } from "../common/DtaRpcInterface";
 import { Provider } from "./FeatureOverrides";
-import { NamedViewStatePropsString, NamedVSPSList } from "./NamedViews";
+import { NamedView, NamedViewList } from "./NamedViews";
 import { ToolBarDropDown } from "./ToolBar";
 
 export interface ApplySavedView {
@@ -19,13 +19,13 @@ export class SavedViewPicker extends ToolBarDropDown {
   private readonly _vp: Viewport;
   private readonly _element: HTMLElement;
   private _imodel: IModelConnection;
-  private readonly _views = NamedVSPSList.create();
-  private _selectedView?: NamedViewStatePropsString;
+  private readonly _views = NamedViewList.create();
+  private _selectedView?: NamedView;
   private readonly _viewer: ApplySavedView;
   private _onSelectedViewChanged?: () => void;
   private _newViewName = "";
 
-  public set selectedView(view: NamedViewStatePropsString | undefined) {
+  public set selectedView(view: NamedView | undefined) {
     this._selectedView = view;
     if (undefined !== this._onSelectedViewChanged)
       this._onSelectedViewChanged();
@@ -113,7 +113,7 @@ export class SavedViewPicker extends ToolBarDropDown {
 
     for (const view of this._views) {
       const option = document.createElement("option");
-      option.value = option.innerHTML = view.name;
+      option.value = option.innerHTML = view._name;
       option.addEventListener("dblclick", async () => this.recallView());
       viewsList.appendChild(option);
     }
@@ -180,12 +180,12 @@ export class SavedViewPicker extends ToolBarDropDown {
     if (undefined === this._selectedView)
       return;
 
-    const vsp = JSON.parse(this._selectedView.viewStatePropsString);
+    const vsp = JSON.parse(this._selectedView._viewStatePropsString);
     const viewState = await deserializeViewState(vsp, this._vp.iModel);
-    viewState.code.value = this._selectedView.name;
+    viewState.code.value = this._selectedView._name;
     await this._viewer.applySavedView(viewState);
 
-    const overrideElementsString = this._selectedView.overrideElements;
+    const overrideElementsString = this._selectedView._overrideElements;
     if (undefined !== overrideElementsString) {
       const overrideElements = JSON.parse(overrideElementsString) as any[];
       const provider = Provider.getOrCreate(this._vp);
@@ -194,7 +194,7 @@ export class SavedViewPicker extends ToolBarDropDown {
       }
     }
 
-    const selectedElementsString = this._selectedView.selectedElements;
+    const selectedElementsString = this._selectedView._selectedElements;
     if (undefined !== selectedElementsString) {
       const selectedElements = JSON.parse(selectedElementsString) as Id64Arg;
       this._imodel.selectionSet.emptyAll();
@@ -205,7 +205,7 @@ export class SavedViewPicker extends ToolBarDropDown {
 
   private async deleteView(): Promise<void> {
     if (undefined !== this._selectedView)
-      return this.deleteViewByName(this._selectedView.name);
+      return this.deleteViewByName(this._selectedView._name);
   }
 
   private async deleteViewByName(name: string): Promise<void> {
@@ -231,21 +231,29 @@ export class SavedViewPicker extends ToolBarDropDown {
       this._imodel.selectionSet.elements.forEach((id) => { seList.push(id); });
       selectedElementsString = JSON.stringify(seList);
     }
+
     let overrideElementsString;
     const provider = Provider.getOrCreate(this._vp);
     if (undefined !== provider) {
       const overrideElements = provider.toJSON();
       overrideElementsString = JSON.stringify(overrideElements);
     }
-    const nvsp = new NamedViewStatePropsString(newName, json, selectedElementsString, overrideElementsString);
-    this._views.insert(nvsp);
+
+    this._views.insert({
+      _name: newName,
+      _viewStatePropsString: json,
+      _selectedElements: selectedElementsString,
+      _overrideElements: overrideElementsString,
+      // ###TODO gltfDecoration
+    });
+
     this.populateFromViewList();
 
     await this.saveNamedViews();
   }
 
   private async updateView(): Promise<void> {
-    const name = this._selectedView?.name;
+    const name = this._selectedView?._name;
     if (name) {
       await this.deleteViewByName(name);
       await this.saveViewWithName(name);
@@ -261,7 +269,7 @@ export class SavedViewPicker extends ToolBarDropDown {
     await DtaRpcInterface.getClient().writeExternalSavedViews(filename, namedViews);
   }
 
-  private findView(name: string): NamedViewStatePropsString | undefined {
+  private findView(name: string): NamedView | undefined {
     const index = this._views.findName(name);
     return -1 !== index ? this._views.get(index)! : undefined;
   }
