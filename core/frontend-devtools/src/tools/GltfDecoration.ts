@@ -3,21 +3,28 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 
-import { Transform } from "@itwin/core-geometry";
+import { Id64String } from "@itwin/core-bentley";
+import { Transform, TransformProps } from "@itwin/core-geometry";
 import {
   BeButton, BeButtonEvent, DecorateContext, Decorator, EventHandled, GraphicBranch, GraphicType, HitDetail, IModelApp,
-  readGltfGraphics, RenderGraphic, RenderGraphicOwner, Tool,
+  IModelConnection, readGltfGraphics, RenderGraphic, RenderGraphicOwner, Tool,
 } from "@itwin/core-frontend";
+
+export interface GltfDecorationProps {
+  url: string;
+  transform?: TransformProps;
+  pickableId?: Id64String;
+}
 
 export class GltfDecoration implements Decorator {
   public readonly useCachedDecorations = true;
   public readonly transform?: Transform;
-  public readonly tooltip: string;
+  public readonly url: string;
   public readonly pickableId?: string;
   protected readonly _graphic: RenderGraphicOwner;
 
-  public constructor(graphic: RenderGraphic, tooltip: string, pickableId?: string, transform?: Transform) {
-    this.tooltip = tooltip;
+  public constructor(graphic: RenderGraphic, url: string, pickableId?: string, transform?: Transform) {
+    this.url = url;
     this.pickableId = pickableId;
     this.transform = transform;
 
@@ -47,7 +54,7 @@ export class GltfDecoration implements Decorator {
   }
 
   public async getDecorationToolTip() {
-    return this.tooltip;
+    return this.url;
   }
 
   public async onDecorationButtonEvent(_hit: HitDetail, ev: BeButtonEvent): Promise<EventHandled> {
@@ -56,6 +63,48 @@ export class GltfDecoration implements Decorator {
 
     this.dispose();
     return EventHandled.Yes;
+  }
+
+  public static async fromJSON(props: GltfDecorationProps, iModel: IModelConnection): Promise<GltfDecoration | undefined> {
+    try {
+      const response = await fetch(new Request(props.url));
+      if (!response.ok)
+        return undefined;
+
+      const blob = await response.blob();
+      const buffer = await blob.arrayBuffer();
+
+      // Convert the glTF into a RenderGraphic.
+      const pickableOptions = undefined !== props.pickableId ? { id: props.pickableId, modelId: iModel.transientIds.next } : undefined;
+      let graphic = await readGltfGraphics({
+        gltf: new Uint8Array(buffer),
+        iModel,
+        pickableOptions,
+      });
+
+      if (!graphic)
+        return undefined;
+
+      // Install the decorator.
+      const transform = props.transform ? Transform.fromJSON(props.transform) : undefined;
+      const decorator = new GltfDecoration(graphic, props.url, props.pickableId, transform);
+      IModelApp.viewManager.addDecorator(decorator);
+
+      // Once the iModel is closed, dispose of the graphic and uninstall the decorator.
+      iModel.onClose.addOnce(() => decorator.dispose());
+
+      return decorator;
+    } catch (_) {
+      return undefined;
+    }
+  }
+
+  public toJSON(): GltfDecorationProps {
+    return {
+      url: this.url,
+      pickableId: this.pickableId,
+      transform: this.transform?.toJSON(),
+    };
   }
 }
 
@@ -69,44 +118,11 @@ export class GltfDecorationTool extends Tool {
     if (!iModel || "string" !== typeof url)
       return false;
 
-    // Allow the user to select a glTF file.
-    try {
-      const response = await fetch(new Request(url));
-      if (!response.ok)
-        return false;
-
-      const blob = await response.blob();
-      const buffer = await blob.arrayBuffer();
-
-      // Convert the glTF into a RenderGraphic.
-      const id = iModel.transientIds.next;
-      let graphic = await readGltfGraphics({
-        gltf: new Uint8Array(buffer),
-        iModel,
-        pickableOptions: {
-          id,
-          // The modelId must be different from the pickable Id for the decoration to be selectable and hilite-able.
-          modelId: iModel.transientIds.next,
-        },
-      });
-
-      if (!graphic)
-        return false;
-
-      // Transform the graphic to the center of the project extents.
-      const transform = Transform.createTranslation(iModel.projectExtents.center);
-
-      // Install the decorator.
-      const decorator = new GltfDecoration(graphic, url, id, transform);
-      IModelApp.viewManager.addDecorator(decorator);
-
-      // Once the iModel is closed, dispose of the graphic and uninstall the decorator.
-      iModel.onClose.addOnce(() => decorator.dispose());
-
-      return true;
-    } catch (_) {
-      return false;
-    }
+    return undefined !== await GltfDecoration.fromJSON({
+      url,
+      pickableId: iModel.transientIds.next,
+      transform: Transform.createTranslation(iModel.projectExtents.center).toJSON(),
+    }, iModel);
   }
 
   public override parseAndRun(...args: string[]): Promise<boolean> {
