@@ -5,19 +5,31 @@
 
 import { Transform } from "@itwin/core-geometry";
 import {
-  BeButton, BeButtonEvent, DecorateContext, Decorator, EventHandled, GraphicBranch, GraphicType, HitDetail, IModelApp, readGltfGraphics, RenderGraphicOwner, Tool,
+  BeButton, BeButtonEvent, DecorateContext, Decorator, EventHandled, GraphicBranch, GraphicType, HitDetail, IModelApp,
+  readGltfGraphics, RenderGraphic, RenderGraphicOwner, Tool,
 } from "@itwin/core-frontend";
 
 export class GltfDecoration implements Decorator {
   public readonly useCachedDecorations = true;
-  private readonly _graphic: RenderGraphicOwner;
-  private readonly _tooltip: string;
-  private readonly _pickableId?: string;
+  public readonly transform?: Transform;
+  public readonly tooltip: string;
+  public readonly pickableId?: string;
+  protected readonly _graphic: RenderGraphicOwner;
 
-  public constructor(graphic: RenderGraphicOwner, tooltip: string, pickableId?: string) {
-    this._graphic = graphic;
-    this._tooltip = tooltip;
-    this._pickableId = pickableId;
+  public constructor(graphic: RenderGraphic, tooltip: string, pickableId?: string, transform?: Transform) {
+    this.tooltip = tooltip;
+    this.pickableId = pickableId;
+    this.transform = transform;
+
+    if (transform) {
+      // Transform the graphic to the center of the project extents.
+      const branch = new GraphicBranch();
+      branch.add(graphic);
+      graphic = IModelApp.renderSystem.createGraphicBranch(branch, transform);
+    }
+
+    // Take ownership of the graphic so it is not disposed of until we're finished with it.
+    this._graphic = IModelApp.renderSystem.createGraphicOwner(graphic);
   }
 
   public dispose(): void {
@@ -31,11 +43,11 @@ export class GltfDecoration implements Decorator {
   }
 
   public testDecorationHit(id: string): boolean {
-    return undefined !== this._pickableId && id === this._pickableId;
+    return id === this.pickableId;
   }
 
   public async getDecorationToolTip() {
-    return this._tooltip;
+    return this.tooltip;
   }
 
   public async onDecorationButtonEvent(_hit: HitDetail, ev: BeButtonEvent): Promise<EventHandled> {
@@ -82,16 +94,10 @@ export class GltfDecorationTool extends Tool {
         return false;
 
       // Transform the graphic to the center of the project extents.
-      const branch = new GraphicBranch();
-      branch.add(graphic);
       const transform = Transform.createTranslation(iModel.projectExtents.center);
-      graphic = IModelApp.renderSystem.createGraphicBranch(branch, transform);
-
-      // Take ownership of the graphic so it is not disposed of until we're finished with it.
-      const graphicOwner = IModelApp.renderSystem.createGraphicOwner(graphic);
 
       // Install the decorator.
-      const decorator = new GltfDecoration(graphicOwner, url, id);
+      const decorator = new GltfDecoration(graphic, url, id, transform);
       IModelApp.viewManager.addDecorator(decorator);
 
       // Once the iModel is closed, dispose of the graphic and uninstall the decorator.
