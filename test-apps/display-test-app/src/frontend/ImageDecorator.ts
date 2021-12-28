@@ -59,7 +59,7 @@ export interface ImageProps {
   panoramaArc?: Angle;
 }
 
-type ECImageQuality = "medium";
+type ECImageQuality = "small" | "medium" | "large";
 
 /** A cached image that is being/has been loaded into the app */
 class EarthCamImage {

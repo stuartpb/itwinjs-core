@@ -4,8 +4,8 @@
 *--------------------------------------------------------------------------------------------*/
 import { Viewport } from "@itwin/core-frontend";
 import { ClipVector } from "@itwin/core-geometry";
-import { createButton, createNumericInput, createSlider, Slider } from "@itwin/frontend-devtools";
-import { convertImageDataToProps, ImageData, ImageDecorator, ImageProps } from "./ImageDecorator";
+import { ComboBoxEntry, createButton, createComboBox, createNumericInput, createSlider, Slider } from "@itwin/frontend-devtools";
+import { convertImageDataToProps, ImageData, ImageDecorator } from "./ImageDecorator";
 import { ToolBarDropDown } from "./ToolBar";
 
 export class EarthCamDebugPanel extends ToolBarDropDown {
@@ -27,6 +27,7 @@ export class EarthCamDebugPanel extends ToolBarDropDown {
 
     this._element = document.createElement("div");
     this._element.className = "toolMenu";
+    this._element.style.display = "block";
     parent.appendChild(this._element);
 
     createButton({
@@ -45,25 +46,24 @@ export class EarthCamDebugPanel extends ToolBarDropDown {
       // inline?: boolean;
       // tooltip?: string;
     });
-    createButton({
-      id: "earthcam-image-quality-btn",
+    const options: ComboBoxEntry[] = ["large", "medium", "small"].map((str) => ({value: str, name: str}));
+    createComboBox({
+      name: "Quality Selector",
+      id: "earthcam-quality-selector",
+      entries: options,
       parent: this._element,
-      value: "Use Low Quality",
-      handler: (btn) => {
-        if (btn.value === "Use Low Quality") {
-          this.decorator.dispose();
-          this.decorator.imageQuality = "medium";
-          this._vp.invalidateDecorations();
-          btn.value = "Use High Quality";
-        } else {
-          this.decorator.dispose();
-          this.decorator.imageQuality = undefined;
-          this._vp.invalidateDecorations();
-          btn.value = "Use Low Quality";
+      handler: (select) => {
+        switch(select.value) {
+          case "small":
+          case "medium":
+          case "large":
+            this.decorator.imageQuality = select.value;
+            break;
+          default:
+            this.decorator.imageQuality = undefined;
         }
       },
-      // inline?: boolean;
-      // tooltip?: string;
+      value: "large",
     });
     createButton({
       id: "earthcam-buffer-btn",
@@ -73,6 +73,8 @@ export class EarthCamDebugPanel extends ToolBarDropDown {
         if (btn.value === "Use Buffer") {
           this._clearBuffer = false;
           btn.value = "Clear Buffer";
+          const props = EarthCamClient.imageProps.map((data) => convertImageDataToProps(data));
+          this.decorator.bufferImages(props).catch(() => {});
         } else {
           this._clearBuffer = true;
           btn.value = "Use Buffer";
@@ -86,7 +88,7 @@ export class EarthCamDebugPanel extends ToolBarDropDown {
       id: "earthcam-timeline",
       parent: this._element,
       min: "0",
-      max: EarthCamClient.imageProps.length.toString(),
+      max: (EarthCamClient.imageProps.length - 1).toString(),
       step: "1",
       value: this._index.toString(),
       handler: (slider: HTMLInputElement) => {
@@ -96,10 +98,11 @@ export class EarthCamDebugPanel extends ToolBarDropDown {
     });
     this._slider.div.style.margin = "5px";
     const scaleSpan = document.createElement("span");
+    scaleSpan.style.display = "flex";
     this._element.appendChild(scaleSpan);
 
     const label = document.createElement("label");
-    label.style.display = "inline";
+    // label.style.display = "inline";
     label.title = "Scale Image";
     scaleSpan.appendChild(label);
 
@@ -111,7 +114,7 @@ export class EarthCamDebugPanel extends ToolBarDropDown {
       display: "inline",
       min: 0.01,
       parseAsFloat: true,
-    });
+    }).style.flexGrow = "true";
 
     this.setScaling(startingScaling);
     this.setIndex(0);
@@ -131,7 +134,7 @@ export class EarthCamDebugPanel extends ToolBarDropDown {
       if (!didDisplay) console.error("Failed to create texture from image props.");
     }).catch((err) => {
       console.error("Error During 'SetImage': ", err);
-    });
+    }).finally(() => this._vp.invalidateDecorations());
   }
 
   public setScaling(scale: number) {
