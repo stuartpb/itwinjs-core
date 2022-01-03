@@ -111,6 +111,9 @@
             "./src/tile/internal.ts"
           ]
         }
+      ],
+      "@itwin/public-extension-exports": [
+        "error"
       ]
     },
     "overrides": [

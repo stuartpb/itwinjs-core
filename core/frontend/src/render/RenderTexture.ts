@@ -75,6 +75,7 @@ export interface TextureImage {
 
 /** Arguments supplied to [[RenderSystem.createTexture]] to create a [RenderTexture]($common).
  * @public
+ * @extensionApi
  */
 export interface CreateTextureArgs {
   /** The type of texture to create. Default: [RenderTexture.Type.Normal]($common). */
@@ -91,7 +92,8 @@ export interface CreateTextureArgs {
 }
 
 /** Arguments supplied to [[RenderSystem.createTextureFromSource]].
- * @public
+ * @beta
+ * @extensionApi
  */
 export interface CreateTextureFromSourceArgs {
   /** The type of texture to create. Default: [RenderTexture.Type.Normal]($common). */
