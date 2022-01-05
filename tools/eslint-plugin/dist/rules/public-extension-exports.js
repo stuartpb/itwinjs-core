@@ -24,6 +24,9 @@ const syntaxKindFriendlyNames = {
   [ts.SyntaxKind.PropertySignature]: "property",
   [ts.SyntaxKind.Constructor]: "constructor",
   [ts.SyntaxKind.EnumMember]: "enum member",
+  [ts.SyntaxKind.TypeAliasDeclaration]: "type alias",
+  [ts.SyntaxKind.ExportDeclaration]: "export",
+  [ts.SyntaxKind.NamespaceExportDeclaration]: "Namespace export"
 }
 
 /**
@@ -61,7 +64,6 @@ module.exports = {
     const requiredTags = (context.options.length > 0 && context.options[0].tag) || ["public"];
     const extensionApiTag = "extensionApi"; // SWB temporary extension tag name
     const parserServices = getParserServices(context);
-    const typeChecker = parserServices.program.getTypeChecker();
 
     function getFileName(parent) {
       let currentParent = parent;
@@ -137,55 +139,6 @@ module.exports = {
     }
 
     return {
-      TSFunctionDeclaration(node) {
-        const tsCall = parserServices.esTreeNodeToTSNodeMap.get(node);
-        if (!tsCall)
-          return;
-        checkWithParent(tsCall, node);
-      },
-
-      TSMethodDeclaration(node) {
-        const tsCall = parserServices.esTreeNodeToTSNodeMap.get(node);
-        if (!tsCall)
-          return;
-        checkWithParent(tsCall, node);
-      },
-
-      TSClassDeclaration(node) {
-        const tsCall = parserServices.esTreeNodeToTSNodeMap.get(node);
-        if (!tsCall)
-          return;
-        checkWithParent(tsCall, node);
-      },
-
-      TSInterfaceDeclaration(node) {
-        const tsCall = parserServices.esTreeNodeToTSNodeMap.get(node);
-        if (!tsCall)
-          return;
-        checkWithParent(tsCall, node);
-      },
-
-      TSTypeAliasDeclaration(node) {
-        const tsCall = parserServices.esTreeNodeToTSNodeMap.get(node);
-        if (!tsCall)
-          return;
-        checkWithParent(tsCall, node);
-      },
-
-      TSEnumDeclaration(node) {
-        const tsCall = parserServices.esTreeNodeToTSNodeMap.get(node);
-        if (!tsCall)
-          return;
-        checkWithParent(tsCall, node);
-      },
-
-      TSModuleDeclaration(node) {
-        const tsCall = parserServices.esTreeNodeToTSNodeMap.get(node);
-        if (!tsCall)
-          return;
-        checkWithParent(tsCall, node);
-      },
-
       TSNamespaceExportDeclaration(node) {
         const tsCall = parserServices.esTreeNodeToTSNodeMap.get(node);
         if (!tsCall)
@@ -193,7 +146,21 @@ module.exports = {
         checkWithParent(tsCall, node);
       },
 
-      TSExportDeclaration(node) {
+      ExportDefaultDeclaration(node) {
+        const tsCall = parserServices.esTreeNodeToTSNodeMap.get(node);
+        if (!tsCall)
+          return;
+        checkWithParent(tsCall, node);
+      },
+
+      ExportNamedDeclaration(node) {
+        const tsCall = parserServices.esTreeNodeToTSNodeMap.get(node);
+        if (!tsCall)
+          return;
+        checkWithParent(tsCall, node);
+      },
+
+      ExportAllDeclaration(node) {
         const tsCall = parserServices.esTreeNodeToTSNodeMap.get(node);
         if (!tsCall)
           return;
