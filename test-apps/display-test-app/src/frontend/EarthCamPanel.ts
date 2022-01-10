@@ -4,14 +4,15 @@
 *--------------------------------------------------------------------------------------------*/
 import { Viewport } from "@itwin/core-frontend";
 import { ClipVector } from "@itwin/core-geometry";
-import { ComboBoxEntry, createButton, createComboBox, createNumericInput, createSlider, Slider } from "@itwin/frontend-devtools";
-import { convertImageDataToProps, ImageData, ImageDecorator } from "./ImageDecorator";
+import { ComboBox, ComboBoxEntry, createButton, createComboBox, createNumericInput, createSlider, Slider } from "@itwin/frontend-devtools";
+import { convertImageDataToProps, ECImageQuality, ImageData, ImageDecorator } from "./ImageDecorator";
 import { ToolBarDropDown } from "./ToolBar";
 
 export class EarthCamDebugPanel extends ToolBarDropDown {
   private readonly _vp: Viewport;
   private readonly _element: HTMLElement;
-  private _slider: Slider;
+  private readonly _slider: Slider;
+  private readonly _qualitySelector: ComboBox;
   private _index: number = 0;
   private _clearBuffer = true;
   public intervalID: number = 0;
@@ -48,21 +49,13 @@ export class EarthCamDebugPanel extends ToolBarDropDown {
       // tooltip?: string;
     });
     const options: ComboBoxEntry[] = ["large", "medium", "small"].map((str) => ({value: str, name: str}));
-    createComboBox({
+    this._qualitySelector = createComboBox({
       name: "Quality Selector",
       id: "earthcam-quality-selector",
       entries: options,
       parent: this._element,
-      handler: (select) => {
-        switch(select.value) {
-          case "small":
-          case "medium":
-          case "large":
-            this.decorator.imageQuality = select.value;
-            break;
-          default:
-            this.decorator.imageQuality = undefined;
-        }
+      handler: (_select) => {
+        this.setIndex(this._index);
       },
       value: "large",
     });
@@ -130,11 +123,27 @@ export class EarthCamDebugPanel extends ToolBarDropDown {
   protected _open() { this._element.style.display = "block"; }
   protected _close() { this._element.style.display = "none"; }
 
+  public getSelectedQuality(): ECImageQuality | undefined {
+    let rtn: ECImageQuality | undefined;
+    const value = this._qualitySelector.select.value;
+    switch(value) {
+      case "small":
+      case "medium":
+      case "large":
+        rtn = value;
+        break;
+      default:
+        rtn = undefined;
+    }
+    return rtn;
+  }
+
   public setIndex(i: number) {
     this._index = i;
     this._slider.slider.value = this._index.toString();
     const newData = EarthCamClient.imageProps[i];
     const props = convertImageDataToProps(newData);
+    props.quality = this.getSelectedQuality();
     this.decorator.setImage(props, this._clearBuffer).then((didDisplay: boolean) => {
       if (!didDisplay) console.error("Failed to create texture from image props.");
     }).catch((err) => {

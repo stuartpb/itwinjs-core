@@ -52,6 +52,8 @@ export interface ImageProps {
   size: WritableXAndY;
   /** *FOR TESTING* If the url path will try this one before failing. */
   localPath?: string;
+  /** The quality of the Image to request from EarthCam Endpoints */
+  quality?: ECImageQuality;
 
   /** Describes the type of panoramic image. Is undefined if not panoramic. */
   panorama?: PanoramaType;
@@ -59,7 +61,7 @@ export interface ImageProps {
   panoramaArc?: Angle;
 }
 
-type ECImageQuality = "small" | "medium" | "large";
+export type ECImageQuality = "small" | "medium" | "large";
 
 /** A cached image that is being/has been loaded into the app */
 class EarthCamImage {
@@ -183,7 +185,6 @@ export class ImageDecorator implements Decorator {
   public static scaling: number = 100;
   public static origin: Point3d = new Point3d();
   public static panoramicRotationAngle: Angle = Angle.create360();
-  public imageQuality?: ECImageQuality;
   public transform: Transform = Transform.createIdentity();
 
   /** Returns a list of FireEmitter decorators that have been added using the ViewManager API. */
@@ -233,7 +234,7 @@ export class ImageDecorator implements Decorator {
     // get the new image
     const props = this.argToProps(arg);
     this._image = this._imageBuffer.getOrCreate(props);
-    return this._image.populateTexture();
+    return this._image.populateTexture(arg.quality);
   }
 
   /** Buffers all images passed in.  Will return an array of indexes of any images that failed to buffer. */
