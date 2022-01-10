@@ -70,6 +70,9 @@
     "ShutDown": {
       "keyin": "dta shutdown"
     },
+    "DtaDebug": {
+      "keyin": "dta debug"
+    },
     "ToggleShadowMapTiles": {
       "keyin": "dta shadow tiles"
     },
