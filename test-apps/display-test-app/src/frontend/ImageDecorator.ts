@@ -165,18 +165,6 @@ const allocateTextureFromUrl = async (url: string, localPath?: string): Promise<
   return texture;
 };
 
-/** Returns the Great Common Denominator of the 2 given numbers. */
-const gcdTwoNumbers = (x: number, y: number): number => {
-  x = Math.abs(x);
-  y = Math.abs(y);
-  while(y) {
-    const t = y;
-    y = x % y;
-    x = t;
-  }
-  return x;
-};
-
 /** This decorator functions as a particle emitter at the given a XYZ source and the particles are stylized as a fire burning.
  * Note: Assumes up is Z.
  */

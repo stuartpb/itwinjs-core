@@ -11,7 +11,7 @@ import { ToolBarDropDown } from "./ToolBar";
 export class EarthCamDebugPanel extends ToolBarDropDown {
   private readonly _vp: Viewport;
   private readonly _element: HTMLElement;
-  private readonly _slider: Slider;
+  private _slider: Slider;
   private _index: number = 0;
   private _clearBuffer = true;
   public intervalID: number = 0;
@@ -22,6 +22,7 @@ export class EarthCamDebugPanel extends ToolBarDropDown {
     super();
     this._vp = vp;
     const startingScaling = 1;
+    const fetchPromise = EarthCamClient.fetch();
 
     ImageDecorator.setClipVector(ClipVector.createEmpty());
 
@@ -117,8 +118,12 @@ export class EarthCamDebugPanel extends ToolBarDropDown {
     }).style.flexGrow = "true";
 
     this.setScaling(startingScaling);
-    this.setIndex(0);
-    this.open();
+
+    fetchPromise.finally(() => {
+      this._slider.slider.max = EarthCamClient.imageProps.length.toString();
+      this.setIndex(0);
+      this.open();
+    });
   }
 
   public get isOpen() { return "none" !== this._element.style.display; }
@@ -163,7 +168,15 @@ export class EarthCamDebugPanel extends ToolBarDropDown {
   }
 }
 
+interface EarthCamEndPoints { endpoints: ImageData[] }
+
 class EarthCamClient {
-  public static readonly imageProps: ImageData[] = [
-  ];
+  public static readonly imageProps: ImageData[] = [];
+  public static async fetch() {
+    const response = await fetch("EarthCamEndPoints.json");
+    const data = await response.json() as EarthCamEndPoints;
+    data.endpoints.forEach((prop) =>
+      EarthCamClient.imageProps.push(prop)
+    );
+  }
 }
