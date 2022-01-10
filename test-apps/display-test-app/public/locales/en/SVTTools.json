@@ -73,6 +73,9 @@
     "ShutDown": {
       "keyin": "dta shutdown"
     },
+    "DtaDebug": {
+      "keyin": "dta debug"
+    },
     "Exit": {
       "keyin": "dta exit"
     },

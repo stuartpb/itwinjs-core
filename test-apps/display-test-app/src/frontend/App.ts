@@ -191,6 +191,28 @@ class ShutDownTool extends Tool {
   }
 }
 
+class DebugTool extends Tool {
+  public static override toolId = "DtaDebug";
+  public static override get maxArgs() { return undefined; }
+
+  public override async run(args: any[]) {
+    const vp = IModelApp.viewManager.selectedView;
+    if (vp) {
+      const was = vp.displayStyle.settings.renderTimeline;
+      vp.displayStyle.settings.renderTimeline = args[0];
+      const then = vp.displayStyle.settings.renderTimeline;
+      await vp.displayStyle.changeRenderTimeline(undefined);
+      console.log(`${was} ${then} ${vp.displayStyle.settings.renderTimeline}`);
+    }
+
+    return true;
+  }
+
+  public override async parseAndRun(...args: string[]) {
+    return this.run(args);
+  }
+}
+
 class ExitTool extends Tool {
   public static override toolId = "Exit";
 
@@ -278,6 +300,7 @@ export class DisplayTestApp {
       CloseIModelTool,
       CloseWindowTool,
       CreateWindowTool,
+      DebugTool,
       DockWindowTool,
       DrawingAidTestTool,
       EditingScopeTool,
