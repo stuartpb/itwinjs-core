@@ -335,7 +335,7 @@ describe("PopupManager", () => {
       expect(wrapper.container.querySelectorAll(".iui-text-leading").length).to.eq(0);
       PopupManager.hideCard();
 
-      const reactContent = { reactNode: <Button>Label</Button> };
+      const reactContent = { reactNode: <Button as="button">Label</Button> };
       PopupManager.showCard(reactContent, undefined, undefined, wrapper.container, new Point(150, 250), new Point(8, 8), spyItemExecuted, spyCancel, RelativePosition.TopRight);
       expect(wrapper.container.querySelectorAll("div.uifw-card-content").length).to.eq(1);
       expect(wrapper.container.querySelectorAll(".iui-text-leading").length).to.eq(0);

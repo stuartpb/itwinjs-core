@@ -50,8 +50,8 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
  * @deprecated Use Button from itwinui-react instead
  */
 export class Button extends React.PureComponent<ButtonProps> {    // eslint-disable-line deprecation/deprecation
-  private getIuiButtonType = (buttonType?: ButtonType): string => {   // eslint-disable-line deprecation/deprecation
-    let iuiButtonType: string;
+  private getIuiButtonType = (buttonType?: ButtonType): "cta" | "high-visibility" | "default" | "borderless" | undefined => {   // eslint-disable-line deprecation/deprecation
+    let iuiButtonType: "cta" | "high-visibility" | "default" | "borderless" | undefined;
     switch (buttonType) {
       case ButtonType.Blue: // eslint-disable-line deprecation/deprecation
         iuiButtonType = "high-visibility";
@@ -68,15 +68,15 @@ export class Button extends React.PureComponent<ButtonProps> {    // eslint-disa
   };
 
   public override render() {
-    const { buttonType, size, className, style, onClick, ...props } = this.props;
+    const { buttonType, size, ...props } = this.props;
 
     const iuiButtonType = this.getIuiButtonType(buttonType);
 
-    let iuiButtonSize: string | undefined = "small";
+    let iuiButtonSize: "small" | "large" | undefined = "small";
     if (size === ButtonSize.Large)  // eslint-disable-line deprecation/deprecation
-      iuiButtonSize = undefined;
+      iuiButtonSize = "large";
 
-    return <ITwinUI_Button {...props} className={className} style={style} onClick={onClick} styleType={iuiButtonType} size={iuiButtonSize} />;
+    return <ITwinUI_Button as="button" {...props} styleType={iuiButtonType} size={iuiButtonSize} />;
   }
 }
 

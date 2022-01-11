@@ -15,7 +15,7 @@ import { UiCore } from "../UiCore";
 import { CommonProps } from "../utils/Props";
 import { Omit } from "../utils/typeUtils";
 import { FocusTrap } from "../focustrap/FocusTrap";
-import { Button } from "@itwin/itwinui-react";
+import { Button, ButtonProps } from "@itwin/itwinui-react";
 
 // cspell:ignore focustrap
 
@@ -260,7 +260,7 @@ export class Dialog extends React.Component<DialogProps, DialogState> {
         data-testid="core-dialog-root"
         {...props}
       >
-        { opened &&
+        {opened &&
           <DivWithOutsideClick onOutsideClick={onOutsideClick}>
             <FocusTrap active={trapFocus && modal} returnFocusOnDeactivate={true}>
               <div
@@ -399,7 +399,14 @@ export class Dialog extends React.Component<DialogProps, DialogState> {
         if (button.label)
           buttonText = button.label;
 
-        buttons.push(<Button className={buttonClass} disabled={button.disabled} key={index.toString()} onClick={button.onClick}>{buttonText}</Button>);
+        const buttonProps: Partial<ButtonProps> = {
+          className: buttonClass,
+          disabled: button.disabled,
+          key: index.toString(),
+          onClick: button.onClick,
+        };
+
+        buttons.push(<Button as="button" {...buttonProps}>{buttonText}</Button>);
       });
     }
     return buttons;

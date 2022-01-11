@@ -23,7 +23,7 @@ import { ModalDialogManager } from "../../dialog/ModalDialogManager";
 import { UiFramework } from "../../UiFramework";
 import { UnitSystemSelector } from "./UnitSystemSelector";
 import { Presentation } from "@itwin/presentation-frontend";
-import { Button } from "@itwin/itwinui-react";
+import { Button, ButtonProps } from "@itwin/itwinui-react";
 
 function formatAreEqual(obj1: FormatProps, obj2: FormatProps) {
   const compare = new DeepCompare();
@@ -185,6 +185,15 @@ export function QuantityFormatSettingsPage({ initialQuantityType, availableUnitS
     saveChanges(processNewUnitSystem, unitSystem);
   }, [activeUnitSystemKey, processNewUnitSystem, saveChanges]);
 
+  const saveButtonProps: Partial<ButtonProps> = {
+    onClick: handleOnFormatSave,
+    disabled: !saveEnabled,
+  };
+  const resetButtonProps: Partial<ButtonProps> = {
+    onClick: handleOnFormatReset,
+    disabled: !clearEnabled,
+  };
+
   return (
     <div className="quantity-formatting-container">
       <UnitSystemSelector selectedUnitSystemKey={activeUnitSystemKey} availableUnitSystems={availableUnitSystems} onUnitSystemSelected={handleUnitSystemSelected} />
@@ -219,8 +228,8 @@ export function QuantityFormatSettingsPage({ initialQuantityType, availableUnitS
                 <QuantityFormatPanel onFormatChange={handleOnFormatChanged} quantityType={activeQuantityType} />
               </div>
               <div className="components-button-panel">
-                <Button styleType="cta" onClick={handleOnFormatSave} disabled={!saveEnabled}>{setButtonLabel.current}</Button>
-                <Button styleType="default" onClick={handleOnFormatReset} disabled={!clearEnabled}>{clearButtonLabel.current}</Button>
+                <Button as="button" styleType="cta" {...saveButtonProps}>{setButtonLabel.current}</Button>
+                <Button as="button" styleType="default" {...resetButtonProps}>{clearButtonLabel.current}</Button>
               </div>
             </>
           }

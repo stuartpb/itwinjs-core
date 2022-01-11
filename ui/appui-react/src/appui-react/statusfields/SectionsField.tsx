@@ -11,7 +11,7 @@ import classnames from "classnames";
 import * as React from "react";
 import { ClipEventType, IModelApp, ViewClipClearTool, ViewClipDecoration, ViewClipDecorationProvider, Viewport } from "@itwin/core-frontend";
 import { Dialog, FooterPopup, TitleBar } from "@itwin/appui-layout-react";
-import { Button, ToggleSwitch } from "@itwin/itwinui-react";
+import { Button, ButtonProps, ToggleSwitch } from "@itwin/itwinui-react";
 import { useActiveViewport } from "../hooks/useActiveViewport";
 import { UiFramework } from "../UiFramework";
 import { Indicator } from "./Indicator";
@@ -74,6 +74,10 @@ export function SectionsStatusField(props: SectionsStatusFieldProps) {
     setPopupOpen(false);
   };
 
+  const buttonProps: Partial<ButtonProps> = {
+    onClick: handleClear,
+  };
+
   return (
     <div className="uifw-section-footer-popup-container">
       {showIndicator &&
@@ -95,7 +99,7 @@ export function SectionsStatusField(props: SectionsStatusFieldProps) {
                 <TitleBar title={toolTip} />
               }>
               <div className="uifw-sections-footer-contents">
-                <Button onClick={handleClear}>{clearLabel}</Button>
+                <Button as="button" {...buttonProps}>{clearLabel}</Button>
                 <div className="uifw-uifw-sections-toggle-container">
                   <div className={classnames("uifw-sections-label")}>{showHandlesLabel}</div>
                   <ToggleSwitch className="uifw-sections-toggle" onChange={toggleManipulators} checked={hasManipulatorsShown} />

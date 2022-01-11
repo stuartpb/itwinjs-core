@@ -18,18 +18,21 @@ export interface SquareButtonProps extends Omit<ButtonProps, "size" | "styleType
 /** @alpha */
 export class SquareButton extends React.PureComponent<SquareButtonProps> {
   public override render() {
-    const { className, style, ...buttonProps } = this.props;
+    const { className, ...buttonProps } = this.props;
 
     const buttonClassNames = classnames(
       "uifw-square-button",
       className,
     );
-    const buttonStyle: React.CSSProperties = {
-      ...style,
+
+    const thisButtonProps: Partial<ButtonProps> = {
+      ...buttonProps,
+      className: buttonClassNames,
+      size: "small",
     };
 
     return (
-      <Button {...buttonProps} size="small" className={buttonClassNames} style={buttonStyle} />
+      <Button as="button" {...thisButtonProps} />
     );
   }
 }

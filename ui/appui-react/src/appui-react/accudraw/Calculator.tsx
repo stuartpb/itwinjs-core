@@ -11,7 +11,7 @@ import classnames from "classnames";
 import * as React from "react";
 import { OnCancelFunc, OnNumberCommitFunc, SpecialKey } from "@itwin/appui-abstract";
 import { CommonProps, Icon, IconInput, Omit, SvgSprite } from "@itwin/core-react";
-import { Button, Input } from "@itwin/itwinui-react";
+import { Button, ButtonProps, Input } from "@itwin/itwinui-react";
 import { CalculatorEngine, CalculatorOperator } from "./CalculatorEngine";
 import { SquareButton, SquareButtonProps } from "./SquareButton";
 
@@ -134,6 +134,17 @@ export class Calculator extends React.PureComponent<CalculatorProps, CalculatorS
         value={this.state.displayValue} readOnly={true} icon={this.props.resultIcon} /> :
       <Input value={this.state.displayValue} readOnly={true} size="small" />;
 
+    const okButtonProps: Partial<ButtonProps> = {
+      className: classnames("uifw-calculator-large-button", "uifw-calculator-ok-button"),
+      styleType: "cta",
+      onClick: this._handleOk,
+    };
+
+    const cancelButtonProps: Partial<ButtonProps> = {
+      className: classnames("uifw-calculator-large-button", "uifw-calculator-cancel-button"),
+      onClick: this._handleCancel,
+    };
+
     return (
       // The event handler is only being used to capture bubbled events
       // eslint-disable-next-line jsx-a11y/no-static-element-interactions
@@ -143,21 +154,14 @@ export class Calculator extends React.PureComponent<CalculatorProps, CalculatorS
         </div>
         <CalculatorKeyPad onValueClick={this._onValueButtonClick} onOperatorClick={this._onOperatorButtonClick} />
         <div className="uifw-calculator-bottom-buttons">
-          <Button
-            className={classnames("uifw-calculator-large-button", "uifw-calculator-ok-button")}
-            styleType="cta"
-            onClick={this._handleOk}
-          >
+          <Button as="button" {...okButtonProps}>
             <Icon iconSpec="icon-checkmark" />
           </Button>
-          <Button
-            className={classnames("uifw-calculator-large-button", "uifw-calculator-cancel-button")}
-            onClick={this._handleCancel}
-          >
+          <Button as="button" {...cancelButtonProps}>
             <Icon iconSpec="icon-remove" />
           </Button>
         </div>
-      </div>
+      </div >
     );
   }
 

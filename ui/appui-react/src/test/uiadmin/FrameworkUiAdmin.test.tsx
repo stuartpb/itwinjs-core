@@ -325,7 +325,7 @@ describe("FrameworkUiAdmin", () => {
   });
 
   it("showReactCard should return true", () => {
-    const content = <Button>Label</Button>;
+    const content = <Button as="button">Label</Button>;
     const toolbarProps: AbstractToolbarProps = {
       toolbarId: "test",
       items: [

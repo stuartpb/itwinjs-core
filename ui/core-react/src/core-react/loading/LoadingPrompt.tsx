@@ -9,7 +9,7 @@
 import "./LoadingPrompt.scss";
 import classnames from "classnames";
 import * as React from "react";
-import { Button, ProgressLinear } from "@itwin/itwinui-react";
+import { Button, ButtonProps, ProgressLinear } from "@itwin/itwinui-react";
 import { LoadingBar } from "./LoadingBar";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { LoadingStatus } from "./LoadingStatus";
@@ -61,6 +61,11 @@ export class LoadingPrompt extends React.PureComponent<LoadingPromptProps> {
   public override render() {
     const isDeterminate = this.props.isDeterminate;
 
+    const buttonProps: Partial<ButtonProps> = {
+      className: "loading-prompt-cancel",
+      onClick: this.props.onCancel,
+    };
+
     return (
       <div className={classnames("core-loadingprompt", this.props.className)} style={this.props.style}>
         <span className="title">{this.props.title}</span>
@@ -69,7 +74,7 @@ export class LoadingPrompt extends React.PureComponent<LoadingPromptProps> {
         {(isDeterminate && this.props.showStatus) &&
           <LoadingStatus style={{ marginTop: ".5em", width: "100%", fontSize: ".75em" }} percent={this.props.percent} message={this.props.status} />}
         {!isDeterminate && (this.props.showIndeterminateBar ? <ProgressLinear indeterminate /> : <LoadingSpinner />)}
-        {this.props.showCancel && <Button className="loading-prompt-cancel" onClick={this.props.onCancel}>Cancel</Button>}
+        {this.props.showCancel && <Button as="button" {...buttonProps}>Cancel</Button>}
       </div>
     );
   }

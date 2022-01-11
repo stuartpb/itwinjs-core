@@ -12,7 +12,7 @@ import "./KeyinBrowser.scss";
 import * as React from "react";
 import { IModelApp, NotifyMessageDetails, OutputMessagePriority, OutputMessageType, Tool } from "@itwin/core-frontend";
 import { AutoSuggest, AutoSuggestData, CommonProps, InputLabel } from "@itwin/core-react";
-import { Button, LabeledInput } from "@itwin/itwinui-react";
+import { Button, ButtonProps, LabeledInput } from "@itwin/itwinui-react";
 import { UiFramework } from "../UiFramework";
 import { SpecialKey } from "@itwin/appui-abstract";
 
@@ -306,8 +306,13 @@ export class KeyinBrowser extends React.PureComponent<KeyinBrowserProps, KeyinBr
 
   /** @internal */
   public override render(): React.ReactNode {
+    const buttonProps: Partial<ButtonProps> = {
+      styleType: "cta",
+      onClick: this._onClick,
+    };
+
     return (
-      <div className="uif-keyinbrowser-div">
+      <div className="uif-keyinbrowser-div" >
         <InputLabel label={this._toolIdLabel}>
           <AutoSuggest value={this.state.currentToolId} style={{ width: "250px" }}
             placeholder={this._suggestPlaceholder} options={this.state.keyins}
@@ -318,7 +323,7 @@ export class KeyinBrowser extends React.PureComponent<KeyinBrowserProps, KeyinBr
         <LabeledInput label={this._argsLabel} title={this._argsTip} value={this.state.currentArgs}
           data-testid="uif-keyin-arguments" id="uif-keyin-arguments"
           onKeyDown={this._onKeyDown} onChange={this._onArgumentsChange} onFocus={this._onInputFocus} size="small" />
-        <Button styleType="cta" data-testid="uif-keyin-browser-execute" onClick={this._onClick}>{this._executeLabel}</Button>
+        <Button as="button" data-testid="uif-keyin-browser-execute" {...buttonProps}>{this._executeLabel}</Button>
       </div>
     );
   }

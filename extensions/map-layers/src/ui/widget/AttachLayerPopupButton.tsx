@@ -11,7 +11,7 @@ import { useSourceMapContext } from "./MapLayerManager";
 import { MapUrlDialog } from "./MapUrlDialog";
 import { MapLayersUiItemsProvider } from "../MapLayersUiItemsProvider";
 import { ConfirmMessageDialog } from "./ConfirmMessageDialog";
-import { Button, Input } from "@itwin/itwinui-react";
+import { Button, ButtonProps, Input } from "@itwin/itwinui-react";
 import { MapLayerPreferences } from "../../MapLayerPreferences";
 
 // cSpell:ignore droppable Sublayer
@@ -255,6 +255,23 @@ function AttachLayerPanel({ isOverlay, onLayerAttached }: AttachLayerPanelProps)
       mapTypesOptions={mapTypesOptions} />);
   }, [activeViewport, handleModalUrlDialogOk, isOverlay, mapTypesOptions, sources]);
 
+  const addCustomLayerButtonProps: Partial<ButtonProps> = {
+    className: "map-manager-add-source-button",
+    title: addCustomLayerToolTip,
+    onClick: handleAddNewMapSource,
+  };
+
+  const editLayerButtonProps: Partial<ButtonProps> = {
+    className: "map-source-list-entry-button",
+    title: editLayerDefButtonTitle,
+    onClick: onItemEditButtonClicked,
+  };
+  const removeLayerButtonProps: Partial<ButtonProps> = {
+    className: "map-source-list-entry-button",
+    title: removeLayerDefButtonTitle,
+    onClick: (event: React.MouseEvent) => { onItemRemoveButtonClicked(source, event); },
+  };
+
   return (
     <div className="map-manager-header">
       {(loading || loadingSources) && <UiCore.LoadingSpinner message={loadingMapSources} />}
@@ -264,7 +281,7 @@ function AttachLayerPanel({ isOverlay, onLayerAttached }: AttachLayerPanelProps)
           value={sourceFilterString}
           onChange={handleFilterTextChanged}
           size="small" />
-        <Button className="map-manager-add-source-button" title={addCustomLayerToolTip} onClick={handleAddNewMapSource}>
+        <Button as="button" {...addCustomLayerButtonProps}>
           {addCustomLayerLabel}</Button>
       </div>
       <div className="map-manager-sources">
@@ -288,16 +305,10 @@ function AttachLayerPanel({ isOverlay, onLayerAttached }: AttachLayerPanelProps)
                   // otherwise list feels cluttered.
                   (!!iTwinId && !!iModelId && layerNameUnderCursor && layerNameUnderCursor === source.name) &&
                   <>
-                    <Button
-                      className="map-source-list-entry-button"
-                      title={editLayerDefButtonTitle}
-                      onClick={onItemEditButtonClicked}>
+                    <Button as="button" {...editLayerButtonProps}>
                       <UiCore.Icon iconSpec="icon-edit" />
                     </Button>
-                    <Button
-                      className="map-source-list-entry-button"
-                      title={removeLayerDefButtonTitle}
-                      onClick={(event: React.MouseEvent) => { onItemRemoveButtonClicked(source, event); }}>
+                    <Button as="button" {...removeLayerButtonProps} >
                       <UiCore.Icon iconSpec="icon-delete" />
                     </Button>
                   </>}
