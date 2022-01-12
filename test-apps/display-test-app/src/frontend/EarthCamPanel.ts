@@ -5,6 +5,7 @@
 import { Viewport } from "@itwin/core-frontend";
 import { ClipVector } from "@itwin/core-geometry";
 import { ComboBox, ComboBoxEntry, createButton, createComboBox, createNumericInput, createSlider, Slider } from "@itwin/frontend-devtools";
+import { getJson } from "@bentley/itwin-client";
 import { convertImageDataToProps, ECImageQuality, ImageData, ImageDecorator } from "./ImageDecorator";
 import { ToolBarDropDown } from "./ToolBar";
 
@@ -182,8 +183,8 @@ interface EarthCamEndPoints { endpoints: ImageData[] }
 class EarthCamClient {
   public static readonly imageProps: ImageData[] = [];
   public static async fetch() {
-    const response = await fetch("EarthCamEndPoints.json");
-    const data = await response.json() as EarthCamEndPoints;
+    const fileName = "EarthCamEndPoints.json";
+    const data: EarthCamEndPoints = await getJson(fileName);
     data.endpoints.forEach((prop) =>
       EarthCamClient.imageProps.push(prop)
     );
