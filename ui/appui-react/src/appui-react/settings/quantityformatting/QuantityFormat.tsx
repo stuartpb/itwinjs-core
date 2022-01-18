@@ -185,13 +185,15 @@ export function QuantityFormatSettingsPage({ initialQuantityType, availableUnitS
     saveChanges(processNewUnitSystem, unitSystem);
   }, [activeUnitSystemKey, processNewUnitSystem, saveChanges]);
 
-  const saveButtonProps: Partial<ButtonProps> = {
+  const saveButtonProps: ButtonProps<"button"> = {
     onClick: handleOnFormatSave,
     disabled: !saveEnabled,
+    styleType: "cta",
   };
-  const resetButtonProps: Partial<ButtonProps> = {
+  const resetButtonProps: ButtonProps<"button"> = {
     onClick: handleOnFormatReset,
     disabled: !clearEnabled,
+    styleType: "default",
   };
 
   return (
@@ -228,8 +230,8 @@ export function QuantityFormatSettingsPage({ initialQuantityType, availableUnitS
                 <QuantityFormatPanel onFormatChange={handleOnFormatChanged} quantityType={activeQuantityType} />
               </div>
               <div className="components-button-panel">
-                <Button as="button" styleType="cta" {...saveButtonProps}>{setButtonLabel.current}</Button>
-                <Button as="button" styleType="default" {...resetButtonProps}>{clearButtonLabel.current}</Button>
+                <Button as="button" {...saveButtonProps}>{setButtonLabel.current}</Button>
+                <Button as="button" {...resetButtonProps}>{clearButtonLabel.current}</Button>
               </div>
             </>
           }

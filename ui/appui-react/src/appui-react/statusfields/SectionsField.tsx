@@ -74,7 +74,7 @@ export function SectionsStatusField(props: SectionsStatusFieldProps) {
     setPopupOpen(false);
   };
 
-  const buttonProps: Partial<ButtonProps> = {
+  const buttonProps: ButtonProps<"button"> = {
     onClick: handleClear,
   };
 

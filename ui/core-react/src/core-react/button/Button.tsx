@@ -7,7 +7,7 @@
  */
 
 import * as React from "react";
-import { Button as ITwinUI_Button } from "@itwin/itwinui-react";
+import { Button as ITwinUI_Button, ButtonProps as ITwinUI_ButtonProps } from "@itwin/itwinui-react";
 import { CommonProps } from "../utils/Props";
 
 /** Sizes for [[Button]] component
@@ -76,7 +76,8 @@ export class Button extends React.PureComponent<ButtonProps> {    // eslint-disa
     if (size === ButtonSize.Large)  // eslint-disable-line deprecation/deprecation
       iuiButtonSize = "large";
 
-    return <ITwinUI_Button as="button" {...props} styleType={iuiButtonType} size={iuiButtonSize} />;
+    const itwinButtonProps: ITwinUI_ButtonProps<"button"> = { ...props, styleType: iuiButtonType, size: iuiButtonSize };
+    return <ITwinUI_Button as="button" {...itwinButtonProps} />;
   }
 }
 

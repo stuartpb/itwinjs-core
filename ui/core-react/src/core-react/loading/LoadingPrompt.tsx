@@ -61,7 +61,7 @@ export class LoadingPrompt extends React.PureComponent<LoadingPromptProps> {
   public override render() {
     const isDeterminate = this.props.isDeterminate;
 
-    const buttonProps: Partial<ButtonProps> = {
+    const buttonProps: ButtonProps<"button"> = {
       className: "loading-prompt-cancel",
       onClick: this.props.onCancel,
     };

@@ -13,7 +13,7 @@ import { MapLayerImageryProviderStatus, ScreenViewport } from "@itwin/core-front
 import { Icon } from "@itwin/core-react";
 import { assert } from "@itwin/core-bentley";
 import { ModalDialogManager } from "@itwin/appui-react";
-import { Button } from "@itwin/itwinui-react";
+import { Button, ButtonProps } from "@itwin/itwinui-react";
 import { SubLayersPopupButton } from "./SubLayersPopupButton";
 import { AttachLayerButtonType, AttachLayerPopupButton } from "./AttachLayerPopupButton";
 import { MapLayersUiItemsProvider } from "../MapLayersUiItemsProvider";
@@ -49,6 +49,24 @@ export function MapLayerDroppable(props: MapLayerDroppableProps) {
     assert(props.layersList !== undefined);
     const activeLayer = props.layersList[rubric.source.index];
 
+    const reqAuthButtonProps: ButtonProps<"button"> = {
+      className: "map-manager-item-requireAuth",
+      onClick: () => {
+        const indexInDisplayStyle = props.activeViewport?.displayStyle.findMapLayerIndexByNameAndUrl(activeLayer.name, activeLayer.url, activeLayer.isOverlay);
+        if (indexInDisplayStyle !== undefined && indexInDisplayStyle >= 0) {
+          const layerSettings = props.activeViewport.displayStyle.mapLayerAtIndex(indexInDisplayStyle, activeLayer.isOverlay);
+
+          ModalDialogManager.openDialog(<MapUrlDialog activeViewport={props.activeViewport}
+            isOverlay={props.isOverlay}
+            layerRequiringCredentials={layerSettings?.toJSON()}
+            onOkResult={props.onItemEdited}
+            mapTypesOptions={props.mapTypesOptions}></MapUrlDialog>);
+        }
+
+      },
+      title: requireAuthTooltip,
+    };
+
     return (
       <div className="map-manager-source-item" data-id={rubric.source.index} key={activeLayer.name}
         {...dragProvided.draggableProps}
@@ -62,23 +80,7 @@ export function MapLayerDroppable(props: MapLayerDroppableProps) {
           }
         </div>
         {activeLayer.provider?.status === MapLayerImageryProviderStatus.RequireAuth &&
-          <Button
-            className="map-manager-item-requireAuth"
-            onClick={() => {
-              const indexInDisplayStyle = props.activeViewport?.displayStyle.findMapLayerIndexByNameAndUrl(activeLayer.name, activeLayer.url, activeLayer.isOverlay);
-              if (indexInDisplayStyle !== undefined && indexInDisplayStyle >= 0) {
-                const layerSettings = props.activeViewport.displayStyle.mapLayerAtIndex(indexInDisplayStyle, activeLayer.isOverlay);
-
-                ModalDialogManager.openDialog(<MapUrlDialog activeViewport={props.activeViewport}
-                  isOverlay={props.isOverlay}
-                  layerRequiringCredentials={layerSettings?.toJSON()}
-                  onOkResult={props.onItemEdited}
-                  mapTypesOptions={props.mapTypesOptions}></MapUrlDialog>);
-              }
-
-            }}
-            title={requireAuthTooltip}
-          >
+          <Button as="button" {...reqAuthButtonProps} >
             <Icon iconSpec="icon-status-warning" />
           </Button>
         }

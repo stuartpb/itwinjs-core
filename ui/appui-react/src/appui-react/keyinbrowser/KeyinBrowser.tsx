@@ -306,7 +306,7 @@ export class KeyinBrowser extends React.PureComponent<KeyinBrowserProps, KeyinBr
 
   /** @internal */
   public override render(): React.ReactNode {
-    const buttonProps: Partial<ButtonProps> = {
+    const buttonProps: ButtonProps<"button"> = {
       styleType: "cta",
       onClick: this._onClick,
     };

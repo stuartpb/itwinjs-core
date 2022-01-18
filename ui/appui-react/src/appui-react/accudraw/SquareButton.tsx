@@ -25,7 +25,7 @@ export class SquareButton extends React.PureComponent<SquareButtonProps> {
       className,
     );
 
-    const thisButtonProps: Partial<ButtonProps> = {
+    const thisButtonProps: ButtonProps<"button"> = {
       ...buttonProps,
       className: buttonClassNames,
       size: "small",

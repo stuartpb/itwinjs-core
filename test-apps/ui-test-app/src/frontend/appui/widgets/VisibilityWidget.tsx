@@ -87,19 +87,26 @@ function ModelsTreeComponent(props: ModelsTreeComponentProps) {
     onFilterApplied,
   } = useTreeFilteringState();
   const { width, height, ref } = useResizeDetector();
+
+  const activateFilter = React.useCallback(async () =>
+    IModelApp.tools.run(TriggerFilterHierarchyByVisibleElementIdsTool.toolId), []);
+
+  const cancelFilter = React.useCallback(async () =>
+    IModelApp.tools.run(CancelFilterHierarchyByVisibleElementIdsTool.toolId), []);
+
   return (
     <>
       <Toolbar
         searchOptions={searchOptions} >
         {[
-          <Button
+          <Button as="button"
             key="activate-filter-btn"
-            onClick={async () => IModelApp.tools.run(TriggerFilterHierarchyByVisibleElementIdsTool.toolId)}>
+            onClick={activateFilter}>
             <Icon iconSpec={`svg:${filterIconSvg}`} />
           </Button>,
-          <Button
+          <Button as="button"
             key="cancel-filter-btn"
-            onClick={async () => IModelApp.tools.run(CancelFilterHierarchyByVisibleElementIdsTool.toolId)}>
+            onClick={cancelFilter}>
             <Icon iconSpec={`svg:${cancelFilterIconSvg}`} />
           </Button>,
         ]}
@@ -146,16 +153,17 @@ function CategoriesTreeComponent(props: CategoriesTreeComponentProps) {
 
   const { width, height, ref } = useResizeDetector();
 
+
   return (
     <>
       <Toolbar
         searchOptions={searchOptions}
       >
         {[
-          <Button key="show-all-btn" onClick={showAll}>
+          <Button as="button" key="show-all-btn" onClick={showAll}>
             <WebFontIcon iconName="icon-visibility" />
           </Button>,
-          <Button key="hide-all-btn" onClick={hideAll}>
+          <Button as="button" key="hide-all-btn" onClick={hideAll}>
             <WebFontIcon iconName="icon-visibility-hide-2" />
           </Button>,
         ]}

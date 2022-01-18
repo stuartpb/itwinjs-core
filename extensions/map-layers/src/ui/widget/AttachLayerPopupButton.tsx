@@ -255,21 +255,10 @@ function AttachLayerPanel({ isOverlay, onLayerAttached }: AttachLayerPanelProps)
       mapTypesOptions={mapTypesOptions} />);
   }, [activeViewport, handleModalUrlDialogOk, isOverlay, mapTypesOptions, sources]);
 
-  const addCustomLayerButtonProps: Partial<ButtonProps> = {
+  const addCustomLayerButtonProps: ButtonProps<"button"> = {
     className: "map-manager-add-source-button",
     title: addCustomLayerToolTip,
     onClick: handleAddNewMapSource,
-  };
-
-  const editLayerButtonProps: Partial<ButtonProps> = {
-    className: "map-source-list-entry-button",
-    title: editLayerDefButtonTitle,
-    onClick: onItemEditButtonClicked,
-  };
-  const removeLayerButtonProps: Partial<ButtonProps> = {
-    className: "map-source-list-entry-button",
-    title: removeLayerDefButtonTitle,
-    onClick: (event: React.MouseEvent) => { onItemRemoveButtonClicked(source, event); },
   };
 
   return (
@@ -292,8 +281,20 @@ function AttachLayerPanel({ isOverlay, onLayerAttached }: AttachLayerPanelProps)
           onKeyPress={handleKeypressOnSourceList}
           onListboxValueChange={onListboxValueChange} >
           {
-            filteredOptions?.map((source) =>
-              <UiCore.ListboxItem
+            filteredOptions?.map((source) => {
+              const editLayerButtonProps: ButtonProps<"button"> = {
+                className: "map-source-list-entry-button",
+                title: editLayerDefButtonTitle,
+                onClick: onItemEditButtonClicked,
+              };
+
+              const removeLayerButtonProps: ButtonProps<"button"> = {
+                className: "map-source-list-entry-button",
+                title: removeLayerDefButtonTitle,
+                onClick: (event: React.MouseEvent) => { onItemRemoveButtonClicked(source, event); },
+              };
+
+              return <UiCore.ListboxItem
                 key={source.name}
                 className="map-source-list-entry"
                 value={source.name}
@@ -313,8 +314,8 @@ function AttachLayerPanel({ isOverlay, onLayerAttached }: AttachLayerPanelProps)
                     </Button>
                   </>}
 
-              </UiCore.ListboxItem>
-            )
+              </UiCore.ListboxItem>;
+            })
           }
         </UiCore.Listbox>
       </div>
@@ -426,10 +427,17 @@ export function AttachLayerPopupButton(props: AttachLayerPopupButtonProps) {
             return "cta";
         }
       };
+
       const styleType = determineStyleType();
+      const buttonProps: ButtonProps<"button"> = {
+        ref: buttonRef,
+        styleType,
+        title: popupOpen ? hideAttachLayerLabel : showAttachLayerLabel,
+        onClick: togglePopup,
+      };
+
       button = (
-        <Button ref={buttonRef} styleType={styleType} title={popupOpen ? hideAttachLayerLabel : showAttachLayerLabel}
-          onClick={togglePopup}>{addCustomLayerButtonLabel}</Button>
+        <Button as="button" {...buttonProps}>{addCustomLayerButtonLabel}</Button>
       );
     }
 

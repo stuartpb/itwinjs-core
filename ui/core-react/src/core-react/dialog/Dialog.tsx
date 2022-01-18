@@ -399,7 +399,7 @@ export class Dialog extends React.Component<DialogProps, DialogState> {
         if (button.label)
           buttonText = button.label;
 
-        const buttonProps: Partial<ButtonProps> = {
+        const buttonProps: ButtonProps<"button"> = {
           className: buttonClass,
           disabled: button.disabled,
           key: index.toString(),

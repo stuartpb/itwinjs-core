@@ -14,7 +14,7 @@ import {
   useActiveViewport,
   WidgetControl,
 } from "@itwin/appui-react";
-import { Button } from "@itwin/itwinui-react";
+import { Button, ButtonProps } from "@itwin/itwinui-react";
 import { NodeKey } from "@itwin/presentation-common";
 import { UiItemsProvidersTest } from "../../ui-items-providers-test";
 
@@ -113,19 +113,23 @@ function ModelsTreeComponent(props: ModelsTreeComponentProps) {
   const [divRef, divElement] = useRefState<HTMLDivElement>();
   const [width, height] = useLayoutResizeObserver(divElement ?? null);
 
+  const activateFilterButtonProps: ButtonProps<"button"> = {
+    onClick: () => void IModelApp.tools.run(TriggerFilterHierarchyByVisibleElementIdsTool.toolId),
+  };
+
+  const cancelFilterButtonProps: ButtonProps<"button"> = {
+    onClick: () => void IModelApp.tools.run(CancelFilterHierarchyByVisibleElementIdsTool.toolId),
+  };
+
   return (
     <>
       <Toolbar
         searchOptions={searchOptions} >
         {[
-          <Button
-            key="activate-filter-btn"
-            onClick={async () => IModelApp.tools.run(TriggerFilterHierarchyByVisibleElementIdsTool.toolId)}>
+          <Button as="button" key="activate-filter-btn" {...activateFilterButtonProps} >
             <Icon iconSpec={<FilterIcon />} />
           </Button>,
-          <Button
-            key="cancel-filter-btn"
-            onClick={async () => IModelApp.tools.run(CancelFilterHierarchyByVisibleElementIdsTool.toolId)}>
+          <Button as="button" key="cancel-filter-btn" {...cancelFilterButtonProps} >
             <Icon iconSpec={<CancelFilterIcon />} />
           </Button>,
         ]}
@@ -174,16 +178,24 @@ function CategoriesTreeComponent(props: CategoriesTreeComponentProps) {
   const [divRef, divElement] = useRefState<HTMLDivElement>();
   const [width, height] = useLayoutResizeObserver(divElement ?? null);
 
+  const showAllButtonProps: ButtonProps<"button"> = {
+    onClick: showAll,
+  };
+
+  const hideAllButtonProps: ButtonProps<"button"> = {
+    onClick: hideAll,
+  };
+
   return (
     <>
       <Toolbar
         searchOptions={searchOptions}
       >
         {[
-          <Button key="show-all-btn" onClick={showAll}>
+          <Button as="button" key="show-all-btn" {...showAllButtonProps}>
             <WebFontIcon iconName="icon-visibility" />
           </Button>,
-          <Button key="hide-all-btn" onClick={hideAll}>
+          <Button as="button" key="hide-all-btn" {...hideAllButtonProps}>
             <WebFontIcon iconName="icon-visibility-hide-2" />
           </Button>,
         ]}

@@ -199,7 +199,7 @@ export class Form extends React.Component<FormProps, FormState> {
     const { fields, submitButtonLabel } = this.props;
     const context: FormContextState = { ...this.state, setValues: this._setValues };
 
-    const buttonProps: Partial<ButtonProps> = {
+    const buttonProps: ButtonProps<"button"> = {
       type: "submit",
       styleType: "high-visibility",
     };

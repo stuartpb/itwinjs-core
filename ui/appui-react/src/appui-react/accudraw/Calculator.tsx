@@ -134,13 +134,13 @@ export class Calculator extends React.PureComponent<CalculatorProps, CalculatorS
         value={this.state.displayValue} readOnly={true} icon={this.props.resultIcon} /> :
       <Input value={this.state.displayValue} readOnly={true} size="small" />;
 
-    const okButtonProps: Partial<ButtonProps> = {
+    const okButtonProps: ButtonProps<"button"> = {
       className: classnames("uifw-calculator-large-button", "uifw-calculator-ok-button"),
       styleType: "cta",
       onClick: this._handleOk,
     };
 
-    const cancelButtonProps: Partial<ButtonProps> = {
+    const cancelButtonProps: ButtonProps<"button"> = {
       className: classnames("uifw-calculator-large-button", "uifw-calculator-cancel-button"),
       onClick: this._handleCancel,
     };
