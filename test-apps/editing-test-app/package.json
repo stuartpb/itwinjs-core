@@ -1,0 +1,32 @@
+{
+  "name": "editing-test-app",
+  "version": "0.0.0",
+  "description": "Editing Test Application",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "build": "npm run build:frontend",
+    "start": "npm run start:frontend",
+    "build:frontend": "cross-env SKIP_PREFLIGHT_CHECK=true react-scripts build",
+    "start:frontend": "cross-env SKIP_PREFLIGHT_CHECK=true react-scripts start"
+  },
+  "author": {
+    "name": "Bentley Systems, Inc.",
+    "url": "http://www.bentley.com"
+  },
+  "devDependencies": {
+    "@bentley/react-scripts": "4.0.3",
+    "@types/react": "^17.0.37",
+    "@types/react-dom": "^17.0.0",
+    "cross-env": "^5.1.4",
+    "typescript": "~4.4.0",
+    "webpack": "4.42.0"
+  },
+  "dependencies": {
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0"
+  },
+  "browserslist": [
+    "electron 10.0.0"
+  ]
+}

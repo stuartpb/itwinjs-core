@@ -452,6 +452,12 @@
       "shouldPublish": false
     },
     {
+      "packageName": "editing-test-app",
+      "projectFolder": "test-apps/editing-test-app",
+      "reviewCategory": "internal",
+      "shouldPublish": false
+    },
+    {
       "packageName": "display-performance-test-app",
       "projectFolder": "test-apps/display-performance-test-app",
       "reviewCategory": "internal",
