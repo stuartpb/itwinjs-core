@@ -2,6 +2,9 @@
 * Copyright (c) Bentley Systems, Incorporated. All rights reserved.
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
+import * as dotenv from "dotenv";
+import * as expand from "dotenv-expand";
+import * as fs from "fs";
 import * as path from "path";
 import { IModelHostConfiguration } from "@itwin/core-backend";
 import { Logger, LogLevel } from "@itwin/core-bentley";
@@ -9,6 +12,7 @@ import { IModelReadRpcInterface, IModelTileRpcInterface } from "@itwin/core-comm
 import { ElectronHost } from "@itwin/core-electron/lib/cjs/ElectronBackend";
 import { EditCommandAdmin } from "@itwin/editor-backend";
 import * as editorCommands from "@itwin/editor-backend";
+import { ElectronMainAuthorization } from "@itwin/electron-authorization/lib/cjs/ElectronMain";
 import { BackendIModelsAccess } from "@itwin/imodels-access-backend";
 import { Presentation, PresentationManagerMode } from "@itwin/presentation-backend";
 import { PresentationRpcInterface } from "@itwin/presentation-common";
@@ -19,9 +23,23 @@ const rpcInterfaces = [
   PresentationRpcInterface,
 ];
 
+function loadEnv() {
+  const envPath = path.join(process.cwd(), ".env");
+  if (fs.existsSync(envPath)) {
+    const envConfig = dotenv.config();
+    expand(envConfig);
+  }
+}
+
 async function initializeElectron() {
+  const authorizationClient = await ElectronMainAuthorization.create({
+    clientId: process.env.IMJS_OIDC_ELECTRON_TEST_CLIENT_ID ?? "",
+    redirectUri: process.env.IMJS_OIDC_ELECTRON_TEST_REDIRECT_URI ?? "",
+    scope: process.env.IMJS_OIDC_ELECTRON_TEST_SCOPES ?? "",
+  });
   const iModelHost = new IModelHostConfiguration();
   iModelHost.hubAccess = new BackendIModelsAccess();
+  iModelHost.authorizationClient = authorizationClient;
 
   await ElectronHost.startup({
     electronHost: {
@@ -55,6 +73,7 @@ function initializeEditCommands() {
 }
 
 (async function () {
+  loadEnv();
   initializeLogging();
   initializePresentation();
   await initializeElectron();

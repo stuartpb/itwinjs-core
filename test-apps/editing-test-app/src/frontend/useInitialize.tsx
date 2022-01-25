@@ -3,7 +3,7 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 import * as React from "react";
-import { FrameworkUiAdmin, FrontstageManager, UiFramework } from "@itwin/appui-react";
+import { AppNotificationManager, FrameworkUiAdmin, FrontstageManager, UiFramework } from "@itwin/appui-react";
 import { ElectronApp } from "@itwin/core-electron/lib/cjs/ElectronFrontend";
 import { IModelApp } from "@itwin/core-frontend";
 import { EditTools } from "@itwin/editor-frontend";
@@ -25,6 +25,7 @@ export default function useInitialize() {
       await ElectronApp.startup({
         iModelApp: {
           authorizationClient: new ElectronRendererAuthorization(),
+          notifications: new AppNotificationManager(),
           uiAdmin: new FrameworkUiAdmin(),
         },
       });
