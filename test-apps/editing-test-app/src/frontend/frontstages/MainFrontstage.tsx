@@ -57,6 +57,16 @@ export class MainFrontstage extends FrontstageProvider {
             ]}
           />
         }
+        toolSettings={
+          <Zone
+            widgets={[
+              <Widget
+                key={`${this.id}-toolSettings`}
+                isToolSettings={true}
+              />,
+            ]}
+          />
+        }
         statusBar={
           <Zone
             widgets={[
