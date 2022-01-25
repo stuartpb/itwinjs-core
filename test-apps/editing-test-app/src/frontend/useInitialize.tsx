@@ -3,7 +3,7 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 import * as React from "react";
-import { FrontstageManager, UiFramework } from "@itwin/appui-react";
+import { FrameworkUiAdmin, FrontstageManager, UiFramework } from "@itwin/appui-react";
 import { ElectronApp } from "@itwin/core-electron/lib/cjs/ElectronFrontend";
 import { IModelApp } from "@itwin/core-frontend";
 import { ElectronRendererAuthorization } from "@itwin/electron-authorization/lib/cjs/ElectronRenderer";
@@ -21,10 +21,10 @@ export default function useInitialize() {
   const [initialized, setInitialized] = React.useState(false);
   React.useEffect(() => {
     (async function () {
-      const authorizationClient = new ElectronRendererAuthorization();
       await ElectronApp.startup({
         iModelApp: {
-          authorizationClient,
+          authorizationClient: new ElectronRendererAuthorization(),
+          uiAdmin: new FrameworkUiAdmin(),
         },
       });
 
@@ -36,6 +36,8 @@ export default function useInitialize() {
           activeLocale,
         },
       });
+
+      IModelApp.uiAdmin.updateFeatureFlags({ allowKeyinPalette: true });
 
       provideFrontstages();
 
