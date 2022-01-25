@@ -72,7 +72,7 @@ export class MainFrontstage extends FrontstageProvider {
             widgets={[
               <Widget
                 key={`${this.id}-statusBar`}
-                isStatusBar
+                isStatusBar={true}
                 control={StatusBarWidgetControl}
               />,
             ]}
