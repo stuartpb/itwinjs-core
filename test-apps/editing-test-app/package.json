@@ -19,20 +19,34 @@
   "devDependencies": {
     "@bentley/react-scripts": "4.0.3",
     "@itwin/build-tools": "workspace:*",
+    "@itwin/eslint-plugin": "workspace:*",
     "@types/react": "^17.0.37",
     "@types/react-dom": "^17.0.0",
+    "@types/react-redux": "^7.1.18",
     "cross-env": "^5.1.4",
     "electron": "^14.0.0",
     "typescript": "~4.4.0",
     "webpack": "4.42.0"
   },
   "dependencies": {
+    "@itwin/appui-abstract": "workspace:*",
+    "@itwin/appui-layout-react": "workspace:*",
+    "@itwin/appui-react": "workspace:*",
     "@itwin/core-backend": "workspace:*",
     "@itwin/core-bentley": "workspace:*",
+    "@itwin/core-common": "workspace:*",
     "@itwin/core-electron": "workspace:*",
+    "@itwin/core-frontend": "workspace:*",
+    "@itwin/core-react": "workspace:*",
+    "@itwin/electron-authorization": "^0.6.0",
     "@itwin/imodels-access-backend": "^1.0.0",
+    "@itwin/presentation-backend": "workspace:*",
+    "@itwin/presentation-common": "workspace:*",
+    "@itwin/presentation-frontend": "workspace:*",
     "react": "^17.0.0",
-    "react-dom": "^17.0.0"
+    "react-dom": "^17.0.0",
+    "react-redux": "^7.2.2",
+    "redux": "^4.1.0"
   },
   "browserslist": [
     "electron 10.0.0"
