@@ -7,6 +7,8 @@ import { IModelHostConfiguration } from "@itwin/core-backend";
 import { Logger, LogLevel } from "@itwin/core-bentley";
 import { IModelReadRpcInterface, IModelTileRpcInterface } from "@itwin/core-common";
 import { ElectronHost } from "@itwin/core-electron/lib/cjs/ElectronBackend";
+import { EditCommandAdmin } from "@itwin/editor-backend";
+import * as editorCommands from "@itwin/editor-backend";
 import { BackendIModelsAccess } from "@itwin/imodels-access-backend";
 import { Presentation, PresentationManagerMode } from "@itwin/presentation-backend";
 import { PresentationRpcInterface } from "@itwin/presentation-common";
@@ -48,8 +50,13 @@ function initializePresentation() {
   });
 }
 
+function initializeEditCommands() {
+  EditCommandAdmin.registerModule(editorCommands);
+}
+
 (async function () {
   initializeLogging();
   initializePresentation();
   await initializeElectron();
+  initializeEditCommands();
 })();

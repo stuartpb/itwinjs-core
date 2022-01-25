@@ -6,6 +6,7 @@ import * as React from "react";
 import { FrameworkUiAdmin, FrontstageManager, UiFramework } from "@itwin/appui-react";
 import { ElectronApp } from "@itwin/core-electron/lib/cjs/ElectronFrontend";
 import { IModelApp } from "@itwin/core-frontend";
+import { EditTools } from "@itwin/editor-frontend";
 import { ElectronRendererAuthorization } from "@itwin/electron-authorization/lib/cjs/ElectronRenderer";
 import { Presentation } from "@itwin/presentation-frontend";
 
@@ -36,6 +37,8 @@ export default function useInitialize() {
           activeLocale,
         },
       });
+
+      await EditTools.initialize({ registerAllTools: true });
 
       IModelApp.uiAdmin.updateFeatureFlags({ allowKeyinPalette: true });
 

@@ -14,12 +14,14 @@ import {
   StateManager,
 } from "@itwin/appui-react";
 import { HomeFrontstage } from "./frontstages/HomeFrontstage";
+import useActiveSettings from "./useActiveSettings";
 
 export default function AppUi() {
   const items = React.useMemo<BackstageItem[]>(() => [], []);
   React.useEffect(() => {
     void FrontstageManager.setActiveFrontstage(HomeFrontstage.stageId);
   }, []);
+  useActiveSettings();
   return (
     <Provider store={StateManager.store}>
       <ConfigurableUiContent
