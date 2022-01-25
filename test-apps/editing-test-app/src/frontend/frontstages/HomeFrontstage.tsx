@@ -63,7 +63,7 @@ class HomeControl extends ContentControl {
 }
 
 export class HomeFrontstage extends FrontstageProvider {
-  public static stageId = "editing-test-app:HomeFrontstage";
+  public static readonly stageId = "editing-test-app:HomeFrontstage";
 
   public override get id() {
     return HomeFrontstage.stageId;

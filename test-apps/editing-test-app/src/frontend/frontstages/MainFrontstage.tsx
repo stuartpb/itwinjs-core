@@ -4,12 +4,13 @@
 *--------------------------------------------------------------------------------------------*/
 import * as React from "react";
 import {
-  ContentGroup, CoreTools, Frontstage, FrontstageProvider, IModelViewportControl,
+  BasicNavigationWidget, BasicToolWidget, ContentGroup, CoreTools, Frontstage, FrontstageProvider, IModelViewportControl,
+  Widget, Zone,
 } from "@itwin/appui-react";
 import { StandardContentLayouts } from "@itwin/appui-abstract";
 
 export class MainFrontstage extends FrontstageProvider {
-  public static stageId = "editing-test-app:MainFrontstage";
+  public static readonly stageId = "editing-test-app:MainFrontstage";
 
   public override get id() {
     return MainFrontstage.stageId;
@@ -35,6 +36,26 @@ export class MainFrontstage extends FrontstageProvider {
         version={1}
         defaultTool={CoreTools.selectElementCommand}
         contentGroup={contentGroup}
+        contentManipulationTools={
+          <Zone
+            widgets={[
+              <Widget
+                key={`${this.id}-toolWidget`}
+                element={<BasicToolWidget />}
+              />,
+            ]}
+          />
+        }
+        viewNavigationTools={
+          <Zone
+            widgets={[
+              <Widget
+                key={`${this.id}-navigationWidget`}
+                element={<BasicNavigationWidget />}
+              />,
+            ]}
+          />
+        }
       />
     );
   }
