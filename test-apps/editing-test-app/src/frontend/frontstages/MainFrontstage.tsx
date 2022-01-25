@@ -8,6 +8,7 @@ import {
   Widget, Zone,
 } from "@itwin/appui-react";
 import { StandardContentLayouts } from "@itwin/appui-abstract";
+import StatusBarWidgetControl from "../StatusBar";
 
 export class MainFrontstage extends FrontstageProvider {
   public static readonly stageId = "editing-test-app:MainFrontstage";
@@ -52,6 +53,17 @@ export class MainFrontstage extends FrontstageProvider {
               <Widget
                 key={`${this.id}-navigationWidget`}
                 element={<BasicNavigationWidget />}
+              />,
+            ]}
+          />
+        }
+        statusBar={
+          <Zone
+            widgets={[
+              <Widget
+                key={`${this.id}-statusBar`}
+                isStatusBar
+                control={StatusBarWidgetControl}
               />,
             ]}
           />
