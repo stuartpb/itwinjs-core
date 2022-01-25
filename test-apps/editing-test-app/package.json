@@ -5,12 +5,13 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "build": "npm run build:backend && npm run build:frontend",
+    "build": "npm run build:backend && npm run build:frontend && npm run pseudolocalize",
     "start": "npm run start:frontend",
     "build:backend": "tsc -p tsconfig.backend.json",
     "build:frontend": "cross-env DISABLE_NEW_JSX_TRANSFORM=true SKIP_PREFLIGHT_CHECK=true DISABLE_NEW_ASSET_COPY=true BROWSER=none DISABLE_ESLINT=true TRANSPILE_DEPS=false USE_FAST_SASS=true react-scripts build",
     "start:frontend": "cross-env DISABLE_NEW_JSX_TRANSFORM=true SKIP_PREFLIGHT_CHECK=true DISABLE_NEW_ASSET_COPY=true BROWSER=none DISABLE_ESLINT=true TRANSPILE_DEPS=false USE_FAST_SASS=true react-scripts start",
-    "start:electron": "cross-env NODE_ENV=development electron ./lib/main.js"
+    "start:electron": "cross-env NODE_ENV=development electron ./lib/main.js",
+    "pseudolocalize": "betools pseudolocalize --englishDir ./build/locales/en --out ./build/locales/en-PSEUDO"
   },
   "author": {
     "name": "Bentley Systems, Inc.",

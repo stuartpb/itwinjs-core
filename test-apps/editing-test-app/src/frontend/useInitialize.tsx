@@ -30,6 +30,8 @@ export default function useInitialize() {
         },
       });
 
+      await IModelApp.localization.changeLanguage("en-PSEUDO");
+
       await UiFramework.initialize(undefined);
 
       const activeLocale = IModelApp.localization.getLanguageList()[0];
