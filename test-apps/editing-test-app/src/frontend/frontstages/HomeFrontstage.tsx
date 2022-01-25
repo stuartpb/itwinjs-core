@@ -4,9 +4,10 @@
 *--------------------------------------------------------------------------------------------*/
 import * as React from "react";
 import {
+  BackstageAppButton,
   ConfigurableCreateInfo,
   ContentControl,
-  ContentGroup, CoreTools, Frontstage, FrontstageManager, FrontstageProvider, UiFramework,
+  ContentGroup, CoreTools, FrameworkRootState, FrameworkState, Frontstage, FrontstageManager, FrontstageProvider, UiFramework,
 } from "@itwin/appui-react";
 import { StandardContentLayouts } from "@itwin/appui-abstract";
 import { Button } from "@itwin/itwinui-react";
@@ -14,6 +15,7 @@ import { OpenDialogOptions } from "electron";
 import { BriefcaseConnection, IModelConnection, ViewCreator3d } from "@itwin/core-frontend";
 import { ElectronApp } from "@itwin/core-electron/lib/cjs/ElectronFrontend";
 import { MainFrontstage } from "./MainFrontstage";
+import { useSelector } from "react-redux";
 
 async function getViewState(iModel: IModelConnection) {
   const viewCreator = new ViewCreator3d(iModel);
@@ -21,6 +23,11 @@ async function getViewState(iModel: IModelConnection) {
 }
 
 function HomePage() {
+  const [opening, setOpening] = React.useState(false);
+  const iModelConnection = useSelector((state: FrameworkRootState) => {
+    const frameworkState = (state as any)[UiFramework.frameworkStateKey] as FrameworkState;
+    return frameworkState.sessionState.iModelConnection as IModelConnection | undefined;
+  });
   const onClick = async () => {
     const options: OpenDialogOptions = {
       properties: ["openFile"],
@@ -32,6 +39,7 @@ function HomePage() {
     if (!fileName)
       return;
 
+    setOpening(true);
     const iModelConnection = await BriefcaseConnection.openFile({ fileName });
     UiFramework.setIModelConnection(iModelConnection);
 
@@ -42,16 +50,29 @@ function HomePage() {
   };
 
   return (
-    <div style={{
-      height: "100%",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    }}>
-      <Button onClick={onClick}>
-        Open Model
-      </Button>
-    </div>
+    <>
+      {iModelConnection && !opening ? <div style={{
+        position: "absolute",
+        padding: "0.75em"
+      }}>
+        <BackstageAppButton
+          icon="icon-progress-backward"
+          execute={() => {
+            void FrontstageManager.setActiveFrontstage(MainFrontstage.stageId);
+          }}
+        />
+      </div> : null}
+      <div style={{
+        height: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}>
+        <Button onClick={onClick}>
+          Open Model
+        </Button>
+      </div>
+    </>
   );
 }
 

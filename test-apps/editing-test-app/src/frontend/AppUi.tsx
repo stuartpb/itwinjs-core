@@ -5,9 +5,6 @@
 import * as React from "react";
 import { Provider } from "react-redux";
 import {
-  BackstageItem
-} from "@itwin/appui-abstract";
-import {
   BackstageComposer,
   ConfigurableUiContent,
   FrontstageManager,
@@ -15,9 +12,10 @@ import {
 } from "@itwin/appui-react";
 import { HomeFrontstage } from "./frontstages/HomeFrontstage";
 import useActiveSettings from "./useActiveSettings";
+import useBackstageItems from "./useBackstageItems";
 
 export default function AppUi() {
-  const items = React.useMemo<BackstageItem[]>(() => [], []);
+  const items = useBackstageItems();
   React.useEffect(() => {
     void FrontstageManager.setActiveFrontstage(HomeFrontstage.stageId);
   }, []);
