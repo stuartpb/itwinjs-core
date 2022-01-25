@@ -43,6 +43,7 @@
     "@itwin/editor-common": "workspace:*",
     "@itwin/editor-frontend": "workspace:*",
     "@itwin/electron-authorization": "^0.6.0",
+    "@itwin/imodel-components-react": "workspace:*",
     "@itwin/imodels-access-backend": "^1.0.0",
     "@itwin/itwinui-react": "~1.28.0",
     "@itwin/presentation-backend": "workspace:*",

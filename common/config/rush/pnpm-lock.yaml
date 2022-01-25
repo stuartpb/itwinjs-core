@@ -2676,6 +2676,7 @@ importers:
       '@itwin/editor-frontend': workspace:*
       '@itwin/electron-authorization': ^0.6.0
       '@itwin/eslint-plugin': workspace:*
+      '@itwin/imodel-components-react': workspace:*
       '@itwin/imodels-access-backend': ^1.0.0
       '@itwin/itwinui-react': ~1.28.0
       '@itwin/presentation-backend': workspace:*
@@ -2708,6 +2709,7 @@ importers:
       '@itwin/editor-common': link:../../editor/common
       '@itwin/editor-frontend': link:../../editor/frontend
       '@itwin/electron-authorization': 0.6.0
+      '@itwin/imodel-components-react': link:../../ui/imodel-components-react
       '@itwin/imodels-access-backend': 1.0.0
       '@itwin/itwinui-react': 1.28.0_react-dom@17.0.2+react@17.0.2
       '@itwin/presentation-backend': link:../../presentation/backend
