@@ -10,8 +10,10 @@ import { ElectronRendererAuthorization } from "@itwin/electron-authorization/lib
 import { Presentation } from "@itwin/presentation-frontend";
 
 import { MainFrontstage } from "./frontstages/MainFrontstage";
+import { HomeFrontstage } from "./frontstages/HomeFrontstage";
 
 function provideFrontstages() {
+  FrontstageManager.addFrontstageProvider(new HomeFrontstage());
   FrontstageManager.addFrontstageProvider(new MainFrontstage());
 }
 
