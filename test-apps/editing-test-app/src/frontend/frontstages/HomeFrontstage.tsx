@@ -2,24 +2,29 @@
 * Copyright (c) Bentley Systems, Incorporated. All rights reserved.
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
+import { OpenDialogOptions, SaveDialogOptions } from "electron";
 import * as React from "react";
+import { useSelector } from "react-redux";
+import { StandardContentLayouts } from "@itwin/appui-abstract";
 import {
   BackstageAppButton,
   ConfigurableCreateInfo,
   ContentControl,
   ContentGroup, CoreTools, FrameworkRootState, FrameworkState, Frontstage, FrontstageManager, FrontstageProvider, UiFramework,
 } from "@itwin/appui-react";
-import { StandardContentLayouts } from "@itwin/appui-abstract";
-import { Button } from "@itwin/itwinui-react";
-import { OpenDialogOptions, SaveDialogOptions } from "electron";
+import { BentleyStatus, Id64 } from "@itwin/core-bentley";
 import { BriefcaseConnection, IModelConnection, ViewCreator3d } from "@itwin/core-frontend";
 import { ElectronApp } from "@itwin/core-electron/lib/cjs/ElectronFrontend";
+import { Button } from "@itwin/itwinui-react";
+
 import { MainFrontstage } from "./MainFrontstage";
-import { useSelector } from "react-redux";
 import { editingAppIpc } from "../EditingAppIpc";
-import { BentleyStatus } from "@itwin/core-bentley";
 
 async function getViewState(iModel: IModelConnection) {
+  const defaultViewId = await iModel.views.queryDefaultViewId();
+  if (defaultViewId && Id64.isValidId64(defaultViewId))
+    return iModel.views.load(defaultViewId);
+
   const viewCreator = new ViewCreator3d(iModel);
   return viewCreator.createDefaultView();
 }
