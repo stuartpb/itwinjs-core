@@ -3,6 +3,7 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 import * as React from "react";
+import { UiItemsManager } from "@itwin/appui-abstract";
 import { AppNotificationManager, FrameworkUiAdmin, FrontstageManager, UiFramework } from "@itwin/appui-react";
 import { ElectronApp } from "@itwin/core-electron/lib/cjs/ElectronFrontend";
 import { IModelApp } from "@itwin/core-frontend";
@@ -12,10 +13,24 @@ import { Presentation } from "@itwin/presentation-frontend";
 
 import { MainFrontstage } from "./frontstages/MainFrontstage";
 import { HomeFrontstage } from "./frontstages/HomeFrontstage";
+import { ToolsProvider } from "./Tools";
 
-function provideFrontstages() {
-  FrontstageManager.addFrontstageProvider(new HomeFrontstage());
-  FrontstageManager.addFrontstageProvider(new MainFrontstage());
+const uiProviders = [
+  new ToolsProvider(),
+];
+
+const frontstageProviders = [
+  new HomeFrontstage(),
+  new MainFrontstage()
+];
+
+function registerProviders() {
+  frontstageProviders.forEach((provider) => {
+    FrontstageManager.addFrontstageProvider(provider);
+  });
+  uiProviders.forEach((provider) => {
+    UiItemsManager.register(provider);
+  });
 }
 
 export default function useInitialize() {
@@ -45,7 +60,7 @@ export default function useInitialize() {
 
       IModelApp.uiAdmin.updateFeatureFlags({ allowKeyinPalette: true });
 
-      provideFrontstages();
+      registerProviders();
 
       setInitialized(true);
     })();
