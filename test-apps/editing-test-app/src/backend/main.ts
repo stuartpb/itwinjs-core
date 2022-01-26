@@ -16,11 +16,16 @@ import { ElectronMainAuthorization } from "@itwin/electron-authorization/lib/cjs
 import { BackendIModelsAccess } from "@itwin/imodels-access-backend";
 import { Presentation, PresentationManagerMode } from "@itwin/presentation-backend";
 import { PresentationRpcInterface } from "@itwin/presentation-common";
+import { EditingAppIpcHandler } from "./EditingAppIpcHandler";
 
 const rpcInterfaces = [
   IModelReadRpcInterface,
   IModelTileRpcInterface,
   PresentationRpcInterface,
+];
+
+const ipcHandlers = [
+  EditingAppIpcHandler,
 ];
 
 function loadEnv() {
@@ -43,9 +48,10 @@ async function initializeElectron() {
 
   await ElectronHost.startup({
     electronHost: {
-      webResourcesPath: path.join(__dirname, "..", "build"),
+      webResourcesPath: path.join(__dirname, "..", "..", "build"),
       developmentServer: process.env.NODE_ENV === "development",
       rpcInterfaces,
+      ipcHandlers,
     },
     iModelHost,
   });

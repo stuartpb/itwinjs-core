@@ -11,11 +11,13 @@ import {
 } from "@itwin/appui-react";
 import { StandardContentLayouts } from "@itwin/appui-abstract";
 import { Button } from "@itwin/itwinui-react";
-import { OpenDialogOptions } from "electron";
+import { OpenDialogOptions, SaveDialogOptions } from "electron";
 import { BriefcaseConnection, IModelConnection, ViewCreator3d } from "@itwin/core-frontend";
 import { ElectronApp } from "@itwin/core-electron/lib/cjs/ElectronFrontend";
 import { MainFrontstage } from "./MainFrontstage";
 import { useSelector } from "react-redux";
+import { editingAppIpc } from "../EditingAppIpc";
+import { BentleyStatus } from "@itwin/core-bentley";
 
 async function getViewState(iModel: IModelConnection) {
   const viewCreator = new ViewCreator3d(iModel);
@@ -28,7 +30,18 @@ function HomePage() {
     const frameworkState = (state as any)[UiFramework.frameworkStateKey] as FrameworkState;
     return frameworkState.sessionState.iModelConnection as IModelConnection | undefined;
   });
-  const onClick = async () => {
+  const openBriefcase = async (fileName: string) => {
+    setOpening(true);
+    const iModelConnection = await BriefcaseConnection.openFile({ fileName });
+    UiFramework.setIModelConnection(iModelConnection);
+
+    const viewState = await getViewState(iModelConnection);
+    UiFramework.setDefaultViewState(viewState);
+
+    void FrontstageManager.setActiveFrontstage(MainFrontstage.stageId);
+  };
+
+  const onOpenModel = async () => {
     const options: OpenDialogOptions = {
       properties: ["openFile"],
       filters: [{ name: "iModels", extensions: ["ibim", "bim"] }],
@@ -39,14 +52,25 @@ function HomePage() {
     if (!fileName)
       return;
 
-    setOpening(true);
-    const iModelConnection = await BriefcaseConnection.openFile({ fileName });
-    UiFramework.setIModelConnection(iModelConnection);
+    await openBriefcase(fileName);
+  };
 
-    const viewState = await getViewState(iModelConnection);
-    UiFramework.setDefaultViewState(viewState);
+  const onCreateModel = async () => {
+    const options: SaveDialogOptions = {
+      properties: ["showOverwriteConfirmation"],
+      filters: [{ name: "iModel", extensions: ["bim"] }],
+    };
 
-    void FrontstageManager.setActiveFrontstage(MainFrontstage.stageId);
+    const val = await ElectronApp.callDialog("showSaveDialog", options);
+    const filePath = val.filePath;
+    if (!filePath)
+      return;
+
+    const status = await editingAppIpc.createEmptyModel(filePath);
+    if (status === BentleyStatus.ERROR)
+      return;
+
+    await openBriefcase(filePath);
   };
 
   return (
@@ -65,11 +89,16 @@ function HomePage() {
       <div style={{
         height: "100%",
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
       }}>
-        <Button onClick={onClick}>
+        <Button onClick={onOpenModel}>
           Open Model
+        </Button>
+        <br />
+        <Button onClick={onCreateModel}>
+          Create Model
         </Button>
       </div>
     </>

@@ -2670,6 +2670,7 @@ importers:
       '@itwin/core-common': workspace:*
       '@itwin/core-electron': workspace:*
       '@itwin/core-frontend': workspace:*
+      '@itwin/core-geometry': workspace:*
       '@itwin/core-react': workspace:*
       '@itwin/editor-backend': workspace:*
       '@itwin/editor-common': workspace:*
@@ -2704,6 +2705,7 @@ importers:
       '@itwin/core-common': link:../../core/common
       '@itwin/core-electron': link:../../core/electron
       '@itwin/core-frontend': link:../../core/frontend
+      '@itwin/core-geometry': link:../../core/geometry
       '@itwin/core-react': link:../../ui/core-react
       '@itwin/editor-backend': link:../../editor/backend
       '@itwin/editor-common': link:../../editor/common
@@ -6531,8 +6533,8 @@ packages:
       oidc-client: 1.11.5
     dev: false
 
-  /@itwin/certa/3.1.0-dev.12:
-    resolution: {integrity: sha512-Ppqb3BYX7hd/xA4DLhMQKqjGkJ2YnMFQjavzUwl6MPFhsMJ1O4AvnQhru3b56dsdcOfYxmK7ov1KMm1hN26U4w==}
+  /@itwin/certa/3.1.0-dev.13:
+    resolution: {integrity: sha512-6xWl/e4Q/4G7ZhJjxOIQpNterJwqImALZssjgFzOuF8eXcVr35VnlQXN/mzEqh7sSfePMTmqjcb1TEIpUya/tA==}
     hasBin: true
     peerDependencies:
       electron: ^14.0.0
@@ -6554,8 +6556,8 @@ packages:
       - supports-color
       - utf-8-validate
 
-  /@itwin/certa/3.1.0-dev.12_electron@14.2.4:
-    resolution: {integrity: sha512-Ppqb3BYX7hd/xA4DLhMQKqjGkJ2YnMFQjavzUwl6MPFhsMJ1O4AvnQhru3b56dsdcOfYxmK7ov1KMm1hN26U4w==}
+  /@itwin/certa/3.1.0-dev.13_electron@14.2.4:
+    resolution: {integrity: sha512-6xWl/e4Q/4G7ZhJjxOIQpNterJwqImALZssjgFzOuF8eXcVr35VnlQXN/mzEqh7sSfePMTmqjcb1TEIpUya/tA==}
     hasBin: true
     peerDependencies:
       electron: ^14.0.0
@@ -6583,8 +6585,8 @@ packages:
     resolution: {integrity: sha512-W+R80ZFC+d+0bXp7wGht7oDuCou2l/gHHP+uvy0lZUY3WnPq71LCAKpCzrUVcGusM41bCumoavWnW/xGAt/0hg==}
     dev: false
 
-  /@itwin/core-bentley/3.1.0-dev.12:
-    resolution: {integrity: sha512-EwjsivMQiUBSJHsKxqfuZpxhxSiMELIeeTkveZLWhc8h0PD0fxiHe/D7/gtIDcPlwL3fsabLs+VtPG9IQcCWIw==}
+  /@itwin/core-bentley/3.1.0-dev.13:
+    resolution: {integrity: sha512-OkLLaAxFxkwFAToyWoeAGQfD0D4cGXfWJEfKNMBYNN8zHNK/+n90r78vPjxKvWcOH3V4zR5OMEdvW5gKFoBpIg==}
 
   /@itwin/core-geometry/3.0.0-dev.185:
     resolution: {integrity: sha512-UQvZdMaSraChiEudZxYJkC/cCWskHqmLLN9IB2iG83MYwYGJ9zrehjolh+ZAch261IRmBJ8E85P8HfRIvndIeA==}
@@ -6730,8 +6732,8 @@ packages:
   /@itwin/oidc-signin-tool/3.0.0:
     resolution: {integrity: sha512-zp6S6tQDyI0MSEoA7THlyXJlrtlqhk7X7BMpH8VMkvabEgJOY9AdLjoFbvJPZhcnhjq7CMdxXJWVC3D9QOaYgA==}
     dependencies:
-      '@itwin/certa': 3.1.0-dev.12
-      '@itwin/core-bentley': 3.1.0-dev.12
+      '@itwin/certa': 3.1.0-dev.13
+      '@itwin/core-bentley': 3.1.0-dev.13
       dotenv: 10.0.0
       dotenv-expand: 5.1.0
       openid-client: 4.9.1
@@ -6745,8 +6747,8 @@ packages:
   /@itwin/oidc-signin-tool/3.0.0_electron@14.2.4:
     resolution: {integrity: sha512-zp6S6tQDyI0MSEoA7THlyXJlrtlqhk7X7BMpH8VMkvabEgJOY9AdLjoFbvJPZhcnhjq7CMdxXJWVC3D9QOaYgA==}
     dependencies:
-      '@itwin/certa': 3.1.0-dev.12_electron@14.2.4
-      '@itwin/core-bentley': 3.1.0-dev.12
+      '@itwin/certa': 3.1.0-dev.13_electron@14.2.4
+      '@itwin/core-bentley': 3.1.0-dev.13
       dotenv: 10.0.0
       dotenv-expand: 5.1.0
       openid-client: 4.9.1
