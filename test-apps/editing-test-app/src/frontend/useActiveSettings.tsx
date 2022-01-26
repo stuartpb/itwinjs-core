@@ -27,6 +27,7 @@ function updateActiveSettingsFromView(viewport: Viewport) {
   }
 }
 
+// TODO: need a proper category/model selector.
 export default function useActiveSettings() {
   React.useEffect(() => {
     return IModelApp.viewManager.onSelectedViewportChanged.addListener((args) => {

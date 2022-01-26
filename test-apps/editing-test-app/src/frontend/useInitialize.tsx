@@ -11,8 +11,10 @@ import { EditTools } from "@itwin/editor-frontend";
 import { ElectronRendererAuthorization } from "@itwin/electron-authorization/lib/cjs/ElectronRenderer";
 import { Presentation } from "@itwin/presentation-frontend";
 
-import { MainFrontstage } from "./frontstages/MainFrontstage";
 import { HomeFrontstage } from "./frontstages/HomeFrontstage";
+import { MainFrontstage } from "./frontstages/MainFrontstage";
+import { ModelFrontstage } from "./frontstages/ModelFrontstage";
+import { ProjectFrontstage } from "./frontstages/ProjectFrontstage";
 import { ToolsProvider } from "./Tools";
 
 const uiProviders = [
@@ -21,7 +23,9 @@ const uiProviders = [
 
 const frontstageProviders = [
   new HomeFrontstage(),
-  new MainFrontstage()
+  new MainFrontstage(),
+  new ModelFrontstage(),
+  new ProjectFrontstage(),
 ];
 
 function registerProviders() {

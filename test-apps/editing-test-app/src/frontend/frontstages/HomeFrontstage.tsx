@@ -13,12 +13,15 @@ import {
   ContentGroup, CoreTools, FrameworkRootState, FrameworkState, Frontstage, FrontstageManager, FrontstageProvider, UiFramework,
 } from "@itwin/appui-react";
 import { BentleyStatus, Id64 } from "@itwin/core-bentley";
-import { BriefcaseConnection, IModelConnection, ViewCreator3d } from "@itwin/core-frontend";
+import { BriefcaseConnection, IModelApp, IModelConnection, ViewCreator3d } from "@itwin/core-frontend";
 import { ElectronApp } from "@itwin/core-electron/lib/cjs/ElectronFrontend";
+import { ElectronRendererAuthorization } from "@itwin/electron-authorization/lib/cjs/ElectronRenderer";
 import { Button } from "@itwin/itwinui-react";
 
 import { MainFrontstage } from "./MainFrontstage";
 import { editingAppIpc } from "../EditingAppIpc";
+import { ProjectFrontstage } from "./ProjectFrontstage";
+import { useSignedIn } from "../Authorization";
 
 async function getViewState(iModel: IModelConnection) {
   const defaultViewId = await iModel.views.queryDefaultViewId();
@@ -31,6 +34,7 @@ async function getViewState(iModel: IModelConnection) {
 
 function HomePage() {
   const [opening, setOpening] = React.useState(false);
+  const signedIn = useSignedIn();
   const iModelConnection = useSelector((state: FrameworkRootState) => {
     const frameworkState = (state as any)[UiFramework.frameworkStateKey] as FrameworkState;
     return frameworkState.sessionState.iModelConnection as IModelConnection | undefined;
@@ -78,6 +82,19 @@ function HomePage() {
     await openBriefcase(filePath);
   };
 
+  const onCloneModel = () => {
+    void FrontstageManager.setActiveFrontstage(ProjectFrontstage.stageId);
+  };
+
+  const onSignOut = () => {
+    const authorizationClient = IModelApp.authorizationClient;
+    if (!authorizationClient)
+      return;
+    if (!(authorizationClient instanceof ElectronRendererAuthorization))
+      return;
+    void authorizationClient.signOut();
+  };
+
   return (
     <>
       {iModelConnection && !opening ? <div style={{
@@ -105,6 +122,14 @@ function HomePage() {
         <Button onClick={onCreateModel}>
           Create Model
         </Button>
+        <br />
+        <Button onClick={onCloneModel}>
+          Clone Model
+        </Button>
+        <br />
+        {signedIn && <Button onClick={onSignOut}>
+          Sign Out
+        </Button>}
       </div>
     </>
   );

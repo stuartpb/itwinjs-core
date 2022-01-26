@@ -171,6 +171,10 @@
       "allowedCategories": [ "internal" ]
     },
     {
+      "name": "@itwin/imodel-browser-react",
+      "allowedCategories": [ "internal" ]
+    },
+    {
       "name": "@itwin/imodel-components-react",
       "allowedCategories": [ "extensions", "frontend", "internal" ]
     },
