@@ -1020,6 +1020,25 @@
         "[BACKEND] display-test-app (electron)"
       ]
     },
+    {
+      "name": "editing-test-app (electron)",
+      "presentation": {
+        "group": "1_TestApps",
+        "order": 2
+      },
+      "cwd": "${workspaceFolder}/test-apps/editing-test-app/",
+      "type": "pwa-node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceFolder}/test-apps/editing-test-app/node_modules/.bin/electron",
+      "runtimeArgs": [
+        "${workspaceFolder}/test-apps/editing-test-app/lib/backend/main.js",
+        "--remote-debugging-port=9223"
+      ],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "outputCapture": "std",
+    },
     { /* PARTIAL */
       "name": "[BACKEND] display-performance-test-app (chrome)",
       "presentation": {
