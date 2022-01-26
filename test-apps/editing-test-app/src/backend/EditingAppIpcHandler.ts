@@ -2,7 +2,7 @@
 * Copyright (c) Bentley Systems, Incorporated. All rights reserved.
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
-import { CategorySelector, DefinitionModel, DisplayStyle3d, IModelDb, IpcHandler, ModelSelector, PhysicalModel, SnapshotDb, SpatialCategory, SpatialViewDefinition } from "@itwin/core-backend";
+import { CategorySelector, DefinitionModel, DisplayStyle3d, IModelDb, IpcHandler, ModelSelector, PhysicalModel, SpatialCategory, SpatialViewDefinition, StandaloneDb } from "@itwin/core-backend";
 import { BentleyStatus, Id64Array, Id64String } from "@itwin/core-bentley";
 import { ColorByName, ColorDef, IModel, RenderMode, SubCategoryAppearance, ViewFlags } from "@itwin/core-common";
 import { Range3d } from "@itwin/core-geometry";
@@ -15,12 +15,13 @@ export class EditingAppIpcHandler extends IpcHandler implements EditingAppIpcInt
   }
 
   public async createEmptyModel(filePath: string): Promise<BentleyStatus> {
-    const iModelDb = SnapshotDb.createEmpty(filePath, {
+    const iModelDb = StandaloneDb.createEmpty(filePath, {
       rootSubject: {
         name: "Empty Model",
         description: "Empty Model Root Subject ",
       },
-      createClassViews: true,
+      allowEdit: `{ "txns": true }`,
+      projectExtents: new Range3d(-500, -500, -100, 500, 500, 100),
     });
 
     const physicalModelId = PhysicalModel.insert(iModelDb, IModel.rootSubjectId, "Physical Model");
@@ -34,9 +35,6 @@ export class EditingAppIpcHandler extends IpcHandler implements EditingAppIpcInt
 
     const defaultView3dId = insert3dView(iModelDb, definitionModelId, [physicalModelId], [defaultSpatialCategoryId]);
     iModelDb.views.setDefaultViewId(defaultView3dId);
-
-    const projectExtents = new Range3d(-1500, -1500, -500, 1500, 1500, 500);
-    iModelDb.updateProjectExtents(projectExtents);
 
     iModelDb.saveChanges("Empty iModel initialized");
     iModelDb.close();
