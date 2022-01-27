@@ -11,6 +11,8 @@ import {
   UiFramework,
 } from "@itwin/appui-react";
 import { HomeFrontstage } from "./frontstages/HomeFrontstage";
+import { IModelApp } from "@itwin/core-frontend";
+import { openPushChangesDialog } from "./PushChangesDialog";
 
 async function closeConnection() {
   const iModelConnection = UiFramework.getIModelConnection();
@@ -22,10 +24,34 @@ async function closeConnection() {
   UiFramework.setIModelConnection(undefined);
 }
 
+async function syncChanges() {
+  const iModelConnection = UiFramework.getIModelConnection();
+  if (!iModelConnection?.isBriefcaseConnection())
+    return;
+
+  const removeListener = iModelConnection.txns.onChangesPulled.addOnce((parentChangeset) => {
+    if (parentChangeset.id === iModelConnection.changeset.id)
+      return;
+    IModelApp.viewManager.refreshForModifiedModels(undefined);
+  });
+  await iModelConnection.pullChanges();
+  removeListener();
+
+  const hasPendingTxns = await iModelConnection.hasPendingTxns();
+  if (!hasPendingTxns)
+    return;
+  openPushChangesDialog((input) => {
+    if (!input)
+      return;
+    void iModelConnection.pushChanges(input.description);
+  });
+}
+
 export default function useBackstageItems() {
   const items = React.useMemo<BackstageItem[]>(() => [
-    BackstageItemUtilities.createStageLauncher(HomeFrontstage.stageId, 200, 10, "Home", undefined, "icon-home"),
-    BackstageItemUtilities.createActionItem("editing-test-app:Close", 200, 10, closeConnection, "Close", undefined, "icon-close"),
+    BackstageItemUtilities.createStageLauncher(HomeFrontstage.stageId, 100, 10, "Home", undefined, "icon-home"),
+    BackstageItemUtilities.createActionItem("editing-test-app:Sync", 200, 10, syncChanges, "Sync Changes", undefined, "icon-imodel-hub-sync"),
+    BackstageItemUtilities.createActionItem("editing-test-app:Close", 300, 10, closeConnection, "Close", undefined, "icon-close"),
   ], []);
   return items;
 }

@@ -43,7 +43,7 @@ function useDownloadIModel(): [Status, string | undefined, Download] {
     setFileName(undefined);
     try {
       const downloader = await NativeApp.requestDownloadBriefcase(iModel.projectId || "", iModel.id, {
-        syncMode: SyncMode.PullOnly,
+        syncMode: SyncMode.PullAndPush,
         fileName,
       });
       await downloader.downloadPromise;
