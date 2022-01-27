@@ -14,7 +14,7 @@ import {
   ChannelRootAspect, DefinitionElement, DefinitionModel, DefinitionPartition, ECSqlStatement, Element, ElementAspect, ElementDrivesElement, ElementMultiAspect,
   ElementOwnsExternalSourceAspects, ElementRefersToElements, ElementUniqueAspect, ExternalSource, ExternalSourceAspect, ExternalSourceAttachment,
   FolderLink, GeometricElement2d, GeometricElement3d, IModelCloneContext, IModelDb, IModelJsFs, InformationPartitionElement,
-  KnownLocations, Model, RecipeDefinitionElement, Relationship, RelationshipProps, Schema, Subject, SynchronizationConfigLink,
+  KnownLocations, Model, ModelSelector, RecipeDefinitionElement, Relationship, RelationshipProps, Schema, Subject, SynchronizationConfigLink,
 } from "@itwin/core-backend";
 import {
   Code, CodeSpec, ElementAspectProps, ElementProps, ExternalSourceAspectProps, FontProps, GeometricElement2dProps, GeometricElement3dProps, IModel,
@@ -696,6 +696,14 @@ export class IModelTransformer extends IModelExportHandler {
         const aspectProps: ExternalSourceAspectProps = this.initElementProvenance(sourceElement.id, targetElementProps.id!);
         if (aspectProps.id === undefined) {
           this.provenanceDb.elements.insertAspect(aspectProps);
+          if (sourceElement instanceof ModelSelector) {
+            const targetElement = this.targetDb.elements.getElement<ModelSelector>(targetElementProps.id!, ModelSelector);
+            if ((targetElementProps as any).models.length !== targetElement.models.length) {
+              // eslint-disable-next-line no-debugger
+              debugger;
+              throw Error("insert just inserted these, why do they read as invalid after the aspect insertion?");
+            }
+          }
         } else {
           this.provenanceDb.elements.updateAspect(aspectProps);
         }
