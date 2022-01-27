@@ -18,15 +18,14 @@ const syntaxKindFriendlyNames = {
   [ts.SyntaxKind.MethodDeclaration]: "method",
   [ts.SyntaxKind.MethodSignature]: "method",
   [ts.SyntaxKind.FunctionDeclaration]: "function",
-  [ts.SyntaxKind.GetAccessor]: "getter",
-  [ts.SyntaxKind.SetAccessor]: "setter",
   [ts.SyntaxKind.PropertyDeclaration]: "property",
   [ts.SyntaxKind.PropertySignature]: "property",
   [ts.SyntaxKind.Constructor]: "constructor",
   [ts.SyntaxKind.EnumMember]: "enum member",
   [ts.SyntaxKind.TypeAliasDeclaration]: "type alias",
   [ts.SyntaxKind.ExportDeclaration]: "export",
-  [ts.SyntaxKind.NamespaceExportDeclaration]: "Namespace export"
+  [ts.SyntaxKind.NamespaceExportDeclaration]: "namespace export",
+  [ts.SyntaxKind.VariableStatement]: "variable statement"
 }
 
 /**
@@ -40,19 +39,19 @@ module.exports = {
       category: "TypeScript",
     },
     messages: {
-      forbidden: `{{kind}} "{{name}}" without one of the release tags "{{requiredTags}}".`,
+      forbidden: `{{kind}} "{{name}}" without one of the release tags "{{releaseTags}}".`,
     },
     schema: [
       {
         type: "object",
         additionalProperties: false,
         properties: {
-          requiredTags: {
+          releaseTags: {
             type: "array",
             uniqueItems: true,
             items: {
               type: "string",
-              enum: ["public", "beta", "alpha", "internal"]
+              enum: ["public", "beta", "alpha", "internal", "preview"]
             }
           }
         }
@@ -61,9 +60,10 @@ module.exports = {
   },
 
   create(context) {
-    const requiredTags = (context.options.length > 0 && context.options[0].tag) || ["public"];
-    const extensionApiTag = "extensionApi"; // SWB temporary extension tag name
     const parserServices = getParserServices(context);
+
+    const releaseTags = (context.options.length > 0 && context.options[0].releaseTags) || ["public"];
+    const extensionApiTag = "extensionApi"; // SWB temporary extension tag name
 
     function getFileName(parent) {
       let currentParent = parent;
@@ -97,10 +97,11 @@ module.exports = {
 
       for (const jsDoc of declaration.jsDoc)
         if (jsDoc.tags) {
+          let jsDocExtensionTag = jsDoc.tags.find(tag => tag.tagName.escapedText === extensionApiTag);
           // Has extension API tag
-          if (jsDoc.tags.some(tag => tag.tagName.escapedText === extensionApiTag)) {
+          if (jsDocExtensionTag) {
             // Does not have any of the required release tags
-            if (!jsDoc.tags.some(tag => requiredTags.includes(tag.tagName.escapedText))) {
+            if (!jsDoc.tags.some(tag => releaseTags.includes(tag.tagName.escapedText))) {
               let name;
               if (declaration.kind === ts.SyntaxKind.Constructor)
                 name = declaration.parent.symbol.escapedName;
@@ -117,7 +118,7 @@ module.exports = {
                 data: {
                   kind: syntaxKindFriendlyNames.hasOwnProperty(declaration.kind) ? syntaxKindFriendlyNames[declaration.kind] : "unknown object type " + declaration.kind,
                   name,
-                  requiredTags: requiredTags,
+                  releaseTags: releaseTags,
                 }
               });
             }
@@ -146,6 +147,20 @@ module.exports = {
         checkWithParent(tsCall, node);
       },
 
+      TSExportAssignment(node) {
+        const tsCall = parserServices.esTreeNodeToTSNodeMap.get(node);
+        if (!tsCall)
+          return;
+        checkWithParent(tsCall, node);
+      },
+
+      TSExportKeyword(node) {
+        const tsCall = parserServices.esTreeNodeToTSNodeMap.get(node);
+        if (!tsCall)
+          return;
+        checkWithParent(tsCall, node);
+      },
+
       ExportDefaultDeclaration(node) {
         const tsCall = parserServices.esTreeNodeToTSNodeMap.get(node);
         if (!tsCall)
@@ -161,6 +176,13 @@ module.exports = {
       },
 
       ExportAllDeclaration(node) {
+        const tsCall = parserServices.esTreeNodeToTSNodeMap.get(node);
+        if (!tsCall)
+          return;
+        checkWithParent(tsCall, node);
+      },
+
+      ExportSpecifier(node) {
         const tsCall = parserServices.esTreeNodeToTSNodeMap.get(node);
         if (!tsCall)
           return;

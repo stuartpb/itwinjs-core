@@ -113,7 +113,13 @@
         }
       ],
       "@itwin/public-extension-exports": [
-        "error"
+        "error",
+        {
+          "releaseTags": [
+            "public",
+            "preview"
+          ]
+        }
       ]
     },
     "overrides": [

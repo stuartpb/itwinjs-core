@@ -69,6 +69,17 @@
     "plugins": [
       "@itwin"
     ],
-    "extends": "plugin:@itwin/itwinjs-recommended"
+    "extends": "plugin:@itwin/itwinjs-recommended",
+    "rules": {
+      "@itwin/public-extension-exports": [
+        "error",
+        {
+          "releaseTags": [
+            "public",
+            "preview"
+          ]
+        }
+      ]
+    }
   }
 }
