@@ -701,7 +701,8 @@ export class IModelTransformer extends IModelExportHandler {
             if ((targetElementProps as any).models.length !== targetElement.models.length) {
               // eslint-disable-next-line no-debugger
               debugger;
-              throw Error("insert just inserted these, why do they read as invalid after the aspect insertion?");
+              throw Error(`insert just inserted these, why do they read as invalid after the aspect insertion?`
+              + `\n inserted models were [${(targetElementProps as any).models}], but getElement gave me [${targetElement.models}]`);
             }
           }
         } else {

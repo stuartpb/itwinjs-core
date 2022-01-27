@@ -1671,7 +1671,7 @@ describe("IModelTransformer", () => {
     targetDb.close();
   });
 
-  it.only("local test", async () => {
+  it.skip("local test", async () => {
     // TODO: figure out why geometry serialized is not identical
     // looks like there are some precision issues in some of the geometry. Not sure why the precision is not deterministic
     // it's the same geometry stream, no?
