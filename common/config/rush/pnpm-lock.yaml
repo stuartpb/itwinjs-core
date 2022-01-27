@@ -2680,6 +2680,7 @@ importers:
       '@itwin/imodel-browser-react': 0.12.1
       '@itwin/imodel-components-react': workspace:*
       '@itwin/imodels-access-backend': ^1.0.0
+      '@itwin/imodels-client-authoring': ^1.0.0
       '@itwin/itwinui-react': ~1.28.0
       '@itwin/presentation-backend': workspace:*
       '@itwin/presentation-common': workspace:*
@@ -2715,6 +2716,7 @@ importers:
       '@itwin/imodel-browser-react': 0.12.1_react-dom@17.0.2+react@17.0.2
       '@itwin/imodel-components-react': link:../../ui/imodel-components-react
       '@itwin/imodels-access-backend': 1.0.0
+      '@itwin/imodels-client-authoring': 1.0.0
       '@itwin/itwinui-react': 1.28.0_react-dom@17.0.2+react@17.0.2
       '@itwin/presentation-backend': link:../../presentation/backend
       '@itwin/presentation-common': link:../../presentation/common
@@ -6535,8 +6537,8 @@ packages:
       oidc-client: 1.11.5
     dev: false
 
-  /@itwin/certa/3.1.0-dev.13:
-    resolution: {integrity: sha512-6xWl/e4Q/4G7ZhJjxOIQpNterJwqImALZssjgFzOuF8eXcVr35VnlQXN/mzEqh7sSfePMTmqjcb1TEIpUya/tA==}
+  /@itwin/certa/3.1.0-dev.14:
+    resolution: {integrity: sha512-atIQ2hHLMg2EROJmEcN/G8hwVcikOzMe64/gWvTV3My9q+9Z5sdvEGCulxVj8NhcZFORntayhUOzP+LGmn684g==}
     hasBin: true
     peerDependencies:
       electron: ^14.0.0
@@ -6558,8 +6560,8 @@ packages:
       - supports-color
       - utf-8-validate
 
-  /@itwin/certa/3.1.0-dev.13_electron@14.2.4:
-    resolution: {integrity: sha512-6xWl/e4Q/4G7ZhJjxOIQpNterJwqImALZssjgFzOuF8eXcVr35VnlQXN/mzEqh7sSfePMTmqjcb1TEIpUya/tA==}
+  /@itwin/certa/3.1.0-dev.14_electron@14.2.4:
+    resolution: {integrity: sha512-atIQ2hHLMg2EROJmEcN/G8hwVcikOzMe64/gWvTV3My9q+9Z5sdvEGCulxVj8NhcZFORntayhUOzP+LGmn684g==}
     hasBin: true
     peerDependencies:
       electron: ^14.0.0
@@ -6587,8 +6589,8 @@ packages:
     resolution: {integrity: sha512-W+R80ZFC+d+0bXp7wGht7oDuCou2l/gHHP+uvy0lZUY3WnPq71LCAKpCzrUVcGusM41bCumoavWnW/xGAt/0hg==}
     dev: false
 
-  /@itwin/core-bentley/3.1.0-dev.13:
-    resolution: {integrity: sha512-OkLLaAxFxkwFAToyWoeAGQfD0D4cGXfWJEfKNMBYNN8zHNK/+n90r78vPjxKvWcOH3V4zR5OMEdvW5gKFoBpIg==}
+  /@itwin/core-bentley/3.1.0-dev.14:
+    resolution: {integrity: sha512-pbeGVBLgLkuAjx6N1Z4NOJlq2OkKZj7Zeiw/YbeJm3jq2dS7HmVmK1w7nynPnc8fBuw2lydEZx7oukBhZdKL9Q==}
 
   /@itwin/core-geometry/3.0.0-dev.185:
     resolution: {integrity: sha512-UQvZdMaSraChiEudZxYJkC/cCWskHqmLLN9IB2iG83MYwYGJ9zrehjolh+ZAch261IRmBJ8E85P8HfRIvndIeA==}
@@ -6748,8 +6750,8 @@ packages:
   /@itwin/oidc-signin-tool/3.0.0:
     resolution: {integrity: sha512-zp6S6tQDyI0MSEoA7THlyXJlrtlqhk7X7BMpH8VMkvabEgJOY9AdLjoFbvJPZhcnhjq7CMdxXJWVC3D9QOaYgA==}
     dependencies:
-      '@itwin/certa': 3.1.0-dev.13
-      '@itwin/core-bentley': 3.1.0-dev.13
+      '@itwin/certa': 3.1.0-dev.14
+      '@itwin/core-bentley': 3.1.0-dev.14
       dotenv: 10.0.0
       dotenv-expand: 5.1.0
       openid-client: 4.9.1
@@ -6763,8 +6765,8 @@ packages:
   /@itwin/oidc-signin-tool/3.0.0_electron@14.2.4:
     resolution: {integrity: sha512-zp6S6tQDyI0MSEoA7THlyXJlrtlqhk7X7BMpH8VMkvabEgJOY9AdLjoFbvJPZhcnhjq7CMdxXJWVC3D9QOaYgA==}
     dependencies:
-      '@itwin/certa': 3.1.0-dev.13_electron@14.2.4
-      '@itwin/core-bentley': 3.1.0-dev.13
+      '@itwin/certa': 3.1.0-dev.14_electron@14.2.4
+      '@itwin/core-bentley': 3.1.0-dev.14
       dotenv: 10.0.0
       dotenv-expand: 5.1.0
       openid-client: 4.9.1

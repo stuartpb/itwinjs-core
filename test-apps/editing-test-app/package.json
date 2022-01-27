@@ -47,6 +47,7 @@
     "@itwin/imodel-browser-react": "0.12.1",
     "@itwin/imodel-components-react": "workspace:*",
     "@itwin/imodels-access-backend": "^1.0.0",
+    "@itwin/imodels-client-authoring": "^1.0.0",
     "@itwin/itwinui-react": "~1.28.0",
     "@itwin/presentation-backend": "workspace:*",
     "@itwin/presentation-common": "workspace:*",

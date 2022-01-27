@@ -14,8 +14,10 @@ import { EditCommandAdmin } from "@itwin/editor-backend";
 import * as editorCommands from "@itwin/editor-backend";
 import { ElectronMainAuthorization } from "@itwin/electron-authorization/lib/cjs/ElectronMain";
 import { BackendIModelsAccess } from "@itwin/imodels-access-backend";
+import { IModelsClient } from "@itwin/imodels-client-authoring";
 import { Presentation, PresentationManagerMode } from "@itwin/presentation-backend";
 import { PresentationRpcInterface } from "@itwin/presentation-common";
+
 import { EditingAppIpcHandler } from "./EditingAppIpcHandler";
 
 const rpcInterfaces = [
@@ -43,7 +45,11 @@ async function initializeElectron() {
     scope: process.env.IMJS_OIDC_ELECTRON_TEST_SCOPES ?? "",
   });
   const iModelHost = new IModelHostConfiguration();
-  iModelHost.hubAccess = new BackendIModelsAccess();
+  iModelHost.hubAccess = new BackendIModelsAccess(new IModelsClient({
+    api: {
+      baseUrl: `https://${process.env.IMJS_URL_PREFIX ?? ""}api.bentley.com/imodels`
+    },
+  }));
   iModelHost.authorizationClient = authorizationClient;
 
   await ElectronHost.startup({

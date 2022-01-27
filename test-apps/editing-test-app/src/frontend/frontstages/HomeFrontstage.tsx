@@ -32,6 +32,16 @@ async function getViewState(iModel: IModelConnection) {
   return viewCreator.createDefaultView();
 }
 
+export async function openBriefcase(fileName: string) {
+  const iModelConnection = await BriefcaseConnection.openFile({ fileName });
+  UiFramework.setIModelConnection(iModelConnection);
+
+  const viewState = await getViewState(iModelConnection);
+  UiFramework.setDefaultViewState(viewState);
+
+  void FrontstageManager.setActiveFrontstage(MainFrontstage.stageId);
+};
+
 function HomePage() {
   const [opening, setOpening] = React.useState(false);
   const signedIn = useSignedIn();
@@ -39,16 +49,7 @@ function HomePage() {
     const frameworkState = (state as any)[UiFramework.frameworkStateKey] as FrameworkState;
     return frameworkState.sessionState.iModelConnection as IModelConnection | undefined;
   });
-  const openBriefcase = async (fileName: string) => {
-    setOpening(true);
-    const iModelConnection = await BriefcaseConnection.openFile({ fileName });
-    UiFramework.setIModelConnection(iModelConnection);
 
-    const viewState = await getViewState(iModelConnection);
-    UiFramework.setDefaultViewState(viewState);
-
-    void FrontstageManager.setActiveFrontstage(MainFrontstage.stageId);
-  };
 
   const onOpenModel = async () => {
     const options: OpenDialogOptions = {
@@ -61,6 +62,7 @@ function HomePage() {
     if (!fileName)
       return;
 
+    setOpening(true);
     await openBriefcase(fileName);
   };
 
@@ -79,6 +81,7 @@ function HomePage() {
     if (status === BentleyStatus.ERROR)
       return;
 
+    setOpening(true);
     await openBriefcase(filePath);
   };
 
