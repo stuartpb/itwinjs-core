@@ -2697,6 +2697,7 @@ importers:
       react-dom: ^17.0.0
       react-redux: ^7.2.2
       redux: ^4.1.0
+      rimraf: ^3.0.2
       typescript: ~4.4.0
       webpack: 4.42.0
     dependencies:
@@ -2738,6 +2739,7 @@ importers:
       cross-env: 5.2.1
       electron: 14.2.4
       npm-run-all: 4.1.5
+      rimraf: 3.0.2
       typescript: 4.4.4
       webpack: 4.42.0
 
@@ -6539,8 +6541,8 @@ packages:
       oidc-client: 1.11.5
     dev: false
 
-  /@itwin/certa/3.1.0-dev.14:
-    resolution: {integrity: sha512-atIQ2hHLMg2EROJmEcN/G8hwVcikOzMe64/gWvTV3My9q+9Z5sdvEGCulxVj8NhcZFORntayhUOzP+LGmn684g==}
+  /@itwin/certa/3.1.0-dev.15:
+    resolution: {integrity: sha512-WSO1myYRVm+fmilp7+pE2Xwq3hsXQyqKy+TrOrLSNBd0dIEz6mblVlEUYAGgo8xf6yeUv4pgX++vZSTRFRIbww==}
     hasBin: true
     peerDependencies:
       electron: ^14.0.0
@@ -6562,8 +6564,8 @@ packages:
       - supports-color
       - utf-8-validate
 
-  /@itwin/certa/3.1.0-dev.14_electron@14.2.4:
-    resolution: {integrity: sha512-atIQ2hHLMg2EROJmEcN/G8hwVcikOzMe64/gWvTV3My9q+9Z5sdvEGCulxVj8NhcZFORntayhUOzP+LGmn684g==}
+  /@itwin/certa/3.1.0-dev.15_electron@14.2.4:
+    resolution: {integrity: sha512-WSO1myYRVm+fmilp7+pE2Xwq3hsXQyqKy+TrOrLSNBd0dIEz6mblVlEUYAGgo8xf6yeUv4pgX++vZSTRFRIbww==}
     hasBin: true
     peerDependencies:
       electron: ^14.0.0
@@ -6591,8 +6593,8 @@ packages:
     resolution: {integrity: sha512-W+R80ZFC+d+0bXp7wGht7oDuCou2l/gHHP+uvy0lZUY3WnPq71LCAKpCzrUVcGusM41bCumoavWnW/xGAt/0hg==}
     dev: false
 
-  /@itwin/core-bentley/3.1.0-dev.14:
-    resolution: {integrity: sha512-pbeGVBLgLkuAjx6N1Z4NOJlq2OkKZj7Zeiw/YbeJm3jq2dS7HmVmK1w7nynPnc8fBuw2lydEZx7oukBhZdKL9Q==}
+  /@itwin/core-bentley/3.1.0-dev.15:
+    resolution: {integrity: sha512-0c1G1ecBJiFnqbdU9NsLvuKRSMJvWGSSk0Pz0UXaBfK/OmtM1xsyISy4bGAys02mZVGZees9BjEO3M3pkbdxSg==}
 
   /@itwin/core-geometry/3.0.0-dev.185:
     resolution: {integrity: sha512-UQvZdMaSraChiEudZxYJkC/cCWskHqmLLN9IB2iG83MYwYGJ9zrehjolh+ZAch261IRmBJ8E85P8HfRIvndIeA==}
@@ -6752,8 +6754,8 @@ packages:
   /@itwin/oidc-signin-tool/3.0.0:
     resolution: {integrity: sha512-zp6S6tQDyI0MSEoA7THlyXJlrtlqhk7X7BMpH8VMkvabEgJOY9AdLjoFbvJPZhcnhjq7CMdxXJWVC3D9QOaYgA==}
     dependencies:
-      '@itwin/certa': 3.1.0-dev.14
-      '@itwin/core-bentley': 3.1.0-dev.14
+      '@itwin/certa': 3.1.0-dev.15
+      '@itwin/core-bentley': 3.1.0-dev.15
       dotenv: 10.0.0
       dotenv-expand: 5.1.0
       openid-client: 4.9.1
@@ -6767,8 +6769,8 @@ packages:
   /@itwin/oidc-signin-tool/3.0.0_electron@14.2.4:
     resolution: {integrity: sha512-zp6S6tQDyI0MSEoA7THlyXJlrtlqhk7X7BMpH8VMkvabEgJOY9AdLjoFbvJPZhcnhjq7CMdxXJWVC3D9QOaYgA==}
     dependencies:
-      '@itwin/certa': 3.1.0-dev.14_electron@14.2.4
-      '@itwin/core-bentley': 3.1.0-dev.14
+      '@itwin/certa': 3.1.0-dev.15_electron@14.2.4
+      '@itwin/core-bentley': 3.1.0-dev.15
       dotenv: 10.0.0
       dotenv-expand: 5.1.0
       openid-client: 4.9.1
@@ -9122,7 +9124,7 @@ packages:
   /axios/0.24.0:
     resolution: {integrity: sha512-Q6cWsys88HoPgAaFAVUb0WpPk0O8iTeisR9IMqy9G8AbO4NlpVknrnQS03zzF9PGAWgO3cgletO3VjV/P7VztA==}
     dependencies:
-      follow-redirects: 1.14.7
+      follow-redirects: 1.14.7_debug@4.3.3
     transitivePeerDependencies:
       - debug
     dev: false
