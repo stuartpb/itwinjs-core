@@ -40,9 +40,9 @@ function loadEnv() {
 
 async function initializeElectron() {
   const authorizationClient = await ElectronMainAuthorization.create({
-    clientId: process.env.IMJS_OIDC_ELECTRON_TEST_CLIENT_ID ?? "",
-    redirectUri: process.env.IMJS_OIDC_ELECTRON_TEST_REDIRECT_URI ?? "",
-    scope: process.env.IMJS_OIDC_ELECTRON_TEST_SCOPES ?? "",
+    clientId: process.env.IMJS_OIDC_CLIENT_ID ?? "",
+    redirectUri: process.env.IMJS_OIDC_REDIRECT_URI ?? "",
+    scope: process.env.IMJS_OIDC_SCOPE ?? "",
   });
   const iModelHost = new IModelHostConfiguration();
   iModelHost.hubAccess = new BackendIModelsAccess(new IModelsClient({
