@@ -30,11 +30,6 @@ export function useAccessToken() {
   return accessToken;
 }
 
-export function useSignedIn() {
-  const accessToken = useAccessToken();
-  return !!accessToken;
-}
-
 export function useRequiredAccessToken() {
   const accessToken = useAccessToken();
   React.useEffect(() => {
