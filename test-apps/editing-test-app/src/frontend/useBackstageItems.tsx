@@ -13,6 +13,7 @@ import {
 import { HomeFrontstage } from "./frontstages/HomeFrontstage";
 import { IModelApp } from "@itwin/core-frontend";
 import { openPushChangesDialog } from "./PushChangesDialog";
+import { useTranslated } from "./Translate";
 
 async function closeConnection() {
   const iModelConnection = UiFramework.getIModelConnection();
@@ -48,10 +49,13 @@ async function syncChanges() {
 }
 
 export default function useBackstageItems() {
+  const homeLabel = useTranslated("backstage.home");
+  const syncLabel = useTranslated("backstage.sync");
+  const closeLabel = useTranslated("backstage.close");
   const items = React.useMemo<BackstageItem[]>(() => [
-    BackstageItemUtilities.createStageLauncher(HomeFrontstage.stageId, 100, 10, "Home", undefined, "icon-home"),
-    BackstageItemUtilities.createActionItem("editing-test-app:Sync", 200, 10, syncChanges, "Sync Changes", undefined, "icon-imodel-hub-sync"),
-    BackstageItemUtilities.createActionItem("editing-test-app:Close", 300, 10, closeConnection, "Close", undefined, "icon-close"),
-  ], []);
+    BackstageItemUtilities.createStageLauncher(HomeFrontstage.stageId, 100, 10, homeLabel, undefined, "icon-home"),
+    BackstageItemUtilities.createActionItem("editing-test-app:Sync", 200, 10, syncChanges, syncLabel, undefined, "icon-imodel-hub-sync"),
+    BackstageItemUtilities.createActionItem("editing-test-app:Close", 300, 10, closeConnection, closeLabel, undefined, "icon-close"),
+  ], [homeLabel, syncLabel, closeLabel]);
   return items;
 }

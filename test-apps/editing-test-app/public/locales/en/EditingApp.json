@@ -1,0 +1,28 @@
+{
+  "signOut": "Sign Out",
+  "loading": "Loading...",
+  "homeFrontstage": {
+    "open": "Open Model",
+    "create": "Create Model",
+    "clone": "Clone Model"
+  },
+  "modelsFrontstage": {
+    "downloading": "Downloading...",
+    "reload": "Reload",
+    "manageModels": "Manage iModels"
+  },
+  "backstage": {
+    "home": "Home",
+    "sync": "Sync Changes",
+    "close": "Close"
+  },
+  "buttons": {
+    "sketchTools": "Sketch Tools"
+  },
+  "pushChangesDialog": {
+    "title": "Push changes",
+    "push": "Push",
+    "cancel": "Cancel",
+    "descriptionPlaceholder": "Changeset description..."
+  }
+}

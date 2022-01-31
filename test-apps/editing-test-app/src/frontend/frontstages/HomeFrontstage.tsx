@@ -21,6 +21,7 @@ import { MainFrontstage } from "./MainFrontstage";
 import { ProjectsFrontstage } from "./ProjectsFrontstage";
 import { editingAppIpc } from "../EditingAppIpc";
 import UserProfile from "../UserProfile";
+import { useTranslated } from "../Translate";
 
 async function getViewState(iModel: IModelConnection) {
   const defaultViewId = await iModel.views.queryDefaultViewId();
@@ -47,6 +48,9 @@ function HomePage() {
     const frameworkState = (state as any)[UiFramework.frameworkStateKey] as FrameworkState;
     return frameworkState.sessionState.iModelConnection as IModelConnection | undefined;
   });
+  const openLabel = useTranslated("homeFrontstage.open");
+  const createLabel = useTranslated("homeFrontstage.create");
+  const cloneLabel = useTranslated("homeFrontstage.clone");
 
   const handleOpenModel = async () => {
     const options: OpenDialogOptions = {
@@ -108,15 +112,15 @@ function HomePage() {
         justifyContent: "center",
       }}>
         <Button onClick={handleOpenModel}>
-          Open Model
+          {openLabel}
         </Button>
         <br />
         <Button onClick={handleCreateModel}>
-          Create Model
+          {createLabel}
         </Button>
         <br />
         <Button onClick={handleCloneModel}>
-          Clone Model
+          {cloneLabel}
         </Button>
         <br />
       </div>

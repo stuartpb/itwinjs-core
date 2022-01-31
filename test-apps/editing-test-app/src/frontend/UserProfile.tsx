@@ -7,6 +7,7 @@ import { DropdownMenu, getUserColor, MenuItem, UserIcon, Text } from "@itwin/itw
 import { useAccessToken } from "./Authorization";
 import { IModelApp } from "@itwin/core-frontend";
 import { ElectronRendererAuthorization } from "@itwin/electron-authorization/lib/cjs/ElectronRenderer";
+import { useTranslated } from "./Translate";
 
 interface User {
   displayName: string;
@@ -110,6 +111,7 @@ interface UserProfileMenuProps {
 }
 
 function UserProfileMenu({ user, close }: UserProfileMenuProps) {
+  const signOutLabel = useTranslated("signOut");
   return (
     <>
       <div style={{
@@ -128,7 +130,7 @@ function UserProfileMenu({ user, close }: UserProfileMenuProps) {
         signOut();
         close();
       }}>
-        Sign Out
+        {signOutLabel}
       </MenuItem>
     </>
   );

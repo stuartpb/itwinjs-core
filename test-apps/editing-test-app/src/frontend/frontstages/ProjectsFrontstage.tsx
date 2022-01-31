@@ -16,6 +16,7 @@ import { ApiOverrides, ProjectFull, ProjectGrid } from "@itwin/imodel-browser-re
 import { useRequiredAccessToken } from "../Authorization";
 import { HomeFrontstage } from "./HomeFrontstage";
 import { ModelsFrontstage } from "./ModelsFrontstage";
+import { useTranslated } from "../Translate";
 
 const selectedProject = (function () {
   let project: ProjectFull | undefined;
@@ -57,8 +58,9 @@ export function useApiOverrides() {
 function ProjectPage() {
   const accessToken = useRequiredAccessToken();
   const apiOverrides = useApiOverrides();
+  const loadingLabel = useTranslated("loading");
   if (!accessToken)
-    return <>Loading...</>;
+    return <>{loadingLabel}</>;
   return (
     <>
       <div style={{

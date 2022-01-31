@@ -5,6 +5,7 @@
 import { ActionButton, CommonToolbarItem, ToolbarItemUtilities, ToolbarOrientation, ToolbarUsage, UiItemsProvider } from "@itwin/appui-abstract";
 import { IModelApp, ToolType } from "@itwin/core-frontend";
 import { CreateArcTool, CreateBCurveTool, CreateCircleTool, CreateEllipseTool, CreateLineStringTool, CreateRectangleTool } from "@itwin/editor-frontend";
+import { translate } from "./Translate";
 
 const sketchTools = [
   CreateArcTool,
@@ -39,8 +40,9 @@ export class ToolsProvider implements UiItemsProvider {
       case ToolbarUsage.ContentManipulation: {
         switch (toolbarOrientation) {
           case ToolbarOrientation.Horizontal: {
+            const sketchLabel = translate("buttons.sketchTools");
             const sketchItems = sketchTools.map((tool) => createToolActionButton(tool));
-            items.push(ToolbarItemUtilities.createGroupButton(`${this.id}:sketchTools`, 10, "icon-draw", "Sketch Tools", sketchItems, { groupPriority: 30 }));
+            items.push(ToolbarItemUtilities.createGroupButton(`${this.id}:sketchTools`, 10, "icon-draw", sketchLabel, sketchItems, { groupPriority: 30 }));
             break;
           }
         }

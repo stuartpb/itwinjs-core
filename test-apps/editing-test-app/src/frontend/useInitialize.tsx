@@ -16,6 +16,7 @@ import { MainFrontstage } from "./frontstages/MainFrontstage";
 import { ModelsFrontstage } from "./frontstages/ModelsFrontstage";
 import { ProjectsFrontstage } from "./frontstages/ProjectsFrontstage";
 import { ToolsProvider } from "./Tools";
+import { localizationNamespace } from "./Translate";
 
 const uiProviders = [
   new ToolsProvider(),
@@ -49,7 +50,8 @@ export default function useInitialize() {
         },
       });
 
-      await IModelApp.localization.changeLanguage("en-PSEUDO");
+      await IModelApp.localization.registerNamespace(localizationNamespace);
+      process.env.IMJS_PSEUDOLOCALIZE && await IModelApp.localization.changeLanguage("en-PSEUDO");
 
       await UiFramework.initialize(undefined);
 

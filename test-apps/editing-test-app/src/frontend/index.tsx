@@ -9,7 +9,8 @@ import { ProgressLinear } from "@itwin/itwinui-react";
 import AppUi from "./AppUi";
 import useInitialize from "./useInitialize";
 
-function LoadingIndicator() {
+function InitializingIndicator() {
+  const label = "Initializing...";
   return (
     <div style={{
       height: "100%",
@@ -20,9 +21,7 @@ function LoadingIndicator() {
     }}>
       <ProgressLinear
         indeterminate={true}
-        labels={[
-          "Initializing...",
-        ]}
+        labels={[label]}
       />
     </div>
   );
@@ -32,7 +31,7 @@ function App() {
   const initialized = useInitialize();
 
   if (!initialized)
-    return <LoadingIndicator />;
+    return <InitializingIndicator />;
   return <AppUi />;
 }
 

@@ -11,6 +11,7 @@ import {
 } from "@itwin/appui-react";
 import { Dialog } from "@itwin/core-react";
 import { Input } from "@itwin/itwinui-react";
+import { useTranslated } from "./Translate";
 
 export interface PushChangesDialogInput {
   description: string;
@@ -24,6 +25,10 @@ function PushChangesDialog({
   onClose,
 }: PushChangesDialogProps) {
   const [description, setDescription] = React.useState("");
+  const title = useTranslated("pushChangesDialog.title");
+  const pushLabel = useTranslated("pushChangesDialog.push");
+  const cancelLabel = useTranslated("pushChangesDialog.cancel");
+  const placeholder = useTranslated("pushChangesDialog.descriptionPlaceholder");
 
   const handleCancel = () => {
     onClose();
@@ -32,7 +37,7 @@ function PushChangesDialog({
   const buttonCluster: DialogButtonDef[] = [
     {
       type: DialogButtonType.Yes,
-      label: "Push",
+      label: pushLabel,
       disabled: !description,
       onClick: () => {
         onClose({
@@ -42,25 +47,22 @@ function PushChangesDialog({
     },
     {
       type: DialogButtonType.Close,
-      label: "Cancel",
+      label: cancelLabel,
       onClick: handleCancel,
     },
   ];
 
   return (
     <Dialog
-      title="Push changes"
+      title={title}
       buttonCluster={buttonCluster}
       opened={true}
-      resizable={false}
-      movable={false}
-      modal={true}
       trapFocus={true}
       onClose={handleCancel}
       onEscape={handleCancel}
     >
       <Input
-        placeholder="Changeset description..."
+        placeholder={placeholder}
         value={description}
         onChange={(e) => {
           setDescription(e.target.value);

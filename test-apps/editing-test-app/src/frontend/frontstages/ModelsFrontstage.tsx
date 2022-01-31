@@ -5,7 +5,6 @@
 import * as React from "react";
 import { StandardContentLayouts } from "@itwin/appui-abstract";
 import {
-  BackstageAppButton,
   ConfigurableCreateInfo,
   ContentControl,
   ContentGroup, CoreTools, Frontstage, FrontstageManager, FrontstageProvider,
@@ -20,6 +19,7 @@ import { openBriefcase } from "./HomeFrontstage";
 import { BackButton, ProjectsFrontstage, useApiOverrides, useSelectedProject } from "./ProjectsFrontstage";
 import { useRequiredAccessToken } from "../Authorization";
 import { ElectronApp } from "@itwin/core-electron/lib/cjs/ElectronFrontend";
+import { useTranslated } from "../Translate";
 
 type Status = "idle" | "downloading" | "error";
 type Download = (iModel: IModelFull) => void;
@@ -65,6 +65,8 @@ function ModelPage() {
   const selectedProject = useSelectedProject();
   const [status, fileName, download] = useDownloadIModel();
   const [opening, setOpening] = React.useState(false);
+  const loadingLabel = useTranslated("loading");
+
   React.useEffect(() => {
     if (!fileName)
       return;
@@ -76,7 +78,7 @@ function ModelPage() {
   const showIndicator = status === "downloading" || opening;
 
   if (!accessToken || !selectedProject)
-    return <>Loading...</>;
+    return <>{loadingLabel}</>;
   return (
     <>
       {showIndicator && <DownloadingIndicator />}
@@ -160,6 +162,7 @@ export class ModelsFrontstage extends FrontstageProvider {
 }
 
 export function DownloadingIndicator() {
+  const label = useTranslated("modelsFrontstage.downloading");
   return (
     <div style={{
       position: "absolute",
@@ -171,9 +174,7 @@ export function DownloadingIndicator() {
     }}>
       <ProgressLinear
         indeterminate={true}
-        labels={[
-          "Downloading...",
-        ]}
+        labels={[label]}
       />
     </div>
   );
@@ -190,6 +191,7 @@ interface ManageModelsButtonProps {
 
 function ManageModelsButton({ projectId }: ManageModelsButtonProps) {
   const href = getProjectPageUrl(projectId);
+  const label = useTranslated("modelsFrontstage.manageModels");
   return (
     <Button
       startIcon={
@@ -201,7 +203,7 @@ function ManageModelsButton({ projectId }: ManageModelsButtonProps) {
         window.open(href, '_blank');
       }}
     >
-      Manage iModels
+      {label}
     </Button>
   );
 }
@@ -211,6 +213,7 @@ interface ReloadButtonProps {
 }
 
 function ReloadButton({ onClick }: ReloadButtonProps) {
+  const title = useTranslated("modelsFrontstage.reload");
   return (
     <Button
       startIcon={<Icon
@@ -222,7 +225,7 @@ function ReloadButton({ onClick }: ReloadButtonProps) {
         }}
       />}
       onClick={onClick}
-      title="Reload"
+      title={title}
     />
   )
 }
