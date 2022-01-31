@@ -25,7 +25,7 @@ function PushChangesDialog({
 }: PushChangesDialogProps) {
   const [description, setDescription] = React.useState("");
 
-  const onCancel = () => {
+  const handleCancel = () => {
     onClose();
   };
 
@@ -43,7 +43,7 @@ function PushChangesDialog({
     {
       type: DialogButtonType.Close,
       label: "Cancel",
-      onClick: onCancel,
+      onClick: handleCancel,
     },
   ];
 
@@ -56,8 +56,8 @@ function PushChangesDialog({
       movable={false}
       modal={true}
       trapFocus={true}
-      onClose={onCancel}
-      onEscape={onCancel}
+      onClose={handleCancel}
+      onEscape={handleCancel}
     >
       <Input
         placeholder="Changeset description..."

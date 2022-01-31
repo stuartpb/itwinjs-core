@@ -18,7 +18,7 @@ import { ElectronApp } from "@itwin/core-electron/lib/cjs/ElectronFrontend";
 import { Button } from "@itwin/itwinui-react";
 
 import { MainFrontstage } from "./MainFrontstage";
-import { ProjectFrontstage } from "./ProjectFrontstage";
+import { ProjectsFrontstage } from "./ProjectsFrontstage";
 import { editingAppIpc } from "../EditingAppIpc";
 import UserProfile from "../UserProfile";
 
@@ -48,7 +48,7 @@ function HomePage() {
     return frameworkState.sessionState.iModelConnection as IModelConnection | undefined;
   });
 
-  const onOpenModel = async () => {
+  const handleOpenModel = async () => {
     const options: OpenDialogOptions = {
       properties: ["openFile"],
       filters: [{ name: "iModels", extensions: ["ibim", "bim"] }],
@@ -63,7 +63,7 @@ function HomePage() {
     await openBriefcase(fileName);
   };
 
-  const onCreateModel = async () => {
+  const handleCreateModel = async () => {
     const options: SaveDialogOptions = {
       properties: ["showOverwriteConfirmation"],
       filters: [{ name: "iModel", extensions: ["bim"] }],
@@ -82,8 +82,8 @@ function HomePage() {
     await openBriefcase(filePath);
   };
 
-  const onCloneModel = () => {
-    void FrontstageManager.setActiveFrontstage(ProjectFrontstage.stageId);
+  const handleCloneModel = () => {
+    void FrontstageManager.setActiveFrontstage(ProjectsFrontstage.stageId);
   };
 
   return (
@@ -107,15 +107,15 @@ function HomePage() {
         alignItems: "center",
         justifyContent: "center",
       }}>
-        <Button onClick={onOpenModel}>
+        <Button onClick={handleOpenModel}>
           Open Model
         </Button>
         <br />
-        <Button onClick={onCreateModel}>
+        <Button onClick={handleCreateModel}>
           Create Model
         </Button>
         <br />
-        <Button onClick={onCloneModel}>
+        <Button onClick={handleCloneModel}>
           Clone Model
         </Button>
         <br />

@@ -15,7 +15,7 @@ import { ApiOverrides, ProjectFull, ProjectGrid } from "@itwin/imodel-browser-re
 
 import { useRequiredAccessToken } from "../Authorization";
 import { HomeFrontstage } from "./HomeFrontstage";
-import { ModelFrontstage } from "./ModelFrontstage";
+import { ModelsFrontstage } from "./ModelsFrontstage";
 
 const selectedProject = (function () {
   let project: ProjectFull | undefined;
@@ -65,12 +65,9 @@ function ProjectPage() {
         position: "absolute",
         padding: "0.75em",
       }}>
-        <BackstageAppButton
-          icon="icon-progress-backward"
-          execute={() => {
-            void FrontstageManager.setActiveFrontstage(HomeFrontstage.stageId);
-          }}
-        />
+        <BackButton onClick={() => {
+          void FrontstageManager.setActiveFrontstage(HomeFrontstage.stageId);
+        }} />
       </div>
       <div style={{
         height: "100%",
@@ -81,7 +78,7 @@ function ProjectPage() {
           apiOverrides={apiOverrides}
           onThumbnailClick={(project) => {
             selectedProject.set(project);
-            void FrontstageManager.setActiveFrontstage(ModelFrontstage.stageId);
+            void FrontstageManager.setActiveFrontstage(ModelsFrontstage.stageId);
           }}
         />
       </div>
@@ -96,11 +93,11 @@ class ProjectControl extends ContentControl {
   }
 }
 
-export class ProjectFrontstage extends FrontstageProvider {
+export class ProjectsFrontstage extends FrontstageProvider {
   public static readonly stageId = "editing-test-app:ProjectFrontstage";
 
   public override get id() {
-    return ProjectFrontstage.stageId;
+    return ProjectsFrontstage.stageId;
   }
 
   public override get frontstage() {
@@ -124,4 +121,17 @@ export class ProjectFrontstage extends FrontstageProvider {
       />
     );
   }
+}
+
+export interface BackButtonProps {
+  onClick?(): void;
+}
+
+export function BackButton({ onClick }: BackButtonProps) {
+  return (
+    <BackstageAppButton
+      icon="icon-progress-backward"
+      execute={onClick}
+    />
+  );
 }

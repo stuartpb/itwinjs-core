@@ -12,11 +12,12 @@ import {
 } from "@itwin/appui-react";
 import { SyncMode } from "@itwin/core-common";
 import { NativeApp } from "@itwin/core-frontend";
+import { Icon } from "@itwin/core-react";
 import { IModelFull, IModelGrid } from "@itwin/imodel-browser-react";
 import { Button, ProgressLinear } from "@itwin/itwinui-react";
 
 import { openBriefcase } from "./HomeFrontstage";
-import { ProjectFrontstage, useApiOverrides, useSelectedProject } from "./ProjectFrontstage";
+import { BackButton, ProjectsFrontstage, useApiOverrides, useSelectedProject } from "./ProjectsFrontstage";
 import { useRequiredAccessToken } from "../Authorization";
 import { ElectronApp } from "@itwin/core-electron/lib/cjs/ElectronFrontend";
 
@@ -57,38 +58,8 @@ function useDownloadIModel(): [Status, string | undefined, Download] {
   return [status, fileName, download];
 }
 
-function getProjectPageUrl(projectId: string) {
-  return `https://${process.env.IMJS_URL_PREFIX ?? ""}connect-imodelhubwebsite.bentley.com/Context/${projectId}`;
-}
-
-interface ManageModelsProps {
-  projectId: string;
-}
-
-function ManageModels({ projectId }: ManageModelsProps) {
-  const href = getProjectPageUrl(projectId);
-  return (
-    <div style={{
-      padding: "0.75em",
-      alignSelf: "end",
-    }}>
-      <Button
-        startIcon={
-          <svg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' aria-hidden>
-            <path d='m16 0v5.4l-1.9-2-8.4 8.4-1.5-1.5 8.3-8.4-1.9-1.9m5.4 16v-9h-1v8h-14v-14h8v-1h-9v16z' />
-          </svg>
-        }
-        onClick={() => {
-          window.open(href, '_blank');
-        }}
-      >
-        Manage iModels
-      </Button>
-    </div>
-  );
-}
-
 function ModelPage() {
+  const [key, setKey] = React.useState(1);
   const accessToken = useRequiredAccessToken();
   const apiOverrides = useApiOverrides();
   const selectedProject = useSelectedProject();
@@ -110,28 +81,36 @@ function ModelPage() {
     <>
       {showIndicator && <DownloadingIndicator />}
       <div style={{
-        position: "absolute",
-        padding: "0.75em",
-        top: 0,
-      }}>
-        <BackstageAppButton
-          icon="icon-progress-backward"
-          execute={() => {
-            void FrontstageManager.setActiveFrontstage(ProjectFrontstage.stageId);
-          }}
-        />
-      </div>
-      <div style={{
         height: "100%",
         display: "flex",
         flexDirection: "column",
       }}>
-        <ManageModels projectId={selectedProject.id} />
         <div style={{
-          height: "100%",
+          padding: "0.75em",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}>
+          <div>
+            <BackButton onClick={() => {
+              void FrontstageManager.setActiveFrontstage(ProjectsFrontstage.stageId);
+            }} />
+          </div>
+          <div style={{
+            display: "flex",
+            gap: "1em",
+          }}>
+            <ReloadButton onClick={() => {
+              setKey((prev) => ++prev);
+            }} />
+            <ManageModelsButton projectId={selectedProject.id} />
+          </div>
+        </div>
+        <div style={{
           overflow: "auto",
         }}>
           <IModelGrid
+            key={key}
             accessToken={accessToken}
             apiOverrides={apiOverrides}
             projectId={selectedProject.id}
@@ -150,11 +129,11 @@ class ModelControl extends ContentControl {
   }
 }
 
-export class ModelFrontstage extends FrontstageProvider {
-  public static readonly stageId = "editing-test-app:ModelFrontstage";
+export class ModelsFrontstage extends FrontstageProvider {
+  public static readonly stageId = "editing-test-app:ModelsFrontstage";
 
   public override get id() {
-    return ModelFrontstage.stageId;
+    return ModelsFrontstage.stageId;
   }
 
   public override get frontstage() {
@@ -198,4 +177,52 @@ export function DownloadingIndicator() {
       />
     </div>
   );
+}
+
+
+function getProjectPageUrl(projectId: string) {
+  return `https://${process.env.IMJS_URL_PREFIX ?? ""}connect-imodelhubwebsite.bentley.com/Context/${projectId}`;
+}
+
+interface ManageModelsButtonProps {
+  projectId: string;
+}
+
+function ManageModelsButton({ projectId }: ManageModelsButtonProps) {
+  const href = getProjectPageUrl(projectId);
+  return (
+    <Button
+      startIcon={
+        <svg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' aria-hidden>
+          <path d='m16 0v5.4l-1.9-2-8.4 8.4-1.5-1.5 8.3-8.4-1.9-1.9m5.4 16v-9h-1v8h-14v-14h8v-1h-9v16z' />
+        </svg>
+      }
+      onClick={() => {
+        window.open(href, '_blank');
+      }}
+    >
+      Manage iModels
+    </Button>
+  );
+}
+
+interface ReloadButtonProps {
+  onClick?(): void;
+}
+
+function ReloadButton({ onClick }: ReloadButtonProps) {
+  return (
+    <Button
+      startIcon={<Icon
+        iconSpec="icon-refresh"
+        style={{
+          width: "unset",
+          height: "unset",
+          fontSize: "1.2em",
+        }}
+      />}
+      onClick={onClick}
+      title="Reload"
+    />
+  )
 }

@@ -13,8 +13,8 @@ import { Presentation } from "@itwin/presentation-frontend";
 
 import { HomeFrontstage } from "./frontstages/HomeFrontstage";
 import { MainFrontstage } from "./frontstages/MainFrontstage";
-import { ModelFrontstage } from "./frontstages/ModelFrontstage";
-import { ProjectFrontstage } from "./frontstages/ProjectFrontstage";
+import { ModelsFrontstage } from "./frontstages/ModelsFrontstage";
+import { ProjectsFrontstage } from "./frontstages/ProjectsFrontstage";
 import { ToolsProvider } from "./Tools";
 
 const uiProviders = [
@@ -24,8 +24,8 @@ const uiProviders = [
 const frontstageProviders = [
   new HomeFrontstage(),
   new MainFrontstage(),
-  new ModelFrontstage(),
-  new ProjectFrontstage(),
+  new ModelsFrontstage(),
+  new ProjectsFrontstage(),
 ];
 
 function registerProviders() {
