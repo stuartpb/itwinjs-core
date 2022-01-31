@@ -10,10 +10,11 @@ import {
   ContentControl,
   ContentGroup, CoreTools, Frontstage, FrontstageManager, FrontstageProvider,
 } from "@itwin/appui-react";
-import { ApiOverrides, ProjectFull, ProjectGrid } from "@itwin/imodel-browser-react";
-import { HomeFrontstage } from "./HomeFrontstage";
-import { useRequiredAccessToken } from "../Authorization";
 import { BeEvent } from "@itwin/core-bentley";
+import { ApiOverrides, ProjectFull, ProjectGrid } from "@itwin/imodel-browser-react";
+
+import { useRequiredAccessToken } from "../Authorization";
+import { HomeFrontstage } from "./HomeFrontstage";
 import { ModelFrontstage } from "./ModelFrontstage";
 
 const selectedProject = (function () {

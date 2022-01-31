@@ -4,6 +4,7 @@
 *--------------------------------------------------------------------------------------------*/
 import * as dotenv from "dotenv";
 import * as expand from "dotenv-expand";
+import { shell } from "electron";
 import * as fs from "fs";
 import * as path from "path";
 import { IModelHostConfiguration } from "@itwin/core-backend";
@@ -65,6 +66,12 @@ async function initializeElectron() {
   await ElectronHost.openMainWindow({
     show: true,
     title: "Editing Test App",
+  });
+
+  // Open links in the system browser.
+  ElectronHost.mainWindow?.webContents.setWindowOpenHandler(({ url }) => {
+    void shell.openExternal(url);
+    return { action: "deny" };
   });
 }
 

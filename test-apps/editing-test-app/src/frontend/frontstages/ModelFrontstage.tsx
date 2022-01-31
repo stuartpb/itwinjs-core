@@ -13,7 +13,7 @@ import {
 import { SyncMode } from "@itwin/core-common";
 import { NativeApp } from "@itwin/core-frontend";
 import { IModelFull, IModelGrid } from "@itwin/imodel-browser-react";
-import { ProgressLinear } from "@itwin/itwinui-react";
+import { Button, ProgressLinear } from "@itwin/itwinui-react";
 
 import { openBriefcase } from "./HomeFrontstage";
 import { ProjectFrontstage, useApiOverrides, useSelectedProject } from "./ProjectFrontstage";
@@ -57,6 +57,37 @@ function useDownloadIModel(): [Status, string | undefined, Download] {
   return [status, fileName, download];
 }
 
+function getProjectPageUrl(projectId: string) {
+  return `https://${process.env.IMJS_URL_PREFIX ?? ""}connect-imodelhubwebsite.bentley.com/Context/${projectId}`;
+}
+
+interface ManageModelsProps {
+  projectId: string;
+}
+
+function ManageModels({ projectId }: ManageModelsProps) {
+  const href = getProjectPageUrl(projectId);
+  return (
+    <div style={{
+      padding: "0.75em",
+      alignSelf: "end",
+    }}>
+      <Button
+        startIcon={
+          <svg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' aria-hidden>
+            <path d='m16 0v5.4l-1.9-2-8.4 8.4-1.5-1.5 8.3-8.4-1.9-1.9m5.4 16v-9h-1v8h-14v-14h8v-1h-9v16z' />
+          </svg>
+        }
+        onClick={() => {
+          window.open(href, '_blank');
+        }}
+      >
+        Manage iModels
+      </Button>
+    </div>
+  );
+}
+
 function ModelPage() {
   const accessToken = useRequiredAccessToken();
   const apiOverrides = useApiOverrides();
@@ -81,6 +112,7 @@ function ModelPage() {
       <div style={{
         position: "absolute",
         padding: "0.75em",
+        top: 0,
       }}>
         <BackstageAppButton
           icon="icon-progress-backward"
@@ -91,14 +123,21 @@ function ModelPage() {
       </div>
       <div style={{
         height: "100%",
-        overflow: "auto",
+        display: "flex",
+        flexDirection: "column",
       }}>
-        <IModelGrid
-          accessToken={accessToken}
-          apiOverrides={apiOverrides}
-          projectId={selectedProject.id}
-          onThumbnailClick={download}
-        />
+        <ManageModels projectId={selectedProject.id} />
+        <div style={{
+          height: "100%",
+          overflow: "auto",
+        }}>
+          <IModelGrid
+            accessToken={accessToken}
+            apiOverrides={apiOverrides}
+            projectId={selectedProject.id}
+            onThumbnailClick={download}
+          />
+        </div>
       </div>
     </>
   );
